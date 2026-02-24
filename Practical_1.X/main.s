@@ -9,6 +9,7 @@ CONFIG WDTEN = OFF
 #include    "pic18f45k22.inc"
     
 #include    "constants.inc"
+#include    "macros.inc"
         
 PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h
@@ -24,7 +25,8 @@ goto ISR
 #include "line_location_interpreter.s"
  
 main:
-   call calibrate_all
+   calibrate_all  
+   
    goto exit
    
 ISR:
