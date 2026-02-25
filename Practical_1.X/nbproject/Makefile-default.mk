@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=main.s setup.s register_dump.s timer.s calibration.s line_location_interpreter.s interrupts.s
+SOURCEFILES_QUOTED_IF_SPACED=calibrate_test.s
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/setup.o ${OBJECTDIR}/register_dump.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/calibration.o ${OBJECTDIR}/line_location_interpreter.o ${OBJECTDIR}/interrupts.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/setup.o.d ${OBJECTDIR}/register_dump.o.d ${OBJECTDIR}/timer.o.d ${OBJECTDIR}/calibration.o.d ${OBJECTDIR}/line_location_interpreter.o.d ${OBJECTDIR}/interrupts.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/calibrate_test.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/calibrate_test.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/setup.o ${OBJECTDIR}/register_dump.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/calibration.o ${OBJECTDIR}/line_location_interpreter.o ${OBJECTDIR}/interrupts.o
+OBJECTFILES=${OBJECTDIR}/calibrate_test.o
 
 # Source Files
-SOURCEFILES=main.s setup.s register_dump.s timer.s calibration.s line_location_interpreter.s interrupts.s
+SOURCEFILES=calibrate_test.s
 
 
 
@@ -89,117 +89,21 @@ FINAL_IMAGE_NAME_MINUS_EXTENSION=${DISTDIR}/Practical_1.X.${IMAGE_TYPE}
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: pic-as-assembler
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/main.o: main.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/main.o 
+	@${RM} ${OBJECTDIR}/calibrate_test.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/main.o \
-	main.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/setup.o: setup.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/setup.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/setup.o \
-	setup.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/register_dump.o: register_dump.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/register_dump.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/register_dump.o \
-	register_dump.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/timer.o: timer.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/timer.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/timer.o \
-	timer.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/calibration.o: calibration.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibration.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibration.o \
-	calibration.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/line_location_interpreter.o: line_location_interpreter.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/line_location_interpreter.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/line_location_interpreter.o \
-	line_location_interpreter.s \
-	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/interrupts.o: interrupts.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/interrupts.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/interrupts.o \
-	interrupts.s \
+	-o ${OBJECTDIR}/calibrate_test.o \
+	calibrate_test.s \
 	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 else
-${OBJECTDIR}/main.o: main.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/main.o 
+	@${RM} ${OBJECTDIR}/calibrate_test.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/main.o \
-	main.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/setup.o: setup.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/setup.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/setup.o \
-	setup.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/register_dump.o: register_dump.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/register_dump.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/register_dump.o \
-	register_dump.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/timer.o: timer.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/timer.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/timer.o \
-	timer.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/calibration.o: calibration.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibration.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibration.o \
-	calibration.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/line_location_interpreter.o: line_location_interpreter.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/line_location_interpreter.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/line_location_interpreter.o \
-	line_location_interpreter.s \
-	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/interrupts.o: interrupts.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/interrupts.o 
-	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/interrupts.o \
-	interrupts.s \
+	-o ${OBJECTDIR}/calibrate_test.o \
+	calibrate_test.s \
 	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 endif

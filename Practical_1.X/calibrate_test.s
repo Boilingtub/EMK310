@@ -25,7 +25,6 @@ goto ISR
 #include "line_location_interpreter.inc"
  
 main:
-   call RGB_calibrate_test
    goto exit
    
 ISR:
@@ -34,3 +33,6 @@ ISR:
     
 exit:
 end
+
+
+

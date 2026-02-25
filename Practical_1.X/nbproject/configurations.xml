@@ -5,7 +5,13 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>constants.inc</itemPath>
-      <itemPath>macros.inc</itemPath>
+      <itemPath>shared_macros.inc</itemPath>
+      <itemPath>calibration.inc</itemPath>
+      <itemPath>interrupts.inc</itemPath>
+      <itemPath>Register_dump.inc</itemPath>
+      <itemPath>line_location_interpreter.inc</itemPath>
+      <itemPath>setup.inc</itemPath>
+      <itemPath>timer.inc</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -20,12 +26,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>main.s</itemPath>
-      <itemPath>setup.s</itemPath>
-      <itemPath>register_dump.s</itemPath>
-      <itemPath>timer.s</itemPath>
-      <itemPath>calibration.s</itemPath>
-      <itemPath>line_location_interpreter.s</itemPath>
-      <itemPath>interrupts.s</itemPath>
+      <itemPath>calibrate_test.s</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -73,9 +74,19 @@
       </makeCustomizationType>
       <Simulator>
         <property key="W0012_CORE_STACK_OVERFLOW_RESET" value="report"/>
+        <property key="W0013_CORE_STACK_UNDERFLOW_RESET" value="report"/>
+        <property key="W0204_ADC_TAD_TOO_SMALL" value="report"/>
+        <property key="W0223_ADC_UNDERFLOW" value="report"/>
         <property key="W9602_COMP_DAC_SOURCE_UNAVAILABLE" value="report"/>
         <property key="periphADC1.minTacq" value="5"/>
       </Simulator>
+      <Tool>
+        <property key="W0012_CORE_STACK_OVERFLOW_RESET" value="report"/>
+        <property key="W9602_COMP_DAC_SOURCE_UNAVAILABLE" value="report"/>
+        <property key="periphADC1.minTacq" value="5"/>
+      </Tool>
+      <item path="main.s" ex="true" overriding="false">
+      </item>
       <pic-as-assembler>
         <property key="fmax-errors" value="20"/>
         <property key="list-custom-assembler-options" value=""/>
