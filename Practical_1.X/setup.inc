@@ -4,7 +4,7 @@ movlb	0xF	    ;Set BSR for banked SFRs
 clrf	PORTA,	    ; Init port A, clear output of data latches
 clrf	LATA, a	    ; Alternate way to clear all data latches
 clrf	ANSELA, b   ; Make Digital Inputs
-clrf	TRISA, a	    ; SET all RA digital Out
+clrf	TRISA, a    ; SET all RA digital Out
  
 ;Initialize Port B (check Data Sheet)
 movlb	0xF	;Set BSR for Banked SFR
