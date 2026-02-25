@@ -4,6 +4,7 @@ PROCESSOR   18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
+CONFIG LVP = ON
    
 #include    <xc.inc>
 #include    "pic18f45k22.inc"

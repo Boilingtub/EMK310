@@ -1,27 +1,29 @@
 setup:
 ;Initialize Port A (check Data Sheet)
-movlb	0xF	    ;Set BSR for banked SFRs
+movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
 clrf	PORTA,	    ; Init port A, clear output of data latches
 clrf	LATA, a	    ; Alternate way to clear all data latches
 clrf	ANSELA, b   ; Make Digital Inputs
 clrf	TRISA, a    ; SET all RA digital Out
- 
+  
 ;Initialize Port B (check Data Sheet)
-movlb	0xF	;Set BSR for Banked SFR
-clrf	PORTB,a	;clear output of data latches
-clrf	LATB, a	;alternative method
-clrf	ANSELB,a;Enable RB<3:0> for digital Inputs
-clrf    TRISB,a	;Set all RB digital OUT
- 
-;Initialize Port C (check Data Sheet)
-movlb	0xF	;Set BSR for Banked SFR
+movlb	0xF	;Set BSR for Banked SFR (Bank 15)
 clrf	PORTB,a	;clear output of data latches
 clrf	LATB, a	;alternative method
 movlw	0b00001000
-movwf	ANSELB, a ; RB<0:2> OUT, RB<3> IN
+movwf	ANSELB, a ; RB<7:4,2:0> OUT, RB<3> IN
 movlw	0b00001000
 movwf   TRISB,	a   ;Set RB<0:2,4:7> to Digital, RB<3> to Analog
-
+    
+;Initialize Port D (check Data Sheet)
+movlb	0xF ;Set BSR for Banked SFR (Bank 15)
+clrf	PORTD,a
+clrf	LATD,a
+movlw	0b00000000
+movwf	ANSELD,a    ;Set RD<7:0> to Digital
+movlw	0b00000000
+movwf	TRISD,a	    ;Set RD<7:0> to Output
+    
 ;Initialize Timer (Check DataSheet)
 bsf OSCCON, 6,c
 bcf OSCCON, 5,c
