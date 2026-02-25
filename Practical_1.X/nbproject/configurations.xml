@@ -27,6 +27,7 @@
                    projectFiles="true">
       <itemPath>main.s</itemPath>
       <itemPath>calibrate_test.s</itemPath>
+      <itemPath>lli_test.s</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -82,10 +83,21 @@
       </Simulator>
       <Tool>
         <property key="W0012_CORE_STACK_OVERFLOW_RESET" value="report"/>
+        <property key="W0013_CORE_STACK_UNDERFLOW_RESET" value="report"/>
+        <property key="W0204_ADC_TAD_TOO_SMALL" value="report"/>
+        <property key="W0223_ADC_UNDERFLOW" value="report"/>
         <property key="W9602_COMP_DAC_SOURCE_UNAVAILABLE" value="report"/>
         <property key="periphADC1.minTacq" value="5"/>
       </Tool>
+      <item path="calibrate_test.s" ex="true" overriding="false">
+      </item>
       <item path="main.s" ex="true" overriding="false">
+        <pic-as-assembler>
+        </pic-as-assembler>
+        <pic-as-global>
+        </pic-as-global>
+        <pic-as-linker>
+        </pic-as-linker>
       </item>
       <pic-as-assembler>
         <property key="fmax-errors" value="20"/>

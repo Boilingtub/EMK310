@@ -10,9 +10,9 @@ clrf	TRISA, a    ; SET all RA digital Out
 movlb	0xF	;Set BSR for Banked SFR (Bank 15)
 clrf	PORTB,a	;clear output of data latches
 clrf	LATB, a	;alternative method
-movlw	0b00001000
+movlw	0b00011000
 movwf	ANSELB, a ; RB<7:4,2:0> OUT, RB<3> IN
-movlw	0b00001000
+movlw	0b00011000
 movwf   TRISB,	a   ;Set RB<0:2,4:7> to Digital, RB<3> to Analog
     
 ;Initialize Port D (check Data Sheet)

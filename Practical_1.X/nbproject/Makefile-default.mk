@@ -19,7 +19,7 @@ endif
 endif
 
 # Environment
-MKDIR=mkdir -p
+MKDIR=gnumkdir -p
 RM=rm -f 
 MV=mv 
 CP=cp 
@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=calibrate_test.s
+SOURCEFILES_QUOTED_IF_SPACED=lli_test.s
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/calibrate_test.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/calibrate_test.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/lli_test.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/lli_test.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/calibrate_test.o
+OBJECTFILES=${OBJECTDIR}/lli_test.o
 
 # Source Files
-SOURCEFILES=calibrate_test.s
+SOURCEFILES=lli_test.s
 
 
 
@@ -89,21 +89,21 @@ FINAL_IMAGE_NAME_MINUS_EXTENSION=${DISTDIR}/Practical_1.X.${IMAGE_TYPE}
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: pic-as-assembler
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/lli_test.o: lli_test.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibrate_test.o 
+	@${RM} ${OBJECTDIR}/lli_test.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibrate_test.o \
-	calibrate_test.s \
+	-o ${OBJECTDIR}/lli_test.o \
+	lli_test.s \
 	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 else
-${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/lli_test.o: lli_test.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibrate_test.o 
+	@${RM} ${OBJECTDIR}/lli_test.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibrate_test.o \
-	calibrate_test.s \
+	-o ${OBJECTDIR}/lli_test.o \
+	lli_test.s \
 	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 endif
