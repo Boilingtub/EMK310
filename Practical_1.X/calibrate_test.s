@@ -13,27 +13,33 @@ CONFIG WDTEN = OFF
         
 PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h
-goto setup
 goto main
-org 08h ;Interrupt vector
+org 08h ;High priority Interrupt Vector
 goto ISR
-
-#include "timer.inc"
-#include "setup.inc"
-#include "interrupts.inc"
+org 18h	;Low priority Interrupt Vector
+goto ISR
+org 20h	;Start for code setup
  
+#include "setup.inc"
+#include "timer.inc"
+#include "interrupts.inc"
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-main:
-   goto exit
+
+    
+main:   
+   call setup
+   call RGB_calibrate_test
+   bra exit
    
-ISR:
-    
-    return
-    
 exit:
-end
+    bra $-2
+    
+ISR:
+    retfie
+    
+
 
 
 
