@@ -26,8 +26,36 @@ goto ISR
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
+lli_init:
+    MOVLW 0xFF
+    MOVWF Sensor 
+ 
 main:
-   goto exit
+    press:
+	BTFSC PORTB,4
+	bra press
+ 
+    release:
+	BTFSS PORTB,4
+	bra release
+	
+    call input_stepper;function to run through LUT
+    MOVFF Sensor,LATD;outputs the current stage of lut to led's
+   ;goto exit
+   
+input_stepper:;to run trough lut table but will have to reset regester here
+    INCF Sensor, f
+    ;BCf LATA,4;clears the led output, but only for signle led
+    MOVF Sensor,w
+    XORLW 0x20;to test when the sensor hits 0b00100000 reset to 0
+	BZ reset_var
+    CLRF LATA;clear the latch to make led's go off 
+    return
+   
+reset_var:
+    MOVLW 0x00
+    MOVWF Sensor
+    return
    
 ISR:
     

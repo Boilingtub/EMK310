@@ -1,19 +1,8 @@
-lli_init:
-    MOVLW 0xFF
-    MOVWF Sensor
-    
-press:
-    BTFSC PORTB,4
-    bra press
- 
-release:
-    BTFSS PORTB,4
-    bra release
-    
-    call input_stepper;function to run through LUT
-    MOVFF Sensor,LATD;outputs the current stage of lut to led's
+
+;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
+left_logic:
     MOVF Sensor,w;Move Sensor value to wreg
     XORLW 0b10000;check if the wreg and the binary value match exactly
 	BZ left;z will be 1 if they match and it will then branch HOPE p82
@@ -28,7 +17,8 @@ release:
 	BZ left
 
 ;-----------------------------------------------------------------------------
-;Move right logic 
+;Move right logic
+right_logic:
     MOVF Sensor,w
     XORLW 0b00001
 	BZ right
@@ -44,6 +34,7 @@ release:
     
 ;-----------------------------------------------------------------------------
 ;Move slight left logic 
+slight_left_logic:
     MOVF Sensor,w
     XORLW 0b01000
 	BZ slight_left
@@ -52,7 +43,8 @@ release:
 	BZ slight_left
     
 ;-----------------------------------------------------------------------------
-;Move slight right logic 
+;Move slight right logic
+slight_right_logic:
     MOVF Sensor,w
     XORLW 0b00010
 	BZ slight_right
@@ -62,6 +54,7 @@ release:
     
 ;-----------------------------------------------------------------------------
 ;Move Straght logic 
+straight_logic:
     MOVF Sensor,w
     XORLW 0b00100
 	BZ straight
@@ -71,12 +64,14 @@ release:
     
 ;-----------------------------------------------------------------------------
 ;Stop logic 
+stop_logic:
     MOVF Sensor,w
     XORLW 0b11111
 	BZ stop
     
 ;-----------------------------------------------------------------------------
-;Move search logic 
+;Move search logic
+search_logic:;as the code tuns sequencially, this will always be the last option after non of the prev was chosen
     goto search
        
 ;-----------------------------------------------------------------------------
@@ -117,19 +112,5 @@ search:
     MOVLW 0x40;turn on search led 0b01000000
     MOVWF LATA
     GOTO main
-    
-input_stepper:;to run trough lut table but will have to reset regester here
-    INCF Sensor, f
-    ;BCf LATA,4;clears the led output, but only for signle led
-    MOVF Sensor,w
-    XORLW 0x20;to test when the sensor hits 0b00100000 reset to 0
-	BZ reset_var
-    CLRF LATA;clear the latch to make led's go off 
-   return
-   
-reset_var:
-    MOVLW 0x00
-    MOVWF Sensor
-    return
 
 
