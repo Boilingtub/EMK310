@@ -9,7 +9,7 @@ CONFIG WDTEN = OFF
 #include    "pic18f45k22.inc"
     
 #include    "constants.inc"
-#include    "global_macros.inc"
+#include    "shared_macros.inc"
         
 PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h
@@ -17,11 +17,12 @@ goto setup
 goto main
 org 08h ;Interrupt vector
 goto ISR
- 
+
+#include "timer.inc"
 #include "setup.inc"
 #include "interrupts.inc"
+ 
 #include "calibration.inc"
-#include "timer.inc"
 #include "line_location_interpreter.inc"
  
 main:

@@ -9,7 +9,7 @@ CONFIG WDTEN = OFF
 #include    "pic18f45k22.inc"
     
 #include    "constants.inc"
-#include    "global_macros.inc"
+#include    "shared_macros.inc"
         
 PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h

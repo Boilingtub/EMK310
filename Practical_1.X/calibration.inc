@@ -24,7 +24,7 @@ endm
 
 calibrate_RGB macro reg_col, count_addr, count_val, out_port, addr_port, rgb_val
     movlw count_val
-    movwf count_addr
+    movwf count_addr,a
     toggle_RGB out_port, addr_port, rgb_val   ;toggle_RGB is	22 bytes
     ;take_RGB_measurement reg_col	      ;Measure is	22 bytes
     call ADC_measure
