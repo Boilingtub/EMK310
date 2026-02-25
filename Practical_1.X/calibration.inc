@@ -1,5 +1,5 @@
 toggle_RGB macro out_port, addr_port, rgb_val
-    movff   addr_port,  WREG, a ;Move Port B into Working register 
+    movff   addr_port,  WREG ;Move Port B into Working register 
     andlw   rgb_val
     tstfsz  WREG
     bra	    $+4
@@ -14,12 +14,12 @@ endm
 take_RGB_measurement macro reg_col
     movlw 0b00000001 ;AN0, ADC on
     movwf ADCON0,a
-    bsf	  ADCON0,1,1 ;Start conversion
-    btfsc ADCON0,1 ;Is conversion done?, NO, test again
+    bsf	  ADCON0,1,a ;Start conversion
+    btfsc ADCON0,1,a ;Is conversion done?, NO, test again
     bra   $-2
-    movff ADRESH, ADC_RH,a 	; Result is complete - store 2 MSbits in
-    movff ADRESL, ADC_RL,a	; RESULTHI and 8 LSbits in RESULTLO
-    movff ADRESL, reg_col,a
+    movff ADRESH, ADC_RH 	; Result is complete - store 2 MSbits in
+    movff ADRESL, ADC_RL	; RESULTHI and 8 LSbits in RESULTLO
+    movff ADRESL, reg_col
 endm
 
 calibrate_RGB macro reg_col, count_addr, count_val, out_port, addr_port, rgb_val
@@ -34,16 +34,15 @@ calibrate_RGB macro reg_col, count_addr, count_val, out_port, addr_port, rgb_val
 endm
 
 RGB_calibrate_all:
-    calibrate_RGB reg_R, flash_counter, 6, PORTB, PORTB_val, RGB_R
-    calibrate_RGB reg_G, flash_counter, 6, PORTB, PORTB_val, RGB_G
-    calibrate_RGB reg_B, flash_counter, 6, PORTB, PORTB_val, RGB_B
-    calibrate_RGB reg_W, flash_counter, 6, PORTB, PORTB_val, RGB_W
+    calibrate_RGB rRGB1, flash_counter, 6, PORTB, PORTB_val, RGB_R
+    calibrate_RGB rRGB2, flash_counter, 6, PORTB, PORTB_val, RGB_G
+    calibrate_RGB rRGB3, flash_counter, 6, PORTB, PORTB_val, RGB_B
+    calibrate_RGB rRGB4, flash_counter, 6, PORTB, PORTB_val, RGB_W
     return
         
 RGB_calibrate_test:
-    bsf	    PORTC,3,a
-    bsf	    PORTC,4,a
-    call ADC_measure
+    movlw   0b00000011
+    movwf   PORTC,a
     bra $-2
     return
     
@@ -53,7 +52,6 @@ ADC_measure:
     bra   $-2
     movff ADRESH, ADC_RH	; Result is complete - store 8 MSbits in ADC_RH
     movff ADRESL, ADC_RL	; store 2 LSbits in ADC_RL
-    movff ADRESH, PORTD
     return
     
 

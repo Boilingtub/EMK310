@@ -15,9 +15,11 @@ PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h
 goto main
 org 08h ;High priority Interrupt Vector
-goto ISR
+goto ISRH
+ 
 org 18h	;Low priority Interrupt Vector
-goto ISR
+goto ISRL
+ 
 org 20h	;Start for code setup
  
 #include "setup.inc"
@@ -26,8 +28,6 @@ org 20h	;Start for code setup
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-
-    
 main:   
    call setup
    call RGB_calibrate_test
@@ -35,11 +35,3 @@ main:
    
 exit:
     bra $-2
-    
-ISR:
-    retfie
-    
-
-
-
-
