@@ -10,14 +10,13 @@ release:
     BTFSS PORTB,4
     bra release
     
-    
     call input_stepper;function to run through LUT
-    MOVFF Sensor,LATD
+    MOVFF Sensor,LATD;outputs the current stage of lut to led's
 ;-----------------------------------------------------------------------------
 ;Move left logic
-    MOVF Sensor,w
-    XORLW 0b10000
-	BZ left
+    MOVF Sensor,w;Move Sensor value to wreg
+    XORLW 0b10000;check if the wreg and the binary value match exactly
+	BZ left;z will be 1 if they match and it will then branch HOPE p82
     MOVF Sensor,w
     XORLW 0b11000
 	BZ left
@@ -28,30 +27,6 @@ release:
     XORLW 0b11110
 	BZ left
 
-    
-    ;MOVF Sensor,w
-    ;ANDLW 0b00010000
-    ;BTFSS STATUS,2;test if the left most bit is 0
-	;GOTO test_right
-
-   ; MOVF Sensor,w
-    ;ANDLW 0b00001111
-    ;BZ left;tets if z=0,meaning only left sensor is on
-    
-    
-    ;MOVWF temp;
-    ;;ANDLW 0b00000111
-;     BZ left;test if z=0,meaning left 2 sensor on
-;     
-;     
-;     ANDLW 0b00001111;value used to check if only left sensor is trigered
-;     ;and sensor and w and the result is stored in w
-;     BZ left
-;     
-;     MOVWF temp
-;     
-;     BZ left;z is 1 if w = 0's and z is 0 when w has one 1, if 1 goto left
-    
 ;-----------------------------------------------------------------------------
 ;Move right logic 
     MOVF Sensor,w
@@ -66,11 +41,6 @@ release:
     MOVF Sensor,w
     XORLW 0b01111
 	BZ right
-    
-    ;MOVF Sensor,w
-    ;ANDLW 0b00011110;value used to check if only right sensor is trigered
-    ;BTFSC STATUS,2;checks the value of z, if 0 skip next line
-    ;GOTO right
     
 ;-----------------------------------------------------------------------------
 ;Move slight left logic 
@@ -108,45 +78,43 @@ release:
 ;-----------------------------------------------------------------------------
 ;Move search logic 
     goto search
-    
-
-    
+       
 ;-----------------------------------------------------------------------------
 ;restart main as no action was taken
     BRA main
 
 left: 
-    MOVLW 0x01 ;turn on D5 led 0b00000001
+    MOVLW 0x01 ;turn on left led 0b00000001
     MOVWF LATA
     GOTO main
     
 right:
-    MOVLW 0x10;turn on D2 led 0b00010000
+    MOVLW 0x10;turn on right led 0b00010000
     MOVWF LATA
     GOTO main
   
 slight_left:
-    MOVLW 0x02
+    MOVLW 0x02;turn on sleft led 0b00000010
     MOVWF LATA
     GOTO main
     
-slight_right:
+slight_right:;turn on sright led 0b00001000
     MOVLW 0x08
     MOVWF LATA
     GOTO main
     
 straight:
-    MOVLW 0x04;turn on D2 led 0b00000100
+    MOVLW 0x04;turn on straight led 0b00000100
     MOVWF LATA
     GOTO main
  
 stop:
-    MOVLW 0x20
+    MOVLW 0x20;turn on stop led 0b00100000
     MOVWF LATA
     GOTO main
     
 search:
-    MOVLW 0x40
+    MOVLW 0x40;turn on search led 0b01000000
     MOVWF LATA
     GOTO main
     
