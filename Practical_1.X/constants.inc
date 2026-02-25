@@ -10,7 +10,6 @@ reg_B EQU 0xB
 reg_K EQU 0xD
 reg_W EQU 0xE
 Sensor equ 0x20
-temp equ 0x21
 
 RGB_R	EQU 0b00000001
 RGB_G   EQU 0b00000010
