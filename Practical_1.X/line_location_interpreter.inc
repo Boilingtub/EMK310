@@ -76,41 +76,41 @@ search_logic:;as the code tuns sequencially, this will always be the last option
        
 ;-----------------------------------------------------------------------------
 ;restart main as no action was taken
-    BRA main
+    return
 
 left: 
     MOVLW 0x01 ;turn on left led 0b00000001
     MOVWF LATA
-    GOTO main
+    return
     
 right:
     MOVLW 0x10;turn on right led 0b00010000
     MOVWF LATA
-    GOTO main
+    return
   
 slight_left:
     MOVLW 0x02;turn on sleft led 0b00000010
     MOVWF LATA
-    GOTO main
+    return
     
 slight_right:;turn on sright led 0b00001000
     MOVLW 0x08
     MOVWF LATA
-    GOTO main
+    return
     
 straight:
     MOVLW 0x04;turn on straight led 0b00000100
     MOVWF LATA
-    GOTO main
+    return
  
 stop:
     MOVLW 0x20;turn on stop led 0b00100000
     MOVWF LATA
-    GOTO main
+    return
     
 search:
     MOVLW 0x40;turn on search led 0b01000000
     MOVWF LATA
-    GOTO main
+    return
 
 

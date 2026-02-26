@@ -13,9 +13,9 @@ CONFIG WDTEN = OFF
         
 PSECT code,abs	; Start Code section
 org	0h	; startup address = 0000h
-goto setup
+;goto setup
  
-goto main
+goto lli_init
 org 08h ;Interrupt vector
 goto ISR
 
@@ -29,18 +29,22 @@ goto ISR
 lli_init:
     MOVLW 0xFF
     MOVWF Sensor 
+    
+call setup
  
 main:
-    press:
-	BTFSC PORTB,4
+    press:;button s2 on the board
+	BTFSC PORTC,5
 	bra press
  
     release:
-	BTFSS PORTB,4
+	BTFSS PORTC,5
 	bra release
 	
     call input_stepper;function to run through LUT
     MOVFF Sensor,LATD;outputs the current stage of lut to led's
+    call left_logic
+    bra main
    ;goto exit
    
 input_stepper:;to run trough lut table but will have to reset regester here

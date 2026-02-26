@@ -1,7 +1,8 @@
 setup:
+
 ;Initialize Port A (check Data Sheet)
 movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
-clrf	PORTA,	    ; Init port A, clear output of data latches
+clrf	PORTA	    ; Init port A, clear output of data latches
 clrf	LATA, a	    ; Alternate way to clear all data latches
 clrf	ANSELA, b   ; Make Digital Inputs
 clrf	TRISA, a    ; SET all RA digital Out
@@ -14,6 +15,10 @@ movlw	0b00011000
 movwf	ANSELB, a ; RB<7:4,2:0> OUT, RB<3> IN
 movlw	0b00011000
 movwf   TRISB,	a   ;Set RB<0:2,4:7> to Digital, RB<3> to Analog
+    
+;Initialize Port C (check Data Sheet)
+BCF ANSELC,5,1
+BSF TRISC,5,0
     
 ;Initialize Port D (check Data Sheet)
 movlb	0xF ;Set BSR for Banked SFR (Bank 15)
@@ -36,7 +41,8 @@ movlw 0b00000000 ;ADC ref = Vdd,Vss
 movwf ADCON1,a
 movlw 0b00100101 ;AN9 a.k.a RB3, ADC on
 movwf ADCON0,a
- 
+
+return
 
 
 
