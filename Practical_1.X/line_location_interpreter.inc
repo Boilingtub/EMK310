@@ -1,3 +1,4 @@
+
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
@@ -63,13 +64,13 @@ straight_logic:
     
 ;-----------------------------------------------------------------------------
 ;Stop logic 
-stop_logic:
-    MOVF Sensor,w
-    XORLW 0b11111
-	BZ stop
+;stop_logic:
+;    MOVF Sensor,w
+;    XORLW 0b11111
+;	BZ stop
     
 ;-----------------------------------------------------------------------------
-;Move search logic
+;Move search logic 
 search_logic:;as the code tuns sequencially, this will always be the last option after non of the prev was chosen
     goto search
        
@@ -79,37 +80,36 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 
 left: 
     MOVLW 0x01 ;turn on left led 0b00000001
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
     
 right:
     MOVLW 0x10;turn on right led 0b00010000
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
   
 slight_left:
     MOVLW 0x02;turn on sleft led 0b00000010
-    MOVWF DUMP_REG
-    GOTO main
+    MOVWF LATD
+    return
     
 slight_right:;turn on sright led 0b00001000
     MOVLW 0x08
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
     
 straight:
     MOVLW 0x04;turn on straight led 0b00000100
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
  
 stop:
     MOVLW 0x20;turn on stop led 0b00100000
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
     
 search:
     MOVLW 0x40;turn on search led 0b01000000
-    MOVWF DUMP_REG
+    MOVWF LATD
     return
-
 

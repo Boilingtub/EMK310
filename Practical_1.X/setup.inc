@@ -3,8 +3,10 @@ setup:
 movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
 clrf	PORTA, a    ; Init port A, clear output of data latches
 clrf	LATA, a	    ; Alternate way to clear all data latches
-clrf	ANSELA, a   ; Make Digital Inputs
-clrf	TRISA, a    ; SET all RA digital Out
+movlw	0b00000000
+movwf	ANSELA,a
+movlw	0b00000000
+movwf	TRISA,a
   
 ;Initialize Port B (check Data Sheet)
 movlb	0xF	;Set BSR for Banked SFR (Bank 15)
@@ -12,16 +14,16 @@ clrf	PORTB,b	;clear output of data latches
 clrf	LATB, b	;alternative method
 movlw	0b00100000
 movwf	ANSELB, b ;Set RB<7:5,3:0> to Digital, RB<4> to Analog
-movlw	0b00110000
+movlw	0b00111111
 movwf   TRISB,	b       ; RB<7:6,3:0> OUT, RB<5,4> IN
 
 ;Initialize Port C (check Data Sheet)
 movlb	0xF ;Set BSR for Banked SFR (Bank 15)
 clrf	PORTC,a
 clrf	LATC,a
-movlw	0b00001000
+movlw	0b11111000
 movwf	ANSELC,a    ;Set RD<7:0> to Digital
-movlw	0b00001000
+movlw	0b11111000
 movwf	TRISC,a	    ;Set RD<7:0> to Output
     
 ;Initialize Port D (check Data Sheet)
@@ -38,7 +40,8 @@ movlb	0xF ;Set BSR for Banked SFR (Bank 15)
 clrf	PORTE,a
 clrf	LATE,a
 clrf	ANSELE,a    ;Set RE<7:0> to Digital
-clrf	TRISE,a	    ;Set RE<7:0> to Output
+movlw	0b00000000
+movwf	TRISE,a	    ;Set RE<7:0> to Output
     
     
 ;Initialize Timer (Check DataSheet)
@@ -46,11 +49,12 @@ movlw 0b01110100
 movwf OSCCON,a
 
 ;Initialize ADC (Check DataSheet)
-movlw 0b00110010 ;left justify, Frc, 12 TAD ACQ time
+movlw 0b00110111 ;left justify, Frc, 12 TAD ACQ time
+;movlw	0b00000000
 movwf ADCON2,a
-movlw 0b00000000 ;ADC ref = Vdd,Vss
+movlw 0b00000000 ;ADC ref = Vdd,Vss    
 movwf ADCON1,a
-movlw 0b00111111 ;AN15 a.k.a RC3, ADC on
+movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
 movwf ADCON0,a
 
     

@@ -46,15 +46,15 @@ pwm_setup:
     ;Set CCP PWM period
     banksel PR2
     ;movlw   0b11111001   ; Sets period for ~1kHz at 16MHz with 1:16 prescale
-    movlw 64
+    movlw 128
     movwf   PR2,b
     ;set CCP Duty cycles    
-    movlw   0x2    ; Duty Cycle for CCP1 (RC1)
+    movlw   0x1   ; Duty Cycle for CCP1 (RC1)
     movwf   CCPR1L,b
-    movlw   0x2    ; Duty Cycle for CCP2 (RC2)
+    movlw   0x1    ; Duty Cycle for CCP2 (RC2)
     movwf   CCPR2L,b
     banksel CCPR3L
-    movlw   0x2   ; Duty Cycle for CCP3 (RE0)
+    movlw   0x1   ; Duty Cycle for CCP3 (RE0)
     movwf   CCPR3L,b
     ; Set ccp's to standard PWM modes
     movlw   0b00111100	
@@ -281,7 +281,6 @@ ADC_measure:
     btfsc ADCON0,1,a ;Is conversion done?, NO, test again
     bra   $-2
     movff ADRESH, ADC_RH	; Result is complete - store 8 MSbits in ADC_RH
-    movff ADRESL, ADC_RL	; store 2 LSbits in ADC_RL
     return
     
 

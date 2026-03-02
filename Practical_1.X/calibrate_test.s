@@ -26,14 +26,42 @@ org 20h	;Start for code setup
 #include "setup.inc"
 #include "timer.inc"
 #include "interrupts.inc"
-#include "calibration_PWM_impl.inc"
+#include "calibration_white.inc"
 #include "line_location_interpreter.inc"
  
 main: 
-   flash_Reg flash_counter, 3, DUMP_REG, 0b11111111
-   call pwm_setup
-   call calibrate
-   call calibrate_test_cont
+    clrf rcalib,a
+    clrf LATE,a
+   
+    ;call calibrate
+    call calc_ranges_test_2
+    ;call detect_color_test
+    set_main_lli:
+	btfsc PORTB,0,a
+	bra $+6
+	movlw 0
+	bra do_main_lli
+   
+	btfsc PORTB,1,a
+	bra $+6
+	movlw 1
+	bra do_main_lli
+   
+	btfsc PORTB,2,a
+	bra $+6
+	movlw 2
+	bra do_main_lli
+   
+	btfsc PORTB,3,a
+	bra $+6
+	movlw 3
+	bra do_main_lli
+   
+    do_main_lli:
+	movwf nav_col,a
+	call Sensor_LLI_Generate
+	bra set_main_lli
+	
    bra exit
    
 exit:
