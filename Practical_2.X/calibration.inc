@@ -99,3 +99,73 @@ calibrate_start:
     clrf DUMP_REG,a
     clrf rcalib,a
     return     
+    
+;========== Tests ==========
+    
+load_test_values:
+    movlw   143
+    movwf   R_R_Thres_min,a
+    movlw   207
+    movwf   R_R_Thres_max,a
+    movlw   22
+    movwf   R_G_Thres_min,a
+    movlw   86
+    movwf   R_G_Thres_max,a
+    movlw   0
+    movwf   R_B_Thres_min,a
+    movlw   45
+    movwf   R_B_Thres_max,a
+    
+    movlw   0
+    movwf   G_R_Thres_min,a
+    movlw   59
+    movwf   G_R_Thres_max,a
+    movlw   123
+    movwf   G_G_Thres_min,a
+    movlw   187
+    movwf   G_G_Thres_max,a
+    movlw   13
+    movwf   G_B_Thres_min,a
+    movlw   77
+    movwf   G_B_Thres_max,a
+    
+    movlw   0
+    movwf   B_R_Thres_min,a
+    movlw   45
+    movwf   B_R_Thres_max,a
+    movlw   0
+    movwf   B_G_Thres_min,a
+    movlw   53
+    movwf   B_G_Thres_max,a
+    movlw   55
+    movwf   B_B_Thres_min,a
+    movlw   119
+    movwf   B_B_Thres_max,a
+
+    movlw   180
+    movwf   W_R_Thres_min,a
+    movlw   244
+    movwf   W_R_Thres_max,a
+    movlw   199
+    movwf   W_G_Thres_min,a
+    movlw   255
+    movwf   W_G_Thres_max,a
+    movlw   112
+    movwf   W_B_Thres_min,a
+    movlw   176
+    movwf   W_B_Thres_max,a
+   
+    movlw   0
+    movwf   K_R_Thres_min,a
+    movlw   32
+    movwf   K_R_Thres_max,a
+    movlw   0
+    movwf   K_G_Thres_min,a
+    movlw   32
+    movwf   K_G_Thres_max,a
+    movlw   0
+    movwf   K_B_Thres_min,a
+    movlw   32
+    movwf   K_B_Thres_max,a
+    
+    return

@@ -9146,7 +9146,6 @@ det_col_LED:
     clrf r_col_det,a
     bsf r_col_det,0,a
     movlw 4
-
     cpfseq rcolor,a
     bra $+4
     bra $+10
@@ -9232,6 +9231,36 @@ Sensor_LLI_Generate:
  movff Sensor,PORTA
  goto left_logic
     return
+
+
+Detect_LLI:
+    btfsc PORTB,0,a
+    bra $+6
+    movlw 0
+    bra do_Detect_LLI
+
+
+    btfsc PORTB,1,a
+    bra $+6
+    movlw 1
+    bra do_Detect_LLI
+
+
+    btfsc PORTB,2,a
+    bra $+6
+    movlw 2
+    bra do_Detect_LLI
+
+
+    btfsc PORTB,3,a
+    bra $+6
+    movlw 3
+    bra do_Detect_LLI
+
+    do_Detect_LLI:
+ movwf nav_col,a
+ call Sensor_LLI_Generate
+ bra Detect_LLI
 # 29 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRL:
@@ -9380,9 +9409,78 @@ calibrate_start:
     clrf DUMP_REG,a
     clrf rcalib,a
     return
+
+;========== Tests ==========
+
+load_test_values:
+    movlw 143
+    movwf R_R_Thres_min,a
+    movlw 207
+    movwf R_R_Thres_max,a
+    movlw 22
+    movwf R_G_Thres_min,a
+    movlw 86
+    movwf R_G_Thres_max,a
+    movlw 0
+    movwf R_B_Thres_min,a
+    movlw 45
+    movwf R_B_Thres_max,a
+
+    movlw 0
+    movwf G_R_Thres_min,a
+    movlw 59
+    movwf G_R_Thres_max,a
+    movlw 123
+    movwf G_G_Thres_min,a
+    movlw 187
+    movwf G_G_Thres_max,a
+    movlw 13
+    movwf G_B_Thres_min,a
+    movlw 77
+    movwf G_B_Thres_max,a
+
+    movlw 0
+    movwf B_R_Thres_min,a
+    movlw 45
+    movwf B_R_Thres_max,a
+    movlw 0
+    movwf B_G_Thres_min,a
+    movlw 53
+    movwf B_G_Thres_max,a
+    movlw 55
+    movwf B_B_Thres_min,a
+    movlw 119
+    movwf B_B_Thres_max,a
+
+    movlw 180
+    movwf W_R_Thres_min,a
+    movlw 244
+    movwf W_R_Thres_max,a
+    movlw 199
+    movwf W_G_Thres_min,a
+    movlw 255
+    movwf W_G_Thres_max,a
+    movlw 112
+    movwf W_B_Thres_min,a
+    movlw 176
+    movwf W_B_Thres_max,a
+
+    movlw 0
+    movwf K_R_Thres_min,a
+    movlw 32
+    movwf K_R_Thres_max,a
+    movlw 0
+    movwf K_G_Thres_min,a
+    movlw 32
+    movwf K_G_Thres_max,a
+    movlw 0
+    movwf K_B_Thres_min,a
+    movlw 32
+    movwf K_B_Thres_max,a
+
+    return
 # 31 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
-
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
@@ -9499,38 +9597,9 @@ search:
 # 32 "main.s" 2
 
 main:
-    clrf rcalib,a
-    clrf LATE,a
-
-    call calibrate
-    ;nop
-    ;call calc_ranges_test
-    ;call detect_color_test
-    set_main_lli:
- btfsc PORTB,0,a
- bra $+6
- movlw 0
- bra do_main_lli
-
- btfsc PORTB,1,a
- bra $+6
- movlw 1
- bra do_main_lli
-
- btfsc PORTB,2,a
- bra $+6
- movlw 2
- bra do_main_lli
-
- btfsc PORTB,3,a
- bra $+6
- movlw 3
- bra do_main_lli
-
-    do_main_lli:
- movwf nav_col,a
- call Sensor_LLI_Generate
- bra set_main_lli
+    ;call calibrate
+    call load_test_values
+    call Detect_LLI
 
    bra exit
 

@@ -30,15 +30,10 @@ org 20h	;Start for code setup
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-main: 
-    clrf rcalib,a
-    clrf LATE,a
-   
-    call calibrate
-    ;nop
-    ;call calc_ranges_test
-    ;call detect_color_test
-    call detect_LLI
+main:    
+    ;call calibrate
+    call load_test_values
+    call Detect_LLI
 	
    bra exit
    
