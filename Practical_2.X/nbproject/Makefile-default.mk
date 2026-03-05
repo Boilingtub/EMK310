@@ -30,12 +30,12 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 IMAGE_TYPE=debug
 OUTPUT_SUFFIX=hex
 DEBUGGABLE_SUFFIX=elf
-FINAL_IMAGE=${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+FINAL_IMAGE=${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 else
 IMAGE_TYPE=production
 OUTPUT_SUFFIX=hex
 DEBUGGABLE_SUFFIX=elf
-FINAL_IMAGE=${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+FINAL_IMAGE=${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 endif
 
 ifeq ($(COMPARE_BUILD), true)
@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=calibrate_test.s
+SOURCEFILES_QUOTED_IF_SPACED=main.s
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/calibrate_test.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/calibrate_test.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/calibrate_test.o
+OBJECTFILES=${OBJECTDIR}/main.o
 
 # Source Files
-SOURCEFILES=calibrate_test.s
+SOURCEFILES=main.s
 
 
 
@@ -82,28 +82,28 @@ FIXDEPS=fixDeps
 ifneq ($(INFORMATION_MESSAGE), )
 	@echo $(INFORMATION_MESSAGE)
 endif
-	${MAKE}  -f nbproject/Makefile-default.mk ${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+	${MAKE}  -f nbproject/Makefile-default.mk ${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 
 MP_PROCESSOR_OPTION=PIC18F45K22
-FINAL_IMAGE_NAME_MINUS_EXTENSION=${DISTDIR}/Practical_1.X.${IMAGE_TYPE}
+FINAL_IMAGE_NAME_MINUS_EXTENSION=${DISTDIR}/Practical_2.X.${IMAGE_TYPE}
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: pic-as-assembler
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/main.o: main.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibrate_test.o 
+	@${RM} ${OBJECTDIR}/main.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibrate_test.o \
-	calibrate_test.s \
+	-o ${OBJECTDIR}/main.o \
+	main.s \
 	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 else
-${OBJECTDIR}/calibrate_test.o: calibrate_test.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/main.o: main.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/calibrate_test.o 
+	@${RM} ${OBJECTDIR}/main.o 
 	${MP_AS} -mcpu=PIC18F45K22 -c \
-	-o ${OBJECTDIR}/calibrate_test.o \
-	calibrate_test.s \
+	-o ${OBJECTDIR}/main.o \
+	main.s \
 	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 endif
@@ -111,16 +111,16 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: pic-as-linker
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk    
+${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk    
 	@${MKDIR} ${DISTDIR} 
 	${MP_LD} -mcpu=PIC18F45K22 ${OBJECTFILES_QUOTED_IF_SPACED} \
-	-o ${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
+	-o ${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
 	 -D__DEBUG=1   -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -mcallgraph=std -Wl,-Map=${FINAL_IMAGE_NAME_MINUS_EXTENSION}.map -mno-download-hex
 else
-${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
+${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
 	@${MKDIR} ${DISTDIR} 
 	${MP_LD} -mcpu=PIC18F45K22 ${OBJECTFILES_QUOTED_IF_SPACED} \
-	-o ${DISTDIR}/Practical_1.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
+	-o ${DISTDIR}/Practical_2.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
 	  -mdfp="${DFP_DIR}/xc8"  -misa=std -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -mcallgraph=std -Wl,-Map=${FINAL_IMAGE_NAME_MINUS_EXTENSION}.map -mno-download-hex
 endif
 

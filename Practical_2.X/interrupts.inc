@@ -14,7 +14,7 @@ ISRH:
     bra inter_calib
     bra RB4_do
     inter_calib:
-	rlncf rcalib,a
+	bsf rcalib,1,a
 	bra Reset_RB4
     RB4_do:
 	tstfsz r_RB4_do,a
@@ -25,8 +25,7 @@ ISRH:
 	    clrf r_RB4_do,a
 	    bra Reset_RB4
 	RB4_dump_value:
-	    call read_Sensor3
-	    movff SV3,DUMP_REG
+	    ;NOTHING DUMPING !
 	    wait_timer H333ms,L333ms
 	    wait_timer H333ms,L333ms
 	    wait_timer H333ms,L333ms
@@ -42,3 +41,5 @@ ISRH:
 	    
     ISRH_done:
 	retfie
+
+

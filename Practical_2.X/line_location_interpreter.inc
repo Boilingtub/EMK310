@@ -1,4 +1,3 @@
-
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
@@ -112,4 +111,7 @@ search:
     MOVLW 0x40;turn on search led 0b01000000
     MOVWF LATD
     return
+
+
+
 
