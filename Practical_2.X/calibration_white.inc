@@ -510,9 +510,13 @@ calibrate_test_cont:
     movlw 0b00000111
     movwf RGB_REG,a
     cont_test_loop:
-    call read_Sensor3 
-    ;ADC_measure SV3
-    movff ADRESH,DUMP_REG
+    call read_Sensor5 
+    movff s5r,DUMP_REG
+    wait_timer H333ms,L333ms
+    movff s5g,DUMP_REG
+    wait_timer H333ms,L333ms
+    movff s5b,DUMP_REG
+    wait_timer H333ms,L333ms
     bra cont_test_loop
     
 calibrate_test_int:

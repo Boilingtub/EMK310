@@ -38,43 +38,39 @@ W_B_Thres_min equ 0x34
 W_B_Thres_max equ 0x35
  
 R_R_Thres_min equ 0x36
-R_R_Thres_max equ 0x38
-R_G_Thres_min equ 0x39
-R_G_Thres_max equ 0x3A
-R_B_Thres_min equ 0x3B
-R_B_Thres_max equ 0x3C
+R_R_Thres_max equ 0x37
+R_G_Thres_min equ 0x38
+R_G_Thres_max equ 0x39
+R_B_Thres_min equ 0x3A
+R_B_Thres_max equ 0x3B
  
-G_R_Thres_min equ 0x3D
-G_R_Thres_max equ 0x3E
-G_G_Thres_min equ 0x3F
-G_G_Thres_max equ 0x40
-G_B_Thres_min equ 0x41
-G_B_Thres_max equ 0x42
+G_R_Thres_min equ 0x3C
+G_R_Thres_max equ 0x3D
+G_G_Thres_min equ 0x3E
+G_G_Thres_max equ 0x3F
+G_B_Thres_min equ 0x40
+G_B_Thres_max equ 0x41
  
-B_R_Thres_min equ 0x43
-B_R_Thres_max equ 0x44
-B_G_Thres_min equ 0x45
-B_G_Thres_max equ 0x46
-B_B_Thres_min equ 0x47
-B_B_Thres_max equ 0x48
+B_R_Thres_min equ 0x42
+B_R_Thres_max equ 0x43
+B_G_Thres_min equ 0x44
+B_G_Thres_max equ 0x45
+B_B_Thres_min equ 0x46
+B_B_Thres_max equ 0x47
  
-K_R_Thres_min equ 0x49
-K_R_Thres_max equ 0x4A
-K_G_Thres_min equ 0x4B
-K_G_Thres_max equ 0x4C
-K_B_Thres_min equ 0x4D
-K_B_Thres_max equ 0x4E
- 
+K_R_Thres_min equ 0x48
+K_R_Thres_max equ 0x49
+K_G_Thres_min equ 0x4A
+K_G_Thres_max equ 0x4B
+K_B_Thres_min equ 0x4C
+K_B_Thres_max equ 0x4D
+  
 ;===== Value Constants ===== 
-RGB_R	EQU 0b00000001
-RGB_G   EQU 0b00000010
-RGB_B	EQU 0b00000100
-RGB_W	EQU 0b00000111
+Thres_var equ 16
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
 ADCAQTL EQU 0xDD
-Cycles_delay	EQU 1
 	
 ;===== PORT Aliases =====
 DUMP_REG EQU PORTD

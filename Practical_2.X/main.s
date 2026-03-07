@@ -32,8 +32,12 @@ org 20h	;Start for code setup
  
 main:    
     ;call calibrate
-    call load_test_values
-    call Detect_LLI
+    ;call load_test_values
+    ;call load_test_values
+    ;call Detect_LLI
+    ;call calibrate_test_cont
+    call calibrate_start
+    call color_detection_test
 	
    bra exit
    

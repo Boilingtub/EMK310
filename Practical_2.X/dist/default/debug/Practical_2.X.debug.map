@@ -5,7 +5,7 @@ Linker command line:
 -W-3 --edf=/opt/microchip/xc8/v3.10/pic/dat/20250813170317_en.msgs -cs \
   -h+dist/default/debug/Practical_2.X.debug.sym \
   --cmf=dist/default/debug/Practical_2.X.debug.cmf -z -Q18F45K22 \
-  -o/tmp/xcXalAMbl/driver_tmp_3.o --fixupoverflow=error \
+  -o/tmp/xcXoDmJkN/driver_tmp_3.o --fixupoverflow=error \
   -ver=XC8 PIC(R) Assembler --fixupoverflow=lstwarn \
   -Mdist/default/debug/Practical_2.X.debug.map -E1 -ACODE=00h-07FFFh \
   -ACONST=00h-07FFFh -ASMALLCONST=0600h-06FFhx122 \
@@ -25,11 +25,11 @@ Machine type is 18F45K22
                 Name                               Link     Load   Length Selector   Space Scale
 build/default/debug/main.o
                 config                           300001   300001        D        0       4
-                code                                  0        0     12FC        0       0
+                code                                  0        0     1380        0       0
 
 TOTAL           Name                               Link     Load   Length     Space
         CLASS   CODE           
-                code                                  0        0     12FC         0
+                code                                  0        0     1380         0
 
         CLASS   CONST          
 
@@ -83,21 +83,21 @@ UNUSED ADDRESS RANGES
         BANK3            000300-0003FF              100
         BANK4            000400-0004FF              100
         BANK5            000500-0005FF              100
-        CODE             0012FC-007FFF             6D04
+        CODE             001380-007FFF             6C80
         COMRAM           000000-00005F               60
         CONFIG           300000-300000                1
-        CONST            0012FC-007FFF             6D04
+        CONST            001380-007FFF             6C80
         EEDATA           F00000-F000FF              100
         IDLOC            200000-200007                8
-        MEDIUMCONST      0012FC-007FFF             6D04
+        MEDIUMCONST      001380-007FFF             6C80
         RAM              000060-0005FF              100
-        SMALLCONST       0012FC-007FFF              100
+        SMALLCONST       001380-007FFF              100
 
                                   Symbol Table
 
 __H__absolute__ __absolute__ 000000  __Hcode         code         000000
 __Hconfig       config       30000E  __Hdata         data         000000
-__Hedata        edata        000000  __Hspace_0      (abs)        0012FC
+__Hedata        edata        000000  __Hspace_0      (abs)        001380
 __Hspace_1      (abs)        000000  __Hspace_3      (abs)        000000
 __Hspace_4      (abs)        60000F  __Hudata        udata        000000
 __Hudata_acs    udata_acs    000000  __Hudata_bank0  udata_bank0  000000

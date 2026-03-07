@@ -6,54 +6,49 @@ check_navline macro sv, col_reg, rr, bit
     bsf rr,bit,a
 endm
 
-check_in_range macro r, min, max, false_label ;22 bytes PC
+check_in_range macro r, min, max, next_label ;20 bytes PC
     movff min,WREG
     cpfslt r,a
     bra $+4
     bra $+10
     movff max,WREG
-    cpfsgt s1r,a
+    cpfsgt r,a
     bra $+4
-    bra false_label
+    bra next_label
 endm
    
-determine_color macro rr,rg,rb,rcol
+determine_color macro rr,rg,rb,rcol,done_label ; 322 bytes
     movlw 4
     movwf rcol,a
     ;check_white:
 	check_in_range rr, W_R_Thres_min, W_R_Thres_max, $+44
 	check_in_range rg, W_G_Thres_min, W_G_Thres_max, $+24
-	check_in_range rb, W_R_Thres_min, W_R_Thres_max, $+4
-	bra $+4
-	bra $+66
+	check_in_range rb, W_B_Thres_min, W_B_Thres_max, $+4
+	bra done_label
     ;check_green;
 	decf rcol,a
 	check_in_range rr, G_R_Thres_min, G_R_Thres_max, $+44
 	check_in_range rg, G_G_Thres_min, G_G_Thres_max, $+24
-	check_in_range rb, G_R_Thres_min, G_R_Thres_max, $+4
-	bra $+4
-	bra $+66
+	check_in_range rb, G_B_Thres_min, G_B_Thres_max, $+4
+	bra done_label
    ;check_blue
    	decf rcol,a
 	check_in_range rr, B_R_Thres_min, B_R_Thres_max, $+44
 	check_in_range rg, B_G_Thres_min, B_G_Thres_max, $+24
-	check_in_range rb, B_R_Thres_min, B_R_Thres_max, $+4
-	bra $+4
-	bra $+66
+	check_in_range rb, B_B_Thres_min, B_B_Thres_max, $+4
+	bra done_label
    ;check_red
       	decf rcol,a
 	check_in_range rr, R_R_Thres_min, R_R_Thres_max, $+44
 	check_in_range rg, R_G_Thres_min, R_G_Thres_max, $+24
-	check_in_range rb, R_R_Thres_min, R_R_Thres_max, $+4
-	bra $+4
-	bra $+66
+	check_in_range rb, R_B_Thres_min, R_B_Thres_max, $+4
+	bra done_label
    ;check_black
       	decf rcol,a
 	check_in_range rr, K_R_Thres_min, K_R_Thres_max, $+44
 	check_in_range rg, K_G_Thres_min, K_G_Thres_max, $+24
-	check_in_range rb, K_R_Thres_min, K_R_Thres_max, $+4
-	bra $+4
-	bra $+6
+	check_in_range rb, K_B_Thres_min, K_B_Thres_max, $+4
+	bra done_label
 endm
 	
 det_col_LED:
@@ -75,7 +70,7 @@ Sensor_LLI_Generate:
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
-	determine_color s1r,s1g,s1b,rcolor
+	determine_color s1r,s1g,s1b,rcolor,$+322
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -86,7 +81,7 @@ Sensor_LLI_Generate:
 	bra $+4
 	bsf Sensor,0,a
 	
-	determine_color s2r,s2g,s2b,rcolor
+	determine_color s2r,s2g,s2b,rcolor,$+322
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -97,7 +92,7 @@ Sensor_LLI_Generate:
 	bra $+4
 	bsf Sensor,1,a
 
-	determine_color s3r,s3g,s3b,rcolor
+	determine_color s3r,s3g,s3b,rcolor,$+322
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -108,7 +103,7 @@ Sensor_LLI_Generate:
 	bra $+4
 	bsf Sensor,2,a
 	
-	determine_color s4r,s4g,s4b,rcolor
+	determine_color s4r,s4g,s4b,rcolor, $+322
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -119,7 +114,7 @@ Sensor_LLI_Generate:
 	bra $+4
 	bsf Sensor,3,a
 	
-	determine_color s5r,s5g,s5b,rcolor
+	determine_color s5r,s5g,s5b,rcolor,$+322
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -175,3 +170,52 @@ Detect_LLI:
 	movwf nav_col,a
 	call Sensor_LLI_Generate
 	bra Detect_LLI
+
+;========== TESTS ==========
+	
+color_detection_test:
+    call read_Sensor5
+    movlw 4
+    movwf rcolor,a
+    ;determine_color s5r, s5g, s5b, rcolor, show_color
+    movlw 4
+    movwf rcol,a
+    ;check_white:
+	rr equ s5r
+	rg equ s5g
+	rb equ s5b
+	rcol equ rcolor
+	done_label equ show_color
+	check_in_range rr, W_R_Thres_min, W_R_Thres_max, $+44
+	check_in_range rg, W_G_Thres_min, W_G_Thres_max, $+24
+	check_in_range rb, W_B_Thres_min, W_B_Thres_max, $+4
+	bra done_label
+    ;check_green;
+	decf rcol,a
+	check_in_range rr, G_R_Thres_min, G_R_Thres_max, $+44
+	check_in_range rg, G_G_Thres_min, G_G_Thres_max, $+24
+	check_in_range rb, G_B_Thres_min, G_B_Thres_max, $+4
+	bra done_label
+   ;check_blue
+   	decf rcol,a
+	check_in_range rr, B_R_Thres_min, B_R_Thres_max, $+44
+	check_in_range rg, B_G_Thres_min, B_G_Thres_max, $+24
+	check_in_range rb, B_B_Thres_min, B_B_Thres_max, $+4
+	bra done_label
+   ;check_red
+      	decf rcol,a
+	check_in_range rr, R_R_Thres_min, R_R_Thres_max, $+44
+	check_in_range rg, R_G_Thres_min, R_G_Thres_max, $+24
+	check_in_range rb, R_B_Thres_min, R_B_Thres_max, $+4
+	bra done_label
+   ;check_black
+      	decf rcol,a
+	check_in_range rr, K_R_Thres_min, K_R_Thres_max, $+44
+	check_in_range rg, K_G_Thres_min, K_G_Thres_max, $+24
+	check_in_range rb, K_B_Thres_min, K_B_Thres_max, $+4
+	bra done_label
+    bra color_detection_test
+    show_color:
+	call det_col_LED
+	bra color_detection_test
+    
