@@ -17,13 +17,13 @@ divSensoradd macro numerator,r1,r2
 endm
     
 average_values macro r1,r2,r3,r4,r5,rr
-    ;clrf rr,a
-    ;divSensoradd 51, r1, rr
-    ;divSensoradd 51, r2, rr
-    ;divSensoradd 51, r3, rr
-    ;divSensoradd 51, r4, rr
-    ;divSensoradd 51, r5, rr
-    movff   r5,rr,a
+    clrf rr,a
+    divSensoradd 51, r1, rr
+    divSensoradd 51, r2, rr
+    divSensoradd 51, r3, rr
+    divSensoradd 51, r4, rr
+    divSensoradd 51, r5, rr
+    ;movff   r5,rr,a
 endm
     
 ADC_measure macro r1

@@ -8827,40 +8827,185 @@ s5r equ 0x2D
 s5g equ 0x2E
 s5b equ 0x2F
 
-W_R_Thres_min equ 0x30
-W_R_Thres_max equ 0x31
-W_G_Thres_min equ 0x32
-W_G_Thres_max equ 0x33
-W_B_Thres_min equ 0x34
-W_B_Thres_max equ 0x35
+;===== Sensor 1 Values =====
+S1_W_R_Thres_min equ 0x30
+S1_W_R_Thres_max equ 0x31
+S1_W_G_Thres_min equ 0x32
+S1_W_G_Thres_max equ 0x33
+S1_W_B_Thres_min equ 0x34
+S1_W_B_Thres_max equ 0x35
 
-R_R_Thres_min equ 0x36
-R_R_Thres_max equ 0x37
-R_G_Thres_min equ 0x38
-R_G_Thres_max equ 0x39
-R_B_Thres_min equ 0x3A
-R_B_Thres_max equ 0x3B
+S1_R_R_Thres_min equ 0x36
+S1_R_R_Thres_max equ 0x37
+S1_R_G_Thres_min equ 0x38
+S1_R_G_Thres_max equ 0x39
+S1_R_B_Thres_min equ 0x3A
+S1_R_B_Thres_max equ 0x3B
 
-G_R_Thres_min equ 0x3C
-G_R_Thres_max equ 0x3D
-G_G_Thres_min equ 0x3E
-G_G_Thres_max equ 0x3F
-G_B_Thres_min equ 0x40
-G_B_Thres_max equ 0x41
+S1_G_R_Thres_min equ 0x3C
+S1_G_R_Thres_max equ 0x3D
+S1_G_G_Thres_min equ 0x3E
+S1_G_G_Thres_max equ 0x3F
+S1_G_B_Thres_min equ 0x40
+S1_G_B_Thres_max equ 0x41
 
-B_R_Thres_min equ 0x42
-B_R_Thres_max equ 0x43
-B_G_Thres_min equ 0x44
-B_G_Thres_max equ 0x45
-B_B_Thres_min equ 0x46
-B_B_Thres_max equ 0x47
+S1_B_R_Thres_min equ 0x42
+S1_B_R_Thres_max equ 0x43
+S1_B_G_Thres_min equ 0x44
+S1_B_G_Thres_max equ 0x45
+S1_B_B_Thres_min equ 0x46
+S1_B_B_Thres_max equ 0x47
 
-K_R_Thres_min equ 0x48
-K_R_Thres_max equ 0x49
-K_G_Thres_min equ 0x4A
-K_G_Thres_max equ 0x4B
-K_B_Thres_min equ 0x4C
-K_B_Thres_max equ 0x4D
+S1_K_R_Thres_min equ 0x48
+S1_K_R_Thres_max equ 0x49
+S1_K_G_Thres_min equ 0x4A
+S1_K_G_Thres_max equ 0x4B
+S1_K_B_Thres_min equ 0x4C
+S1_K_B_Thres_max equ 0x4D
+
+;===== Sensor 2 values =====
+S2_W_R_Thres_min equ 0x4E
+S2_W_R_Thres_max equ 0x4F
+S2_W_G_Thres_min equ 0x50
+S2_W_G_Thres_max equ 0x51
+S2_W_B_Thres_min equ 0x52
+S2_W_B_Thres_max equ 0x53
+
+S2_R_R_Thres_min equ 0x54
+S2_R_R_Thres_max equ 0x55
+S2_R_G_Thres_min equ 0x56
+S2_R_G_Thres_max equ 0x57
+S2_R_B_Thres_min equ 0x58
+S2_R_B_Thres_max equ 0x59
+
+S2_G_R_Thres_min equ 0x5A
+S2_G_R_Thres_max equ 0x5B
+S2_G_G_Thres_min equ 0x5C
+S2_G_G_Thres_max equ 0x5D
+S2_G_B_Thres_min equ 0x5E
+S2_G_B_Thres_max equ 0x5F
+
+S2_B_R_Thres_min equ 0x60
+S2_B_R_Thres_max equ 0x61
+S2_B_G_Thres_min equ 0x62
+S2_B_G_Thres_max equ 0x63
+S2_B_B_Thres_min equ 0x64
+S2_B_B_Thres_max equ 0x65
+
+S2_K_R_Thres_min equ 0x66
+S2_K_R_Thres_max equ 0x67
+S2_K_G_Thres_min equ 0x68
+S2_K_G_Thres_max equ 0x69
+S2_K_B_Thres_min equ 0x6A
+S2_K_B_Thres_max equ 0x6B
+
+;===== Sensor 3 values =====
+S3_W_R_Thres_min equ 0x6C
+S3_W_R_Thres_max equ 0x6D
+S3_W_G_Thres_min equ 0x6E
+S3_W_G_Thres_max equ 0x6F
+S3_W_B_Thres_min equ 0x70
+S3_W_B_Thres_max equ 0x71
+
+S3_R_R_Thres_min equ 0x72
+S3_R_R_Thres_max equ 0x73
+S3_R_G_Thres_min equ 0x74
+S3_R_G_Thres_max equ 0x75
+S3_R_B_Thres_min equ 0x76
+S3_R_B_Thres_max equ 0x77
+
+S3_G_R_Thres_min equ 0x78
+S3_G_R_Thres_max equ 0x79
+S3_G_G_Thres_min equ 0x7A
+S3_G_G_Thres_max equ 0x7B
+S3_G_B_Thres_min equ 0x7C
+S3_G_B_Thres_max equ 0x7D
+
+S3_B_R_Thres_min equ 0x7E
+S3_B_R_Thres_max equ 0x7F
+S3_B_G_Thres_min equ 0x80
+S3_B_G_Thres_max equ 0x81
+S3_B_B_Thres_min equ 0x82
+S3_B_B_Thres_max equ 0x83
+
+S3_K_R_Thres_min equ 0x84
+S3_K_R_Thres_max equ 0x85
+S3_K_G_Thres_min equ 0x86
+S3_K_G_Thres_max equ 0x87
+S3_K_B_Thres_min equ 0x88
+S3_K_B_Thres_max equ 0x89
+
+;===== Sensor 4 values =====
+S4_W_R_Thres_min equ 0x8A
+S4_W_R_Thres_max equ 0x8B
+S4_W_G_Thres_min equ 0x8C
+S4_W_G_Thres_max equ 0x8D
+S4_W_B_Thres_min equ 0x8E
+S4_W_B_Thres_max equ 0x8F
+
+S4_R_R_Thres_min equ 0x90
+S4_R_R_Thres_max equ 0x91
+S4_R_G_Thres_min equ 0x92
+S4_R_G_Thres_max equ 0x93
+S4_R_B_Thres_min equ 0x94
+S4_R_B_Thres_max equ 0x95
+
+S4_G_R_Thres_min equ 0x96
+S4_G_R_Thres_max equ 0x97
+S4_G_G_Thres_min equ 0x98
+S4_G_G_Thres_max equ 0x99
+S4_G_B_Thres_min equ 0x9A
+S4_G_B_Thres_max equ 0x9B
+
+S4_B_R_Thres_min equ 0x9C
+S4_B_R_Thres_max equ 0x9D
+S4_B_G_Thres_min equ 0x9E
+S4_B_G_Thres_max equ 0x9F
+S4_B_B_Thres_min equ 0xA0
+S4_B_B_Thres_max equ 0xA1
+
+S4_K_R_Thres_min equ 0xA2
+S4_K_R_Thres_max equ 0xA3
+S4_K_G_Thres_min equ 0xA4
+S4_K_G_Thres_max equ 0xA5
+S4_K_B_Thres_min equ 0xA6
+S4_K_B_Thres_max equ 0xA7
+
+;===== Sensor 5 values =====
+S5_W_R_Thres_min equ 0xA8
+S5_W_R_Thres_max equ 0xA9
+S5_W_G_Thres_min equ 0xAA
+S5_W_G_Thres_max equ 0xAB
+S5_W_B_Thres_min equ 0xAC
+S5_W_B_Thres_max equ 0xAD
+
+S5_R_R_Thres_min equ 0xAE
+S5_R_R_Thres_max equ 0xAF
+S5_R_G_Thres_min equ 0xB0
+S5_R_G_Thres_max equ 0xB1
+S5_R_B_Thres_min equ 0xB2
+S5_R_B_Thres_max equ 0xB3
+
+S5_G_R_Thres_min equ 0xB4
+S5_G_R_Thres_max equ 0xB5
+S5_G_G_Thres_min equ 0xB6
+S5_G_G_Thres_max equ 0xB7
+S5_G_B_Thres_min equ 0xB8
+S5_G_B_Thres_max equ 0xB9
+
+S5_B_R_Thres_min equ 0xBA
+S5_B_R_Thres_max equ 0xBB
+S5_B_G_Thres_min equ 0xBC
+S5_B_G_Thres_max equ 0xBD
+S5_B_B_Thres_min equ 0xBE
+S5_B_B_Thres_max equ 0xBF
+
+S5_K_R_Thres_min equ 0xC0
+S5_K_R_Thres_max equ 0xC1
+S5_K_G_Thres_min equ 0xC2
+S5_K_G_Thres_max equ 0xC3
+S5_K_B_Thres_min equ 0xC4
+S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants =====
 Thres_var equ 16
@@ -8939,7 +9084,7 @@ movwf OSCCON,a
 ;Initialize ADC (Check DataSheet)
 ;movlw 0b00110111 ;left justify, Frc, 12 TAD ACQ time;
 ;movlw 0b00101001
-movlw 0b00101101
+movlw 0b00111110
 
 movwf ADCON2,a
 movlw 0b00000000 ;ADC ref = Vdd,Vss
@@ -9022,13 +9167,13 @@ divSensoradd macro numerator,r1,r2
 endm
 
 average_values macro r1,r2,r3,r4,r5,rr
-    ;clrf rr,a
-    ;divSensoradd 51, r1, rr
-    ;divSensoradd 51, r2, rr
-    ;divSensoradd 51, r3, rr
-    ;divSensoradd 51, r4, rr
-    ;divSensoradd 51, r5, rr
-    movff r5,rr,a
+    clrf rr,a
+    divSensoradd 51, r1, rr
+    divSensoradd 51, r2, rr
+    divSensoradd 51, r3, rr
+    divSensoradd 51, r4, rr
+    divSensoradd 51, r5, rr
+    ;movff r5,rr,a
 endm
 
 ADC_measure macro r1
@@ -9116,37 +9261,37 @@ check_in_range macro r, min, max, next_label ;20 bytes PC
     bra next_label
 endm
 
-determine_color macro rr,rg,rb,rcol,done_label ; 322 bytes
+determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
     movlw 4
     movwf rcol,a
     ;check_white:
- check_in_range rr, W_R_Thres_min, W_R_Thres_max, $+44
- check_in_range rg, W_G_Thres_min, W_G_Thres_max, $+24
- check_in_range rb, W_B_Thres_min, W_B_Thres_max, $+4
+ check_in_range rr, S, S+1, $+44
+ check_in_range rg, S+2, S+3, $+24
+ check_in_range rb, S+4, S+5, $+4
  bra done_label
     ;check_green;
  decf rcol,a
- check_in_range rr, G_R_Thres_min, G_R_Thres_max, $+44
- check_in_range rg, G_G_Thres_min, G_G_Thres_max, $+24
- check_in_range rb, G_B_Thres_min, G_B_Thres_max, $+4
+ check_in_range rr, S+12, S+13, $+44
+ check_in_range rg, S+14, S+15, $+24
+ check_in_range rb, S+16, S+17, $+4
  bra done_label
    ;check_blue
     decf rcol,a
- check_in_range rr, B_R_Thres_min, B_R_Thres_max, $+44
- check_in_range rg, B_G_Thres_min, B_G_Thres_max, $+24
- check_in_range rb, B_B_Thres_min, B_B_Thres_max, $+4
+ check_in_range rr, S+18, S+19, $+44
+ check_in_range rg, S+20, S+21, $+24
+ check_in_range rb, S+22, S+23, $+4
  bra done_label
    ;check_red
        decf rcol,a
- check_in_range rr, R_R_Thres_min, R_R_Thres_max, $+44
- check_in_range rg, R_G_Thres_min, R_G_Thres_max, $+24
- check_in_range rb, R_B_Thres_min, R_B_Thres_max, $+4
+ check_in_range rr, S+6, S+7, $+44
+ check_in_range rg, S+8, S+9, $+24
+ check_in_range rb, S+10, S+11, $+4
  bra done_label
    ;check_black
        decf rcol,a
- check_in_range rr, K_R_Thres_min, K_R_Thres_max, $+44
- check_in_range rg, K_G_Thres_min, K_G_Thres_max, $+24
- check_in_range rb, K_B_Thres_min, K_B_Thres_max, $+4
+ check_in_range rr, S+24, S+25, $+44
+ check_in_range rg, S+26, S+27, $+24
+ check_in_range rb, S+28, S+29, $+4
  bra done_label
 endm
 
@@ -9169,7 +9314,8 @@ Sensor_LLI_Generate:
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
- determine_color s1r,s1g,s1b,rcolor,$+322
+ determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
+ col_det_done_S1:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9180,7 +9326,8 @@ Sensor_LLI_Generate:
  bra $+4
  bsf Sensor,0,a
 
- determine_color s2r,s2g,s2b,rcolor,$+322
+ determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
+ col_det_done_S2:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9191,7 +9338,8 @@ Sensor_LLI_Generate:
  bra $+4
  bsf Sensor,1,a
 
- determine_color s3r,s3g,s3b,rcolor,$+322
+ determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+ col_det_done_S3:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9202,7 +9350,8 @@ Sensor_LLI_Generate:
  bra $+4
  bsf Sensor,2,a
 
- determine_color s4r,s4g,s4b,rcolor, $+322
+ determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
+ col_det_done_S4:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9213,7 +9362,8 @@ Sensor_LLI_Generate:
  bra $+4
  bsf Sensor,3,a
 
- determine_color s5r,s5g,s5b,rcolor,$+322
+ determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
+ col_det_done_S5:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9230,11 +9380,6 @@ Sensor_LLI_Generate:
  movlw 0b00011111
  movwf PORTA,a
  goto stop
- ;check_navline SV1,rcolor,Sensor,0
- ;check_navline SV2,rcolor,Sensor,1
- ;check_navline SV3,rcolor,Sensor,2
- ;check_navline SV4,rcolor,Sensor,3
- ;check_navline SV5,rcolor,Sensor,4
  clrf PORTA,a
  movff Sensor,PORTA
  goto left_logic
@@ -9265,18 +9410,18 @@ Detect_LLI:
     movlw 3
     bra do_Detect_LLI
 
+    movlw 2
     do_Detect_LLI:
  movwf nav_col,a
  call Sensor_LLI_Generate
  bra Detect_LLI
+return
 
 ;========== TESTS ==========
 
 color_detection_test:
     call read_Sensor5
-    movlw 4
-    movwf rcolor,a
-    determine_color s5r, s5g, s5b, rcolor, show_color
+    determine_color S5_W_R_Thres_min,s5r, s5g, s5b, rcolor, show_color
     bra color_detection_test
     show_color:
  call det_col_LED
@@ -9364,18 +9509,13 @@ calc_threshold_max macro margin,v,rr
     addwf rr,a
 endm
 
-Calc_Color_Threshold macro rthres_min, rthres_max, gthres_min, gthres_max, bthres_min, bthres_max
-    average_values s1r, s2r, s3r, s4r, s5r, tmp
-    calc_threshold_min Thres_var, tmp, rthres_min
-    calc_threshold_max Thres_var, tmp, rthres_max
-
-    average_values s1g, s2g, s3g, s4g, s5g, tmp
-    calc_threshold_min Thres_var, tmp, gthres_min
-    calc_threshold_max Thres_var, tmp, gthres_max
-
-    average_values s1b, s2b, s3b, s4b, s5b, tmp
-    calc_threshold_min Thres_var, tmp, bthres_min
-    calc_threshold_max Thres_var, tmp, bthres_max
+Calc_Color_Threshold macro rr,rg,rb,thres
+    calc_threshold_min Thres_var, rr, thres
+    calc_threshold_max Thres_var, rr, thres+1
+    calc_threshold_min Thres_var, rg, thres+2
+    calc_threshold_max Thres_var, rg, thres+3
+    calc_threshold_min Thres_var, rb, thres+4
+    calc_threshold_max Thres_var, rb, thres+5
 endm
 
 calibrate:
@@ -9392,7 +9532,11 @@ calibrate_start:
  bra $-2
  bcf rcalib,1,a
  call read_Sensor_all
- Calc_Color_Threshold W_R_Thres_min, W_R_Thres_max, W_G_Thres_min, W_G_Thres_max, W_B_Thres_min, W_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
  flash_Reg tmp, 3, DUMP_REG, 0b00000001
     calibrate_for_green:
  movff rcalib,WREG
@@ -9401,7 +9545,11 @@ calibrate_start:
  bra $-2
  bcf rcalib,1,a
  call read_Sensor_all
- Calc_Color_Threshold G_R_Thres_min, G_R_Thres_max, G_G_Thres_min, G_G_Thres_max, G_B_Thres_min, G_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
  flash_Reg tmp, 3, DUMP_REG, 0b00000010
     calibrate_for_blue:
      movff rcalib,WREG
@@ -9410,7 +9558,11 @@ calibrate_start:
  bra $-2
  bcf rcalib,1,a
  call read_Sensor_all
- Calc_Color_Threshold B_R_Thres_min, B_R_Thres_max, B_G_Thres_min, B_G_Thres_max, B_B_Thres_min, B_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
  flash_Reg tmp, 3, DUMP_REG, 0b00000100
     calibrate_for_black:
  movff rcalib,WREG
@@ -9419,7 +9571,11 @@ calibrate_start:
  bra $-2
  bcf rcalib,1,a
  call read_Sensor_all
- Calc_Color_Threshold K_R_Thres_min, K_R_Thres_max, K_G_Thres_min, K_G_Thres_max, K_B_Thres_min, K_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
  flash_Reg tmp, 3, DUMP_REG, 0b00010000
     calibrate_for_red:
  movff rcalib,WREG
@@ -9428,7 +9584,11 @@ calibrate_start:
  bra $-2
  bcf rcalib,1,a
  call read_Sensor_all
- Calc_Color_Threshold R_R_Thres_min, R_R_Thres_max, R_G_Thres_min, R_G_Thres_max, R_B_Thres_min, R_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
  flash_Reg tmp, 3, DUMP_REG, 0b00001000
     clrf DUMP_REG,a
     clrf rcalib,a
@@ -9455,7 +9615,11 @@ calibrate_test:
  movwf s3b,a
  movwf s4b,a
  movwf s5b,a
-     Calc_Color_Threshold W_R_Thres_min, W_R_Thres_max, W_G_Thres_min, W_G_Thres_max, W_B_Thres_min, W_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
 
  movlw 8
  movwf s1r,a
@@ -9475,7 +9639,11 @@ calibrate_test:
  movwf s3b,a
  movwf s4b,a
  movwf s5b,a
-     Calc_Color_Threshold K_R_Thres_min, K_R_Thres_max, K_G_Thres_min, K_G_Thres_max, K_B_Thres_min, K_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
 
  movlw 238
  movwf s1r,a
@@ -9495,7 +9663,11 @@ calibrate_test:
  movwf s3b,a
  movwf s4b,a
  movwf s5b,a
-     Calc_Color_Threshold R_R_Thres_min, R_R_Thres_max, R_G_Thres_min, R_G_Thres_max, R_B_Thres_min, R_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
 
  movlw 98
  movwf s1r,a
@@ -9515,7 +9687,11 @@ calibrate_test:
  movwf s3b,a
  movwf s4b,a
  movwf s5b,a
-     Calc_Color_Threshold G_R_Thres_min, G_R_Thres_max, G_G_Thres_min, G_G_Thres_max, G_B_Thres_min, G_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
 
  movlw 30
  movwf s1r,a
@@ -9535,7 +9711,11 @@ calibrate_test:
  movwf s3b,a
  movwf s4b,a
  movwf s5b,a
-     Calc_Color_Threshold B_R_Thres_min, B_R_Thres_max, B_G_Thres_min, B_G_Thres_max, B_B_Thres_min, B_B_Thres_max
+ Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
+ Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
+ Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
+ Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
+ Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
  return
 
 calibrate_test_cont:
@@ -9676,13 +9856,20 @@ search:
 # 32 "main.s" 2
 
 main:
-    ;call calibrate
+    ;clrf RGB_REG,a
+    ;movlw 0xff
+    ;movwf DUMP_REG,a
+    call calibrate
     ;call load_test_values
     ;call load_test_values
     ;call Detect_LLI
-    ;call calibrate_test_cont
-    call calibrate_start
-    call color_detection_test
+    ;call calibrate_test
+    ;call calibrate_start
+    ;call color_detection_test
+    call Detect_LLI
+    ;movlw 0b00000110
+    ;movwf RGB_REG,a
+    ;bra $-4
 
    bra exit
 
