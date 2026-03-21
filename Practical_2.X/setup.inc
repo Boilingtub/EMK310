@@ -47,6 +47,8 @@ movwf	TRISE,a	    ;Set RE<7:0> to Output
 ;Initialize Timer (Check DataSheet)
 movlw 0b01110100
 movwf OSCCON,a
+;movlw 0b00000000
+;movwf OSCCON2,a
 
 ;Initialize ADC (Check DataSheet)
 ;movlw	0b00110111 ;left justify, Frc, 12 TAD ACQ time;

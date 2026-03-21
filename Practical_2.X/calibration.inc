@@ -12,26 +12,26 @@ endm
 
 calc_threshold_min macro margin,v,rr
     movlw Thres_var
-    cpfslt v,a
+    cpfslt v,b
     bra $+8
     movlw 0
-    movwf rr,a
+    movwf rr,b
     bra $+10
     movff v,rr
     movlw margin
-    subwf rr,a
+    subwf rr,b
 endm
  
 calc_threshold_max macro margin,v,rr
     movlw 255-Thres_var
-    cpfsgt v,a
+    cpfsgt v,b
     bra $+8
     movlw 255
-    movwf rr,a
+    movwf rr,b
     bra $+10
     movff v,rr
     movlw margin
-    addwf rr,a
+    addwf rr,b
 endm
     
 Calc_Color_Threshold macro rr,rg,rb,thres
@@ -48,8 +48,9 @@ calibrate:
     return 
     
 calibrate_start:
-    movlw   0b00000001
-    movwf   rcalib,a
+    clrf DUMP_REG,a
+    clrf    rcalib,a
+    bsf   rcalib,0,a
     calibrate_for_white:
 	movff	rcalib,WREG
 	bsf	DUMP_REG,0,a
@@ -91,7 +92,7 @@ calibrate_start:
 	flash_Reg tmp, 3, DUMP_REG, 0b00000100
     calibrate_for_black:
 	movff rcalib,WREG
-	bsf	DUMP_REG,4,a
+	bsf	DUMP_REG,3,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -101,10 +102,10 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00010000
+	flash_Reg tmp, 3, DUMP_REG, 0b00001000
     calibrate_for_red:
 	movff rcalib,WREG
-	bsf	DUMP_REG,3,a
+	bsf	DUMP_REG,4,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -114,7 +115,7 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00001000
+	flash_Reg tmp, 3, DUMP_REG, 0b00010000
     clrf DUMP_REG,a
     clrf rcalib,a
     return     

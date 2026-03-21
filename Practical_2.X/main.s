@@ -34,14 +34,14 @@ main:
     ;clrf RGB_REG,a
     ;movlw 0xff
     ;movwf DUMP_REG,a
-    call calibrate
+    ;call calibrate_test
     ;call load_test_values
     ;call load_test_values
     ;call Detect_LLI
     ;call calibrate_test
-    ;call calibrate_start
-    ;call color_detection_test
-    call Detect_LLI
+    call calibrate_start
+    call color_detection_test
+    ;call Detect_LLI
     ;movlw 0b00000110
     ;movwf RGB_REG,a
     ;bra $-4

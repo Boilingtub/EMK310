@@ -31,40 +31,40 @@ s5g equ 0x2E
 s5b equ 0x2F
 
 ;===== Sensor 1 Values =====
-S1_W_R_Thres_min equ 0x30
-S1_W_R_Thres_max equ 0x31
-S1_W_G_Thres_min equ 0x32
-S1_W_G_Thres_max equ 0x33
-S1_W_B_Thres_min equ 0x34
-S1_W_B_Thres_max equ 0x35
+S1_W_R_Thres_min equ 0x130
+S1_W_R_Thres_max equ 0x131
+S1_W_G_Thres_min equ 0x132
+S1_W_G_Thres_max equ 0x133
+S1_W_B_Thres_min equ 0x134
+S1_W_B_Thres_max equ 0x135
  
-S1_R_R_Thres_min equ 0x36
-S1_R_R_Thres_max equ 0x37
-S1_R_G_Thres_min equ 0x38
-S1_R_G_Thres_max equ 0x39
-S1_R_B_Thres_min equ 0x3A
-S1_R_B_Thres_max equ 0x3B
+S1_R_R_Thres_min equ 0x136
+S1_R_R_Thres_max equ 0x137
+S1_R_G_Thres_min equ 0x138
+S1_R_G_Thres_max equ 0x139
+S1_R_B_Thres_min equ 0x13A
+S1_R_B_Thres_max equ 0x13B
  
-S1_G_R_Thres_min equ 0x3C
-S1_G_R_Thres_max equ 0x3D
-S1_G_G_Thres_min equ 0x3E
-S1_G_G_Thres_max equ 0x3F
-S1_G_B_Thres_min equ 0x40
-S1_G_B_Thres_max equ 0x41
+S1_G_R_Thres_min equ 0x13C
+S1_G_R_Thres_max equ 0x13D
+S1_G_G_Thres_min equ 0x13E
+S1_G_G_Thres_max equ 0x13F
+S1_G_B_Thres_min equ 0x140
+S1_G_B_Thres_max equ 0x141
  
-S1_B_R_Thres_min equ 0x42
-S1_B_R_Thres_max equ 0x43
-S1_B_G_Thres_min equ 0x44
-S1_B_G_Thres_max equ 0x45
-S1_B_B_Thres_min equ 0x46
-S1_B_B_Thres_max equ 0x47
+S1_B_R_Thres_min equ 0x142
+S1_B_R_Thres_max equ 0x143
+S1_B_G_Thres_min equ 0x144
+S1_B_G_Thres_max equ 0x145
+S1_B_B_Thres_min equ 0x146
+S1_B_B_Thres_max equ 0x147
  
-S1_K_R_Thres_min equ 0x48
-S1_K_R_Thres_max equ 0x49
-S1_K_G_Thres_min equ 0x4A
-S1_K_G_Thres_max equ 0x4B
-S1_K_B_Thres_min equ 0x4C
-S1_K_B_Thres_max equ 0x4D
+S1_K_R_Thres_min equ 0x148
+S1_K_R_Thres_max equ 0x149
+S1_K_G_Thres_min equ 0x14A
+S1_K_G_Thres_max equ 0x14B
+S1_K_B_Thres_min equ 0x14C
+S1_K_B_Thres_max equ 0x14D
  
 ;===== Sensor 2 values ===== 
 S2_W_R_Thres_min equ 0x4E
