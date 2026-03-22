@@ -80,7 +80,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,0,a
+	bsf Sensor,3,a
 	
 	determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
 	col_det_done_S2:
@@ -92,7 +92,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,1,a
+	bsf Sensor,4,a
 
 	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
 	col_det_done_S3:
@@ -104,7 +104,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,2,a
+	bsf Sensor,5,a
 	
 	determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
 	col_det_done_S4:
@@ -116,7 +116,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,3,a
+	bsf Sensor,6,a
 	
 	determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
 	col_det_done_S5:
@@ -128,45 +128,50 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,4,a
+	bsf Sensor,7,a
 	
 	movlw 5
 	cpfseq tmp,a
 	bra $+8
-	movlw 0b00011111
+	movlw 0b11111000
 	movwf PORTA,a
 	goto stop
+	
 	clrf PORTA,a
 	movff Sensor,PORTA
+	rrcf Sensor,b
+	rrcf Sensor,b
+	rrcf Sensor,b
+	bcf Sensor,7,b
+	bcf Sensor,6,b
+	bcf Sensor,5,b
 	goto left_logic
     return
 
     
 Detect_LLI:
+    ;movlw 2
+    
     btfsc PORTB,0,a
     bra $+6
     movlw 0
     bra do_Detect_LLI
-
    
     btfsc PORTB,1,a
     bra $+6
     movlw 1
     bra do_Detect_LLI
 
-   
     btfsc PORTB,2,a
     bra $+6
     movlw 2
     bra do_Detect_LLI
 
-   
     btfsc PORTB,3,a
     bra $+6
     movlw 3
     bra do_Detect_LLI
    
-    movlw 2
     do_Detect_LLI:
 	movwf nav_col,a
 	call Sensor_LLI_Generate
@@ -176,8 +181,8 @@ return
 ;========== TESTS ==========
 	
 color_detection_test:
-    call read_Sensor2
-    determine_color S2_W_R_Thres_min,s2r, s2g, s2b, rcolor, show_color
+    call read_Sensor1
+    determine_color S1_W_R_Thres_min,s1r, s1g, s1b, rcolor, show_color
     bra color_detection_test
     show_color:
 	call det_col_LED

@@ -8828,40 +8828,40 @@ s5g equ 0x2E
 s5b equ 0x2F
 
 ;===== Sensor 1 Values =====
-S1_W_R_Thres_min equ 0x130
-S1_W_R_Thres_max equ 0x131
-S1_W_G_Thres_min equ 0x132
-S1_W_G_Thres_max equ 0x133
-S1_W_B_Thres_min equ 0x134
-S1_W_B_Thres_max equ 0x135
+S1_W_R_Thres_min equ 0x30
+S1_W_R_Thres_max equ 0x31
+S1_W_G_Thres_min equ 0x32
+S1_W_G_Thres_max equ 0x33
+S1_W_B_Thres_min equ 0x34
+S1_W_B_Thres_max equ 0x35
 
-S1_R_R_Thres_min equ 0x136
-S1_R_R_Thres_max equ 0x137
-S1_R_G_Thres_min equ 0x138
-S1_R_G_Thres_max equ 0x139
-S1_R_B_Thres_min equ 0x13A
-S1_R_B_Thres_max equ 0x13B
+S1_R_R_Thres_min equ 0x36
+S1_R_R_Thres_max equ 0x37
+S1_R_G_Thres_min equ 0x38
+S1_R_G_Thres_max equ 0x39
+S1_R_B_Thres_min equ 0x3A
+S1_R_B_Thres_max equ 0x3B
 
-S1_G_R_Thres_min equ 0x13C
-S1_G_R_Thres_max equ 0x13D
-S1_G_G_Thres_min equ 0x13E
-S1_G_G_Thres_max equ 0x13F
-S1_G_B_Thres_min equ 0x140
-S1_G_B_Thres_max equ 0x141
+S1_G_R_Thres_min equ 0x3C
+S1_G_R_Thres_max equ 0x3D
+S1_G_G_Thres_min equ 0x3E
+S1_G_G_Thres_max equ 0x3F
+S1_G_B_Thres_min equ 0x40
+S1_G_B_Thres_max equ 0x41
 
-S1_B_R_Thres_min equ 0x142
-S1_B_R_Thres_max equ 0x143
-S1_B_G_Thres_min equ 0x144
-S1_B_G_Thres_max equ 0x145
-S1_B_B_Thres_min equ 0x146
-S1_B_B_Thres_max equ 0x147
+S1_B_R_Thres_min equ 0x42
+S1_B_R_Thres_max equ 0x43
+S1_B_G_Thres_min equ 0x44
+S1_B_G_Thres_max equ 0x45
+S1_B_B_Thres_min equ 0x46
+S1_B_B_Thres_max equ 0x47
 
-S1_K_R_Thres_min equ 0x148
-S1_K_R_Thres_max equ 0x149
-S1_K_G_Thres_min equ 0x14A
-S1_K_G_Thres_max equ 0x14B
-S1_K_B_Thres_min equ 0x14C
-S1_K_B_Thres_max equ 0x14D
+S1_K_R_Thres_min equ 0x48
+S1_K_R_Thres_max equ 0x49
+S1_K_G_Thres_min equ 0x4A
+S1_K_G_Thres_max equ 0x4B
+S1_K_B_Thres_min equ 0x4C
+S1_K_B_Thres_max equ 0x4D
 
 ;===== Sensor 2 values =====
 S2_W_R_Thres_min equ 0x4E
@@ -9008,7 +9008,7 @@ S5_K_B_Thres_min equ 0xC4
 S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants =====
-Thres_var equ 16
+Thres_var equ 32
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
@@ -9326,7 +9326,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,0,a
+ bsf Sensor,3,a
 
  determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
  col_det_done_S2:
@@ -9338,7 +9338,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,1,a
+ bsf Sensor,4,a
 
  determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
  col_det_done_S3:
@@ -9350,7 +9350,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,2,a
+ bsf Sensor,5,a
 
  determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
  col_det_done_S4:
@@ -9362,7 +9362,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,3,a
+ bsf Sensor,6,a
 
  determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
  col_det_done_S5:
@@ -9374,45 +9374,50 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,4,a
+ bsf Sensor,7,a
 
  movlw 5
  cpfseq tmp,a
  bra $+8
- movlw 0b00011111
+ movlw 0b11111000
  movwf PORTA,a
  goto stop
+
  clrf PORTA,a
  movff Sensor,PORTA
+ rrcf Sensor,b
+ rrcf Sensor,b
+ rrcf Sensor,b
+ bcf Sensor,7,b
+ bcf Sensor,6,b
+ bcf Sensor,5,b
  goto left_logic
     return
 
 
 Detect_LLI:
+    ;movlw 2
+
     btfsc PORTB,0,a
     bra $+6
     movlw 0
     bra do_Detect_LLI
-
 
     btfsc PORTB,1,a
     bra $+6
     movlw 1
     bra do_Detect_LLI
 
-
     btfsc PORTB,2,a
     bra $+6
     movlw 2
     bra do_Detect_LLI
-
 
     btfsc PORTB,3,a
     bra $+6
     movlw 3
     bra do_Detect_LLI
 
-    movlw 2
     do_Detect_LLI:
  movwf nav_col,a
  call Sensor_LLI_Generate
@@ -9422,8 +9427,8 @@ return
 ;========== TESTS ==========
 
 color_detection_test:
-    call read_Sensor2
-    determine_color S2_W_R_Thres_min,s2r, s2g, s2b, rcolor, show_color
+    call read_Sensor1
+    determine_color S1_W_R_Thres_min,s1r, s1g, s1b, rcolor, show_color
     bra color_detection_test
     show_color:
  call det_col_LED
@@ -9447,6 +9452,7 @@ ISRH:
     bra RB4_do
     inter_calib:
  bsf rcalib,1,a
+ wait_timer H333ms,L333ms
  bra Reset_RB4
     RB4_do:
  tstfsz r_RB4_do,a
@@ -9569,7 +9575,7 @@ calibrate_start:
  flash_Reg tmp, 3, DUMP_REG, 0b00000100
     calibrate_for_black:
  movff rcalib,WREG
- bsf DUMP_REG,3,a
+ bsf DUMP_REG,4,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9579,10 +9585,10 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00001000
+ flash_Reg tmp, 3, DUMP_REG, 0b00010000
     calibrate_for_red:
  movff rcalib,WREG
- bsf DUMP_REG,4,a
+ bsf DUMP_REG,3,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9592,7 +9598,7 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00010000
+ flash_Reg tmp, 3, DUMP_REG, 0b00001000
     clrf DUMP_REG,a
     clrf rcalib,a
     return
@@ -9859,20 +9865,9 @@ search:
 # 32 "main.s" 2
 
 main:
-    ;clrf RGB_REG,a
-    ;movlw 0xff
-    ;movwf DUMP_REG,a
-    ;call calibrate_test
-    ;call load_test_values
-    ;call load_test_values
-    ;call Detect_LLI
-    ;call calibrate_test
     call calibrate_start
-    call color_detection_test
-    ;call Detect_LLI
-    ;movlw 0b00000110
-    ;movwf RGB_REG,a
-    ;bra $-4
+    call Detect_LLI
+    bra $-4
 
    bra exit
 
