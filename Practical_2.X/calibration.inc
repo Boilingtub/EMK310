@@ -18,7 +18,7 @@ calc_threshold_min macro margin,v,rr
     movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
+    movlw Thres_var
     subwf rr,b
 endm
  
@@ -30,7 +30,7 @@ calc_threshold_max macro margin,v,rr
     movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
+    movlw Thres_var
     addwf rr,b
 endm
     

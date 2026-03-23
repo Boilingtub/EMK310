@@ -9008,7 +9008,7 @@ S5_K_B_Thres_min equ 0xC4
 S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants =====
-Thres_var equ 16
+Thres_var equ 32
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
@@ -9295,6 +9295,10 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
  check_in_range rg, S+26, S+27, $+24
  check_in_range rb, S+28, S+29, $+4
  bra done_label
+    ;check_Invalid_color
+ movlw 69
+ movwf rcol,b
+ bra done_label
 endm
 
 det_col_LED:
@@ -9494,7 +9498,7 @@ calc_threshold_min macro margin,v,rr
     movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
+    movlw Thres_var
     subwf rr,b
 endm
 
@@ -9506,7 +9510,7 @@ calc_threshold_max macro margin,v,rr
     movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
+    movlw Thres_var
     addwf rr,b
 endm
 

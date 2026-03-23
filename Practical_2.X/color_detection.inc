@@ -49,6 +49,10 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
 	check_in_range rg, S+26, S+27, $+24
 	check_in_range rb, S+28, S+29, $+4
 	bra done_label
+    ;check_Invalid_color
+	movlw 69
+	movwf rcol,b
+	bra done_label
 endm
 	
 det_col_LED:
