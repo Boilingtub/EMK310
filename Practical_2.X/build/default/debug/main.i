@@ -9008,7 +9008,7 @@ S5_K_B_Thres_min equ 0xC4
 S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants =====
-Thres_var equ 32
+Thres_var equ 16
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
@@ -9385,38 +9385,31 @@ Sensor_LLI_Generate:
 
  clrf PORTA,a
  movff Sensor,PORTA
- rrcf Sensor,b
- rrcf Sensor,b
- rrcf Sensor,b
- bcf Sensor,7,b
- bcf Sensor,6,b
- bcf Sensor,5,b
- goto left_logic
+ call LLI_Entry
     return
 
 
+Check_Nav_Col:
+    btfss PORTB,0,a
+    bra $+4
+    retlw 0
+
+    btfss PORTB,1,a
+    bra $+4
+    retlw 1
+
+    btfss PORTB,2,a
+    bra $+4
+    retlw 2
+
+    btfss PORTB,3,a
+    bra $+4
+    retlw 3
+
+    retlw 0
+
 Detect_LLI:
-    ;movlw 2
-
-    btfsc PORTB,0,a
-    bra $+6
-    movlw 0
-    bra do_Detect_LLI
-
-    btfsc PORTB,1,a
-    bra $+6
-    movlw 1
-    bra do_Detect_LLI
-
-    btfsc PORTB,2,a
-    bra $+6
-    movlw 2
-    bra do_Detect_LLI
-
-    btfsc PORTB,3,a
-    bra $+6
-    movlw 3
-    bra do_Detect_LLI
+    call Check_Nav_Col
 
     do_Detect_LLI:
  movwf nav_col,a
@@ -9752,71 +9745,72 @@ calibrate_test_int:
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
+LLI_Entry:
 left_logic:
-    MOVF Sensor,a;Move Sensor value to wreg
-    XORLW 0b10000;check if the wreg and the binary value match exactly
+    movf Sensor,0;Move Sensor value to wreg
+    XORLW 0b10000000;check if the wreg and the binary value match exactly
  BZ left;z will be 1 if they match and it will then branch HOPE p82
-    MOVF Sensor,a
-    XORLW 0b11000
+    movf Sensor,0
+    XORLW 0b11000000
  BZ left
-    MOVF Sensor,a
-    XORLW 0b11100
+    movf Sensor,0
+    XORLW 0b11100000
  BZ left
-    MOVF Sensor,a
-    XORLW 0b11110
+    movf Sensor,0
+    XORLW 0b11110000
  BZ left
 
 ;-----------------------------------------------------------------------------
 ;Move right logic
 right_logic:
-    MOVF Sensor,a
-    XORLW 0b00001
+    MOVF Sensor,0
+    XORLW 0b00001000
  BZ right
-    MOVF Sensor,a
-    XORLW 0b00011
+    MOVF Sensor,0
+    XORLW 0b00011000
  BZ right
-    MOVF Sensor,a
-    XORLW 0b00111
+    MOVF Sensor,0
+    XORLW 0b00111000
  BZ right
-    MOVF Sensor,a
-    XORLW 0b01111
+    MOVF Sensor,0
+    XORLW 0b01111000
  BZ right
 
 ;-----------------------------------------------------------------------------
 ;Move slight left logic
 slight_left_logic:
-    MOVF Sensor,a
-    XORLW 0b01000
+    MOVF Sensor,0
+    XORLW 0b01000000
  BZ slight_left
-    MOVF Sensor,a
-    XORLW 0b01100
+    MOVF Sensor,0
+    XORLW 0b01100000
  BZ slight_left
 
 ;-----------------------------------------------------------------------------
 ;Move slight right logic
 slight_right_logic:
-    MOVF Sensor,a
-    XORLW 0b00010
+    MOVF Sensor,0
+    XORLW 0b00010000
  BZ slight_right
-    MOVF Sensor,a
-    XORLW 0b00110
+    MOVF Sensor,0
+    XORLW 0b00110000
  BZ slight_right
 
 ;-----------------------------------------------------------------------------
 ;Move Straght logic
 straight_logic:
-    MOVF Sensor,a
-    XORLW 0b00100
+    MOVF Sensor,0
+    XORLW 0b00100000
  BZ straight
-    MOVF Sensor,a
-    XORLW 0b01110
+    MOVF Sensor,0
+    XORLW 0b01110000
  BZ straight
 
 ;-----------------------------------------------------------------------------
 ;Stop logic
 ;stop_logic:
 ; MOVF Sensor,w
-; XORLW 0b11111
+; XORLW 0b11111000
 ; BZ stop
 
 ;-----------------------------------------------------------------------------

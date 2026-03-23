@@ -139,38 +139,31 @@ Sensor_LLI_Generate:
 	
 	clrf PORTA,a
 	movff Sensor,PORTA
-	rrcf Sensor,b
-	rrcf Sensor,b
-	rrcf Sensor,b
-	bcf Sensor,7,b
-	bcf Sensor,6,b
-	bcf Sensor,5,b
-	goto left_logic
+	call LLI_Entry
     return
 
     
-Detect_LLI:
-    ;movlw 2
-    
-    btfsc PORTB,0,a
-    bra $+6
-    movlw 0
-    bra do_Detect_LLI
+Check_Nav_Col:
+    btfss PORTB,0,a
+    bra $+4
+    retlw 0
    
-    btfsc PORTB,1,a
-    bra $+6
-    movlw 1
-    bra do_Detect_LLI
+    btfss PORTB,1,a
+    bra $+4
+    retlw 1
 
-    btfsc PORTB,2,a
-    bra $+6
-    movlw 2
-    bra do_Detect_LLI
+    btfss PORTB,2,a
+    bra $+4
+    retlw 2
 
-    btfsc PORTB,3,a
-    bra $+6
-    movlw 3
-    bra do_Detect_LLI
+    btfss PORTB,3,a
+    bra $+4
+    retlw 3
+    
+    retlw 0
+    
+Detect_LLI: 
+    call Check_Nav_Col
    
     do_Detect_LLI:
 	movwf nav_col,a
