@@ -4,7 +4,11 @@ PROCESSOR   18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
+;CONFIG CCP1MX = PORTC2 
+CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
+;CONFIG CCP4MX = PORTB0
+CONFIG CCP5MX = PORTE2
    
 #include    <xc.inc>
 #include    "pic18f45k22.inc"
@@ -23,6 +27,7 @@ goto ISRL
  
 org 20h	;Start for code setup 
 #include "setup.inc"
+#include "pwm_setup.inc"
 #include "timer.inc"
 #include "Sensor.inc"
 #include "color_detection.inc"
@@ -32,10 +37,11 @@ org 20h	;Start for code setup
  
 main:    
     call calibrate_start
+    
+    
     call Detect_LLI
     bra $-4
-    
-   bra exit
+    bra exit
    
 exit:
     nop

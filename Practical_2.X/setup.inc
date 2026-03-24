@@ -60,9 +60,7 @@ movlw 0b00000000 ;ADC ref = Vdd,Vss
 movwf ADCON1,a
 movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
 movwf ADCON0,a
-
-    
-    
+   
 ;Setup ADC on complete interrupt
 bsf PIE1,6,b
 bsf IPR1,6,b
@@ -81,6 +79,8 @@ movf  PORTB, w, a	; Read Port B (clear mismatch)
 bcf   INTCON, 0, a     ; Clear RBIF flag (bit 0)
 bsf   INTCON, 3, a     ; Enable RBIE (Port B change interrupt, bit 3)
 bsf   INTCON, 7, a      ; Enable GIE (Global interrupt, bit 7)
+
+call pwm_setup
     
 movlb 0x00
 return

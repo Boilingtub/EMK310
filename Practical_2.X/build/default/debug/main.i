@@ -11,7 +11,13 @@ PROCESSOR 18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
+;CONFIG CCP1MX = PORTC2
+CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
+;CONFIG CCP4MX = PORTB0
+CONFIG CCP5MX = PORTE2
+;CONFIG3H
+CONFIG CCP2
 
 # 1 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 1 3
 
@@ -8791,7 +8797,7 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 6 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 2 3
-# 10 "main.s" 2
+# 16 "main.s" 2
 
 
 # 1 "./constants.inc" 1
@@ -9017,7 +9023,7 @@ ADCAQTL EQU 0xDD
 ;===== PORT Aliases =====
 DUMP_REG EQU PORTD
 RGB_REG EQU PORTC
-# 13 "main.s" 2
+# 19 "main.s" 2
 
 PSECT code,abs ; Start Code section
 org 0h ; startup address = 0000h
@@ -9094,8 +9100,6 @@ movwf ADCON1,a
 movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
 movwf ADCON0,a
 
-
-
 ;Setup ADC on complete interrupt
 bsf PIE1,6,b
 bsf IPR1,6,b
@@ -9115,9 +9119,49 @@ bcf INTCON, 0, a ; Clear ((INTCON) and 0FFh), 0, a flag (bit 0)
 bsf INTCON, 3, a ; Enable ((INTCON) and 0FFh), 3, a (Port B change interrupt, bit 3)
 bsf INTCON, 7, a ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
 
+call pwm_setup
+
 movlb 0x00
 return
-# 26 "main.s" 2
+# 32 "main.s" 2
+# 1 "./pwm_setup.inc" 1
+pwm_setup:
+    movlb 0xF
+    ;Select Timer2 for ((PORTC) and 0FFh), 2, a,2,3 modules
+    banksel CCPTMRS0
+    clrf CCPTMRS0,b ; select Timer 2
+    ;Set CCP PWM period
+    banksel PR2
+    ;movlw 0b11111001 ; Sets period for ~1kHz at 16MHz with 1:16 prescale
+    movlw 249
+    movwf PR2,b
+    ;set CCP Duty cycles
+    banksel CCPR1L
+    movlw 0x00 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RC1) but off for setup
+    movwf CCPR1L,b
+    banksel CCPR2L
+    movlw 0x00 ; Duty Cycle for CCP2 (RC2) but off for setup
+    movwf CCPR2L,b
+    banksel CCPR3L
+    movlw 0x00 ; Duty Cycle for CCP3 (RE0) off for setup
+    movwf CCPR3L,b
+    banksel CCPR4L
+    movlw 0x00 ; Duty Cycle for CCP3 (RE0) off for setup
+    movwf CCPR4L,b
+    ; Set ccp's to standard PWM modes
+    movlw 0b00111100
+    movwf CCP1CON,b
+    movwf CCP2CON,b
+    banksel CCP3CON
+    movwf CCP3CON,b
+    banksel CCP4CON
+    movwf CCP4CON,b
+    ;Start Timer 2
+    movlw 0b00000100
+    movwf T2CON,b
+
+    return
+# 33 "main.s" 2
 # 1 "./timer.inc" 1
 wait_n_cycles macro num, l_addr1, l_addr2
     movlw num
@@ -9148,7 +9192,7 @@ wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
     bra $-4
     bcf T0CON, 7, c ; timer is turned off
 endm
-# 27 "main.s" 2
+# 34 "main.s" 2
 # 1 "./Sensor.inc" 1
 fake_RGB_measure macro rR, vR, rG, vG ,rB, vB
     movlw vR
@@ -9242,7 +9286,7 @@ read_Sensor5:
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s5r, s5g, s5b
     return
-# 28 "main.s" 2
+# 35 "main.s" 2
 # 1 "./color_detection.inc" 1
 check_navline macro sv, col_reg, rr, bit
     movff nav_col,WREG
@@ -9418,7 +9462,7 @@ Detect_LLI:
     do_Detect_LLI:
  movwf nav_col,a
  call Sensor_LLI_Generate
- bra Detect_LLI
+ ;bra Detect_LLI
 return
 
 ;========== TESTS ==========
@@ -9430,7 +9474,7 @@ color_detection_test:
     show_color:
  call det_col_LED
  bra color_detection_test
-# 29 "main.s" 2
+# 36 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRL:
     nop
@@ -9476,7 +9520,7 @@ ISRH:
 
     ISRH_done:
  retfie
-# 30 "main.s" 2
+# 37 "main.s" 2
 # 1 "./calibration.inc" 1
 flash_Reg macro count_addr, count_val, out_reg, out_val
     movlw count_val
@@ -9744,77 +9788,94 @@ calibrate_test_int:
     btfss rcalib,1,a
     bra $-2
     bra $-16
-# 31 "main.s" 2
+# 38 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
+set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
+    movlw ccp2 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RB3) but3 off for setup
+    banksel CCPR2L
+    movwf CCPR2L,b
+
+    movlw ccp3 ; Duty Cycle for CCP2 (RE0) but off for setup
+    banksel CCPR3L
+    movwf CCPR3L,b
+
+    movlw ccp4 ; Duty Cycle for CCP3 (RB0) off for setup
+    banksel CCPR4L
+    movwf CCPR4L,b
+
+    movlw ccp5 ; Duty Cycle for ((PORTD) and 0FFh), 1, a (RE2) off for setup
+    banksel CCPR5L
+    movwf CCPR5L,b
+endm
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
 LLI_Entry:
 left_logic:
     movf Sensor,0;Move Sensor value to wreg
-    XORLW 0b10000000;check if the wreg and the binary value match exactly
+    XORLW 0b00010000;check if the wreg and the binary value match exactly
  BZ left;z will be 1 if they match and it will then branch HOPE p82
     movf Sensor,0
-    XORLW 0b11000000
+    XORLW 0b00011000
  BZ left
     movf Sensor,0
-    XORLW 0b11100000
+    XORLW 0b00011100
  BZ left
     movf Sensor,0
-    XORLW 0b11110000
+    XORLW 0b00011110
  BZ left
 
 ;-----------------------------------------------------------------------------
 ;Move right logic
 right_logic:
     MOVF Sensor,0
-    XORLW 0b00001000
+    XORLW 0b00000001
  BZ right
     MOVF Sensor,0
-    XORLW 0b00011000
+    XORLW 0b00000011
  BZ right
     MOVF Sensor,0
-    XORLW 0b00111000
+    XORLW 0b00000111
  BZ right
     MOVF Sensor,0
-    XORLW 0b01111000
+    XORLW 0b00001111
  BZ right
 
 ;-----------------------------------------------------------------------------
 ;Move slight left logic
 slight_left_logic:
     MOVF Sensor,0
-    XORLW 0b01000000
+    XORLW 0b00001000
  BZ slight_left
     MOVF Sensor,0
-    XORLW 0b01100000
+    XORLW 0b00001100
  BZ slight_left
 
 ;-----------------------------------------------------------------------------
 ;Move slight right logic
 slight_right_logic:
     MOVF Sensor,0
-    XORLW 0b00010000
+    XORLW 0b00000010
  BZ slight_right
     MOVF Sensor,0
-    XORLW 0b00110000
+    XORLW 0b00000110
  BZ slight_right
 
 ;-----------------------------------------------------------------------------
 ;Move Straght logic
 straight_logic:
     MOVF Sensor,0
-    XORLW 0b00100000
+    XORLW 0b00000100
  BZ straight
     MOVF Sensor,0
-    XORLW 0b01110000
+    XORLW 0b00001110
  BZ straight
 
 ;-----------------------------------------------------------------------------
 ;Stop logic
 ;stop_logic:
 ; MOVF Sensor,w
-; XORLW 0b11111000
+; XORLW 0b00011111
 ; BZ stop
 
 ;-----------------------------------------------------------------------------
@@ -9827,47 +9888,39 @@ search_logic:;as the code tuns sequencially, this will always be the last option
     return
 
 left:
-    MOVLW 0x01 ;turn on left led 0b00000001
-    MOVWF LATD,a
+    set_motor_pwm 0x00,0xAF,0xFA,0x00
     return
 
 right:
-    MOVLW 0x10;turn on right led 0b00010000
-    MOVWF LATD,a
+    set_motor_pwm 0xFA,0x00,0x00,0xAF
     return
 
 slight_left:
-    MOVLW 0x02;turn on sleft led 0b00000010
-    MOVWF LATD,a
+    set_motor_pwm 0x7D,0x00,0xFA,0x00
     return
 
-slight_right:;turn on sright led 0b00001000
-    MOVLW 0x08
-    MOVWF LATD,a
+slight_right:
+    set_motor_pwm 0xFA,0x00,0x7D,0x00
     return
 
 straight:
-    MOVLW 0x04;turn on straight led 0b00000100
-    MOVWF LATD,a
+    set_motor_pwm 0xFA,0x00,0xFA,0x00
     return
 
 stop:
-    MOVLW 0x20;turn on stop led 0b00100000
-    MOVWF LATD,a
+    set_motor_pwm 0x00,0x00,0x00,0x00
     return
 
 search:
-    MOVLW 0x40;turn on search led 0b01000000
-    MOVWF LATD,a
+    set_motor_pwm 0x00,0x7D,0x00,0x7D
     return
-# 32 "main.s" 2
+# 39 "main.s" 2
 
 main:
     call calibrate_start
-    call Detect_LLI
+    call Detect_LL
     bra $-4
-
-   bra exit
+    bra exit
 
 exit:
     nop

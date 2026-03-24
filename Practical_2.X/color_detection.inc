@@ -172,7 +172,7 @@ Detect_LLI:
     do_Detect_LLI:
 	movwf nav_col,a
 	call Sensor_LLI_Generate
-	bra Detect_LLI
+	;bra Detect_LLI
 return
 
 ;========== TESTS ==========
