@@ -51,10 +51,7 @@ movwf OSCCON,a
 ;movwf OSCCON2,a
 
 ;Initialize ADC (Check DataSheet)
-;movlw	0b00110111 ;left justify, Frc, 12 TAD ACQ time;
-;movlw	0b00101001
-movlw	0b00111110
-
+movlw	0b00111110 ; left Justify, 
 movwf ADCON2,a
 movlw 0b00000000 ;ADC ref = Vdd,Vss    
 movwf ADCON1,a
