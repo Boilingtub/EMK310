@@ -8,7 +8,7 @@ CONFIG WDTEN = OFF
 CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
 ;CONFIG CCP4MX = PORTB0
-CONFIG CCP5MX = PORTE2
+;CONFIG CCP5MX = PORTE2
    
 #include    <xc.inc>
 #include    "pic18f45k22.inc"
@@ -37,9 +37,9 @@ org 20h	;Start for code setup
  
 main:    
     call calibrate_start
-    
-    
+    ;call calibrate_test
     call Detect_LLI
+    ;set_motor_pwm 0xff,0x00,0xff,0x00
     bra $-4
     bra exit
    

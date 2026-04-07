@@ -53,7 +53,8 @@ calibrate_start:
     bsf   rcalib,0,a
     calibrate_for_white:
 	movff	rcalib,WREG
-	bsf	DUMP_REG,0,a
+	movlw 0b00000111
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -63,10 +64,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00000001
+	flash_Reg tmp, 3, DUMP_REG, 0b00000111
     calibrate_for_green:
 	movff rcalib,WREG
-	bsf	DUMP_REG,1,a
+	movlw 0b00000010
+	movwf DUMP_REG,a 
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -79,7 +81,8 @@ calibrate_start:
 	flash_Reg tmp, 3, DUMP_REG, 0b00000010
     calibrate_for_blue:
     	movff rcalib,WREG
-	bsf	DUMP_REG,2,a
+	movlw 0b00000100
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -92,7 +95,8 @@ calibrate_start:
 	flash_Reg tmp, 3, DUMP_REG, 0b00000100
     calibrate_for_black:
 	movff rcalib,WREG
-	bsf	DUMP_REG,4,a
+	movlw 0b00000101
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -102,10 +106,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00010000
+	flash_Reg tmp, 3, DUMP_REG, 0b00000101
     calibrate_for_red:
 	movff rcalib,WREG
-	bsf	DUMP_REG,3,a
+	movlw 0b00000001
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -115,7 +120,7 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00001000
+	flash_Reg tmp, 3, DUMP_REG, 0b00000001
     clrf DUMP_REG,a
     clrf rcalib,a
     return     

@@ -95,30 +95,30 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 ;restart main as no action was taken
     return
 
-left: 
-    set_motor_pwm 0x00,0xAF,0xFA,0x00
+left:		    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0x00,0x00,  0xFA,0x00
     return
     
-right:
-    set_motor_pwm 0xFA,0x00,0x00,0xAF
+right:		    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0xFA,0x00,  0x00,0x00
     return
   
-slight_left:
-    set_motor_pwm 0x7D,0x00,0xFA,0x00
+slight_left:	    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0x7D,0x00,  0xFA,0x00
     return
     
-slight_right:
-    set_motor_pwm 0xFA,0x00,0x7D,0x00
+slight_right:	    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0xFA,0x00,  0x7D,0x00
     return
     
-straight:
-    set_motor_pwm 0xFA,0x00,0xFA,0x00
+straight:	    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0xFA,0x00,  0xFA,0x00
     return
  
-stop:
-    set_motor_pwm 0x00,0x00,0x00,0x00
+stop:		    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0x00,0x00,  0x00,0x00
     return
     
-search:
-    set_motor_pwm 0x00,0x7D,0x00,0x7D
+search:		    ;1_F ;1_B   ;2_F ;2_B
+    set_motor_pwm   0xAF,0x00,  0xAF,0x00
     return    

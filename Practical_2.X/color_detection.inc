@@ -74,6 +74,7 @@ Sensor_LLI_Generate:
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
+    
 	determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
 	col_det_done_S1:
 	movlw 0
@@ -84,7 +85,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,3,a
+	bsf Sensor,0,a
 	
 	determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
 	col_det_done_S2:
@@ -96,7 +97,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,4,a
+	bsf Sensor,1,a
 
 	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
 	col_det_done_S3:
@@ -108,7 +109,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,5,a
+	bsf Sensor,2,a
 	
 	determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
 	col_det_done_S4:
@@ -120,7 +121,7 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,6,a
+	bsf Sensor,3,a
 	
 	determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
 	col_det_done_S5:
@@ -132,35 +133,35 @@ Sensor_LLI_Generate:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bsf Sensor,7,a
+	bsf Sensor,4,a
 	
-	movlw 5
+    	movlw 5
 	cpfseq tmp,a
 	bra $+8
-	movlw 0b11111000
-	movwf PORTA,a
-	goto stop
-	
-	clrf PORTA,a
-	movff Sensor,PORTA
+	call stop
+	bra $+4
 	call LLI_Entry
+	
     return
 
     
 Check_Nav_Col:
-    btfss PORTB,0,a
+    movlw 0xff
+    movwf PORTA,a
+    
+    btfss PORTA,0,a
     bra $+4
     retlw 0
    
-    btfss PORTB,1,a
+    btfss PORTA,1,a
     bra $+4
     retlw 1
 
-    btfss PORTB,2,a
+    btfss PORTA,2,a
     bra $+4
     retlw 2
 
-    btfss PORTB,3,a
+    btfss PORTA,3,a
     bra $+4
     retlw 3
     

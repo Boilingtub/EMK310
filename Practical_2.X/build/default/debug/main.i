@@ -15,9 +15,7 @@ CONFIG WDTEN = OFF
 CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
 ;CONFIG CCP4MX = PORTB0
-CONFIG CCP5MX = PORTE2
-;CONFIG3H
-CONFIG CCP2
+;CONFIG CCP5MX = PORTE2
 
 # 1 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 1 3
 
@@ -8797,7 +8795,7 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 6 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 2 3
-# 16 "main.s" 2
+# 14 "main.s" 2
 
 
 # 1 "./constants.inc" 1
@@ -9023,7 +9021,7 @@ ADCAQTL EQU 0xDD
 ;===== PORT Aliases =====
 DUMP_REG EQU PORTD
 RGB_REG EQU PORTC
-# 19 "main.s" 2
+# 17 "main.s" 2
 
 PSECT code,abs ; Start Code section
 org 0h ; startup address = 0000h
@@ -9044,7 +9042,7 @@ clrf PORTA, a ; Init port A, clear output of data latches
 clrf LATA, a ; Alternate way to clear all data latches
 movlw 0b00000000
 movwf ANSELA,a
-movlw 0b00000000
+movlw 0b00001111
 movwf TRISA,a
 
 ;Initialize Port B (check Data Sheet)
@@ -9053,17 +9051,18 @@ clrf PORTB,b ;clear output of data latches
 clrf LATB, b ;alternative method
 movlw 0b00100000
 movwf ANSELB, b ;Set RB<7:5,3:0> to Digital, RB<4> to Analog
-movlw 0b00111111
+movlw 0b00110110
 movwf TRISB, b ; RB<7:6,3:0> OUT, RB<5,4> IN
+
 
 ;Initialize Port C (check Data Sheet)
 movlb 0xF ;Set BSR for Banked SFR (Bank 15)
 clrf PORTC,a
 clrf LATC,a
 movlw 0b11111000
-movwf ANSELC,a ;Set ((EECON1) and 0FFh), 0, a<7:0> to Digital
+movwf ANSELC,b ;Set ((EECON1) and 0FFh), 0, a<7:0> to Digital
 movlw 0b11111000
-movwf TRISC,a ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
+movwf TRISC,b ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
 
 ;Initialize Port D (check Data Sheet)
 movlb 0xF ;Set BSR for Banked SFR (Bank 15)
@@ -9078,7 +9077,8 @@ movwf TRISD,a ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
 movlb 0xF ;Set BSR for Banked SFR (Bank 15)
 clrf PORTE,a
 clrf LATE,a
-clrf ANSELE,a ;Set RE<7:0> to Digital
+movlw 0b00000000
+movwf ANSELE,a ;Set RE<7:0> to Digital
 movlw 0b00000000
 movwf TRISE,a ;Set RE<7:0> to Output
 
@@ -9090,10 +9090,7 @@ movwf OSCCON,a
 ;movwf OSCCON2,a
 
 ;Initialize ADC (Check DataSheet)
-;movlw 0b00110111 ;left justify, Frc, 12 TAD ACQ time;
-;movlw 0b00101001
-movlw 0b00111110
-
+movlw 0b00111010 ; left Justify 20 TAD, FOSC/32,
 movwf ADCON2,a
 movlw 0b00000000 ;ADC ref = Vdd,Vss
 movwf ADCON1,a
@@ -9123,7 +9120,7 @@ call pwm_setup
 
 movlb 0x00
 return
-# 32 "main.s" 2
+# 30 "main.s" 2
 # 1 "./pwm_setup.inc" 1
 pwm_setup:
     movlb 0xF
@@ -9136,32 +9133,39 @@ pwm_setup:
     movlw 249
     movwf PR2,b
     ;set CCP Duty cycles
-    banksel CCPR1L
-    movlw 0x00 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RC1) but off for setup
-    movwf CCPR1L,b
     banksel CCPR2L
-    movlw 0x00 ; Duty Cycle for CCP2 (RC2) but off for setup
+    movlw 0x00 ;Duty Cycle for ((PORTC) and 0FFh), 2, a (RB3) but off for setup
     movwf CCPR2L,b
+
     banksel CCPR3L
-    movlw 0x00 ; Duty Cycle for CCP3 (RE0) off for setup
+    movlw 0x00 ;Duty Cycle for CCP2 (RE0) but off for setup
     movwf CCPR3L,b
+
     banksel CCPR4L
-    movlw 0x00 ; Duty Cycle for CCP3 (RE0) off for setup
+    movlw 0x00 ;Duty Cycle for ((PORTD) and 0FFh), 1, a (RD1) off for setup
     movwf CCPR4L,b
+
+    banksel CCPR5L
+    movlw 0x00 ;Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
+    movwf CCPR5L,b
     ; Set ccp's to standard PWM modes
-    movlw 0b00111100
-    movwf CCP1CON,b
+    movlw 0b00111100 ;0b00111100
+    banksel CCP2CON
     movwf CCP2CON,b
     banksel CCP3CON
     movwf CCP3CON,b
     banksel CCP4CON
     movwf CCP4CON,b
+    banksel CCP5CON
+    movwf CCP5CON,b
     ;Start Timer 2
     movlw 0b00000100
     movwf T2CON,b
-
+    ;PheriPheral Module Register
+    movlw 0b00000001; (E) ((PORTE) and 0FFh), 2, a, (E) ((PORTD) and 0FFh), 1, a, (E) CCP3 (E) CCP2 (D) ((PORTC) and 0FFh), 2, a
+    movwf PMD1,a
     return
-# 33 "main.s" 2
+# 31 "main.s" 2
 # 1 "./timer.inc" 1
 wait_n_cycles macro num, l_addr1, l_addr2
     movlw num
@@ -9192,7 +9196,7 @@ wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
     bra $-4
     bcf T0CON, 7, c ; timer is turned off
 endm
-# 34 "main.s" 2
+# 32 "main.s" 2
 # 1 "./Sensor.inc" 1
 fake_RGB_measure macro rR, vR, rG, vG ,rB, vB
     movlw vR
@@ -9286,7 +9290,7 @@ read_Sensor5:
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s5r, s5g, s5b
     return
-# 35 "main.s" 2
+# 33 "main.s" 2
 # 1 "./color_detection.inc" 1
 check_navline macro sv, col_reg, rr, bit
     movff nav_col,WREG
@@ -9364,6 +9368,7 @@ Sensor_LLI_Generate:
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
+
  determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
  col_det_done_S1:
  movlw 0
@@ -9374,7 +9379,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,3,a
+ bsf Sensor,0,a
 
  determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
  col_det_done_S2:
@@ -9386,7 +9391,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,4,a
+ bsf Sensor,1,a
 
  determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
  col_det_done_S3:
@@ -9398,7 +9403,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,5,a
+ bsf Sensor,2,a
 
  determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
  col_det_done_S4:
@@ -9410,7 +9415,7 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,6,a
+ bsf Sensor,3,a
 
  determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
  col_det_done_S5:
@@ -9422,35 +9427,35 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,7,a
+ bsf Sensor,4,a
 
- movlw 5
+     movlw 5
  cpfseq tmp,a
  bra $+8
- movlw 0b11111000
- movwf PORTA,a
- goto stop
-
- clrf PORTA,a
- movff Sensor,PORTA
+ call stop
+ bra $+4
  call LLI_Entry
+
     return
 
 
 Check_Nav_Col:
-    btfss PORTB,0,a
+    movlw 0xff
+    movwf PORTA,a
+
+    btfss PORTA,0,a
     bra $+4
     retlw 0
 
-    btfss PORTB,1,a
+    btfss PORTA,1,a
     bra $+4
     retlw 1
 
-    btfss PORTB,2,a
+    btfss PORTA,2,a
     bra $+4
     retlw 2
 
-    btfss PORTB,3,a
+    btfss PORTA,3,a
     bra $+4
     retlw 3
 
@@ -9474,7 +9479,7 @@ color_detection_test:
     show_color:
  call det_col_LED
  bra color_detection_test
-# 36 "main.s" 2
+# 34 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRL:
     nop
@@ -9520,7 +9525,7 @@ ISRH:
 
     ISRH_done:
  retfie
-# 37 "main.s" 2
+# 35 "main.s" 2
 # 1 "./calibration.inc" 1
 flash_Reg macro count_addr, count_val, out_reg, out_val
     movlw count_val
@@ -9577,7 +9582,8 @@ calibrate_start:
     bsf rcalib,0,a
     calibrate_for_white:
  movff rcalib,WREG
- bsf DUMP_REG,0,a
+ movlw 0b00000111
+ movwf DUMP_REG,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9587,10 +9593,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00000001
+ flash_Reg tmp, 3, DUMP_REG, 0b00000111
     calibrate_for_green:
  movff rcalib,WREG
- bsf DUMP_REG,1,a
+ movlw 0b00000010
+ movwf DUMP_REG,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9603,7 +9610,8 @@ calibrate_start:
  flash_Reg tmp, 3, DUMP_REG, 0b00000010
     calibrate_for_blue:
      movff rcalib,WREG
- bsf DUMP_REG,2,a
+ movlw 0b00000100
+ movwf DUMP_REG,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9616,7 +9624,8 @@ calibrate_start:
  flash_Reg tmp, 3, DUMP_REG, 0b00000100
     calibrate_for_black:
  movff rcalib,WREG
- bsf DUMP_REG,4,a
+ movlw 0b00000101
+ movwf DUMP_REG,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9626,10 +9635,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00010000
+ flash_Reg tmp, 3, DUMP_REG, 0b00000101
     calibrate_for_red:
  movff rcalib,WREG
- bsf DUMP_REG,3,a
+ movlw 0b00000001
+ movwf DUMP_REG,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9639,7 +9649,7 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00001000
+ flash_Reg tmp, 3, DUMP_REG, 0b00000001
     clrf DUMP_REG,a
     clrf rcalib,a
     return
@@ -9788,7 +9798,7 @@ calibrate_test_int:
     btfss rcalib,1,a
     bra $-2
     bra $-16
-# 38 "main.s" 2
+# 36 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
 set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
     movlw ccp2 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RB3) but3 off for setup
@@ -9887,38 +9897,40 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 ;restart main as no action was taken
     return
 
-left:
-    set_motor_pwm 0x00,0xAF,0xFA,0x00
+left: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0x00,0x00, 0xFA,0x00
     return
 
-right:
-    set_motor_pwm 0xFA,0x00,0x00,0xAF
+right: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0xFA,0x00, 0x00,0x00
     return
 
-slight_left:
-    set_motor_pwm 0x7D,0x00,0xFA,0x00
+slight_left: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0x7D,0x00, 0xFA,0x00
     return
 
-slight_right:
-    set_motor_pwm 0xFA,0x00,0x7D,0x00
+slight_right: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0xFA,0x00, 0x7D,0x00
     return
 
-straight:
-    set_motor_pwm 0xFA,0x00,0xFA,0x00
+straight: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0xFA,0x00, 0xFA,0x00
     return
 
-stop:
-    set_motor_pwm 0x00,0x00,0x00,0x00
+stop: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0x00,0x00, 0x00,0x00
     return
 
-search:
-    set_motor_pwm 0x00,0x7D,0x00,0x7D
+search: ;1_F ;1_B ;2_F ;2_B
+    set_motor_pwm 0xAF,0x00, 0xAF,0x00
     return
-# 39 "main.s" 2
+# 37 "main.s" 2
 
 main:
     call calibrate_start
-    call Detect_LL
+    ;call calibrate_test
+    call Detect_LLI
+    ;set_motor_pwm 0xff,0x00,0xff,0x00
     bra $-4
     bra exit
 

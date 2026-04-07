@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Jan-Hendrik")(type "KiCad")(uri "/home/hendrik/Documents/KiCad/Library/Footprints/PIC18F45K22.pretty")(options "")(descr ""))
+)
