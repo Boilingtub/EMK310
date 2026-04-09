@@ -146,34 +146,57 @@ Sensor_LLI_Generate:
 
     
 Check_Nav_Col:
-    movlw 0xff
-    movwf PORTA,a
+    call Check_Nav_Select
+    movwf nav_col,a
+    return
+
+Check_Nav_Select:
+    clrf tmp,0
     
-    btfss PORTA,0,a
+    btfss PORTA,0,0
     bra $+4
-    retlw 0
+    bsf	tmp,0,1
    
-    btfss PORTA,1,a
+    btfss PORTA,1,0
     bra $+4
+    bsf tmp,1,0
+    
+    movlw 0
+    cpfseq tmp,0
+    bra $+8
+    movlw 0b00000000
+    movwf PORTD,0
+    retlw 0
+    
+    movlw 1
+    cpfseq tmp,0
+    bra $+8
+    movlw 0b00000100
+    movwf PORTD,0
     retlw 1
-
-    btfss PORTA,2,a
-    bra $+4
+    
+    movlw 2
+    cpfseq tmp,0
+    bra $+8
+    movlw 0b00010000
+    movwf PORTD,0
     retlw 2
-
-    btfss PORTA,3,a
-    bra $+4
+    
+    movlw 3
+    cpfseq tmp,0
+    bra $+8
+    movlw 0b00001000
+    movwf PORTD,0
     retlw 3
     
+    movlw 0b00000000
+    movwf PORTD,0
     retlw 0
     
 Detect_LLI: 
-    call Check_Nav_Col
-   
     do_Detect_LLI:
-	movwf nav_col,a
 	call Sensor_LLI_Generate
-	;bra Detect_LLI
+	;bra do_Detect_LLI
 return
 
 ;========== TESTS ==========

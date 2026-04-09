@@ -1,7 +1,50 @@
-RA4/RE2     CPP5 RE2 
-RB0/RD1     CPP4 RB0
-RB5/RC6/RE0 CPP3 RE0
-RB3/RC1     CPP2 RB3
-RC2         CPP1 ---
+#========== Possible Mappings ==========
+RA4 / RE2       - CPP5 RE2 
+RB0 / RD1       - CPP4 RB0
+RB5 / RC6 / RE0 - CPP3 RE0
+RB3 / RC1       - CPP2 RB3
+RC2             - CPP1 ---
+#========== Implemented Mappings ==========
+RA0 - Color Select Bit 1 } 00 - black , 01 - red 
+RA1 - Color Select Bit 2 } 10 - blue  , 11 - green
+RA2 - 
+RA3 - 
+RA4 - 
+RA5 - 
+RA6 - 
+RA7 - 
+
+RB0 - CCP4 (Motor 1 Fwd) 
+RB1 - 
+RB2 - 
+RB3 - CCP2 (Motor 1 Fwd)
+RB4 - Calibrate Sensor button
+RB5 - Touch Sensor  
+RB6 - TX2 (Serial Transmit) 
+RB7 - RX2 (Serial Receive)
+
+RC0 - Red Sensor Strobe 
+RC1 - Green Sensor Strobe
+RC2 - Blue Sensor Strobe
+RC3 - Sensor 1 Input 
+RC4 - Sensor 2 Input
+RC5 - Sensor 3 Input
+RC6 - Sensor 4 Input
+RC7 - Sensor 5 Input
+
+RD0 - 
+RD1 - CCP4 (motor 1 Bwd) 
+RD2 - display LED red
+RD3 - display LED green 
+RD4 - display LED blue 
+RD5 - 
+RD6 - 
+RD7 - 
+
+RE0 - CCP3 (Motor 2 Fwd) 
+RE1 - 
+RE2 - 
+RE2 - CCP5 (Motor 2 Bwd)
+RE3 - PROGRAMMING PIN
 
 

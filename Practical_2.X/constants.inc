@@ -9,6 +9,7 @@ rcolor equ 0x7
 nav_col equ 0x8
 r_col_det equ 0x9
 r_RB4_do equ 0xB
+cap_reg equ 0xD
  
 s1r equ 0x21
 s1g equ 0x22
@@ -216,7 +217,9 @@ H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
 ADCAQTL EQU 0xDD
-	
+CAPTH	EQU 0xF5H
+CAPTL	EQU 0xFF
+CAP_THRES EQU 22
 ;===== PORT Aliases =====
 DUMP_REG EQU PORTD
 RGB_REG EQU PORTC

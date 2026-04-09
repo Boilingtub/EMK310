@@ -30,16 +30,19 @@ org 20h	;Start for code setup
 #include "pwm_setup.inc"
 #include "timer.inc"
 #include "Sensor.inc"
+#include "touch.inc"
 #include "color_detection.inc"
 #include "interrupts.inc"
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-main:    
-    call calibrate_start
+main:	
     ;call calibrate_test
+    call calibrate_start
+    call Check_Nav_Col
+    call start_on_touch
+    wait_timer H333ms, L333ms
     call Detect_LLI
-    ;set_motor_pwm 0xff,0x00,0xff,0x00
     bra $-4
     bra exit
    
