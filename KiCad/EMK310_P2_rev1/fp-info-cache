@@ -1,4 +1,4 @@
-27260795179582682
+27262570939896878
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -70349,6 +70349,13 @@ DIP1543W47P254L5321H635Q40
 0
 40
 40
+Jan-Hendrik
+PinHeader_2x04_P2.54mm_Vertical_Antenna
+Through hole straight pin header, 2x04, 2.54mm pitch, double rows
+Through hole pin header THT 2x04 2.54mm double row
+0
+8
+8
 Jan-Hendrik
 THT_MIC2920A
 TO-220-3, Vertical, RM 2.54mm, see https://www.vishay.com/docs/66542/to-220-1.pdf, generated with kicad-footprint-generator TO_SOT_THT_generate.py
