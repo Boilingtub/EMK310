@@ -14,6 +14,7 @@ set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
     movlw   ccp5  ; Duty Cycle for CCP5 (RE2) off for setup
     banksel CCPR5L
     movwf   CCPR5L,1 ;M2 B
+    movlb 0
 endm
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
@@ -21,52 +22,52 @@ endm
 LLI_Entry:
 left_logic:
     movf Sensor,0,0;Move Sensor value to wreg
-    XORLW 0b00010000;check if the wreg and the binary value match exactly
+    XORLW 0b00000001;check if the wreg and the binary value match exactly
 	BZ left;z will be 1 if they match and it will then branch HOPE p82
     movf Sensor,0,0
-    XORLW 0b00011000
+    XORLW 0b00000011
 	BZ left
     movf Sensor,0,0
-    XORLW 0b00011100
+    XORLW 0b00000111
 	BZ left
     movf Sensor,0,0
-    XORLW 0b00011110
+    XORLW 0b00001111
 	BZ left
 
 ;-----------------------------------------------------------------------------
 ;Move right logic
 right_logic:
     MOVF Sensor,0,0
-    XORLW 0b00000001
+    XORLW 0b00010000
 	BZ right
     MOVF Sensor,0,0
-    XORLW 0b00000011
+    XORLW 0b00011000
 	BZ right
     MOVF Sensor,0,0
-    XORLW 0b00000111
+    XORLW 0b00011100
 	BZ right
     MOVF Sensor,0,0
-    XORLW 0b00001111
+    XORLW 0b00011110
 	BZ right
     
 ;-----------------------------------------------------------------------------
 ;Move slight left logic 
 slight_left_logic:
     MOVF Sensor,0,0
-    XORLW 0b00001000
+    XORLW 0b00000010
 	BZ slight_left
     MOVF Sensor,0,0
-    XORLW 0b00001100
+    XORLW 0b00000110
 	BZ slight_left
    
 ;-----------------------------------------------------------------------------
 ;Move slight right logic
 slight_right_logic:
     MOVF Sensor,0,0
-    XORLW 0b00000010
+    XORLW 0b00001000
 	BZ slight_right
     MOVF Sensor,0,0
-    XORLW 0b00000110
+    XORLW 0b00011000
 	BZ slight_right
     
 ;-----------------------------------------------------------------------------
@@ -100,7 +101,7 @@ right:		    ;2_F ;1_F   ;2_B ;1_B
     return
     
 slight_right:	    ;2_F ;1_F   ;2_B ;1_B
-    set_motor_pwm   0x00,0x7D,  0x00,0x00
+    set_motor_pwm   0x00,0xAD,  0x00,0x00
     return
   
 left:		    ;1_F ;2_F   ;1_B ;2_B
@@ -108,7 +109,7 @@ left:		    ;1_F ;2_F   ;1_B ;2_B
     return
     
 slight_left:	    ;2_F ;1_F   ;2_B ;1_B
-    set_motor_pwm   0x7D,0x00,  0x00,0x00
+    set_motor_pwm   0xAA,0x00,  0x00,0x00
     return
    
 straight:	    ;2_F ;1_F   ;2_B ;1_B

@@ -18,6 +18,7 @@ check_in_range macro r, min, max, next_label ;20 bytes PC
 endm
    
 determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
+    movlb 0
     movlw 4
     movwf rcol,b
     ;check_white:
@@ -70,13 +71,14 @@ det_col_LED:
     return
 	
 Sensor_LLI_Generate:
-    clrf Sensor,a
+    ;clrf Sensor,a
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
     
 	determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
 	col_det_done_S1:
+    	bcf Sensor,0,a
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -89,6 +91,7 @@ Sensor_LLI_Generate:
 	
 	determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
 	col_det_done_S2:
+	bcf Sensor,1,a
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -101,6 +104,7 @@ Sensor_LLI_Generate:
 
 	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
 	col_det_done_S3:
+	bcf Sensor,2,a
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -113,6 +117,7 @@ Sensor_LLI_Generate:
 	
 	determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
 	col_det_done_S4:
+	bcf Sensor,3,a
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4
@@ -125,6 +130,7 @@ Sensor_LLI_Generate:
 	
 	determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
 	col_det_done_S5:
+	bcf Sensor,4,a
 	movlw 0
 	cpfseq rcolor,a
 	bra $+4

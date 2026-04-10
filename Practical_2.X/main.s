@@ -36,11 +36,11 @@ org 20h	;Start for code setup
 main:
 		     ;2_F ;1_F   ;2_B ;1_B
     ;set_motor_pwm   0x00,0xFA,  0x00,0x00
-    call calibrate_test
-    ;call calibrate_start
+    ;call calibrate_test
+    call calibrate_start
     call Check_Nav_Col
-    ;call start_on_touch
-    ;wait_timer H333ms, L333ms
+    call start_on_touch
+    wait_timer H333ms, L333ms
     call Detect_LLI
     bra $-4
     bra exit
