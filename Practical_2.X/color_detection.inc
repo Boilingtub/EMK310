@@ -19,32 +19,32 @@ endm
    
 determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
     movlw 4
-    movwf rcol,b
+    movwf rcol,1
     ;check_white:
 	check_in_range rr, S, S+1, $+44
 	check_in_range rg, S+2, S+3, $+24
 	check_in_range rb, S+4, S+5, $+4
 	bra done_label
     ;check_green;
-	decf rcol,b
+	decf rcol,1
 	check_in_range rr, S+12, S+13, $+44
 	check_in_range rg, S+14, S+15, $+24
 	check_in_range rb, S+16, S+17, $+4
 	bra done_label
    ;check_blue
-   	decf rcol,b
+   	decf rcol,1
 	check_in_range rr, S+18, S+19, $+44
 	check_in_range rg, S+20, S+21, $+24
 	check_in_range rb, S+22, S+23, $+4
 	bra done_label
    ;check_red
-      	decf rcol,b
+      	decf rcol,1
 	check_in_range rr, S+6, S+7, $+44
 	check_in_range rg, S+8, S+9, $+24
 	check_in_range rb, S+10, S+11, $+4
 	bra done_label
    ;check_black
-      	decf rcol,b
+      	decf rcol,1
 	check_in_range rr, S+24, S+25, $+44
 	check_in_range rg, S+26, S+27, $+24
 	check_in_range rb, S+28, S+29, $+4
@@ -63,80 +63,80 @@ det_col_LED:
     bra $+4
     bra $+10
     rlncf   r_col_det,a
-    decf WREG,a
+    decf WREG,0
     btfss  r_col_det,4,a
     bra $-12
     movff r_col_det,DUMP_REG
     return
 	
 Sensor_LLI_Generate:
-    clrf Sensor,a
-    clrf tmp,a
+    clrf Sensor,0
+    clrf tmp,0
     call read_Sensor_all
     get_LLI_color:
     
 	determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
 	col_det_done_S1:
 	movlw 0
-	cpfseq rcolor,a
+	cpfseq rcolor,0
 	bra $+4
-	incf tmp,a
+	incf tmp,0
 	;=========================
 	movff nav_col,WREG
-	CPFSEQ rcolor,a
+	CPFSEQ rcolor,0
 	bra $+4
-	bsf Sensor,0,a
+	bsf Sensor,0,0
 	
 	determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
 	col_det_done_S2:
 	movlw 0
-	cpfseq rcolor,a
+	cpfseq rcolor,0
 	bra $+4
-	incf tmp,a
+	incf tmp,0
 	;=========================
 	movff nav_col,WREG
-	CPFSEQ rcolor,a
+	CPFSEQ rcolor,0
 	bra $+4
-	bsf Sensor,1,a
+	bsf Sensor,1,0
 
 	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
 	col_det_done_S3:
 	movlw 0
-	cpfseq rcolor,a
+	cpfseq rcolor,0
 	bra $+4
-	incf tmp,a
+	incf tmp,0
 	;=========================
 	movff nav_col,WREG
-	CPFSEQ rcolor,a
+	CPFSEQ rcolor,0
 	bra $+4
-	bsf Sensor,2,a
+	bsf Sensor,2,0
 	
 	determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
 	col_det_done_S4:
 	movlw 0
-	cpfseq rcolor,a
+	cpfseq rcolor,
 	bra $+4
-	incf tmp,a
+	incf tmp,0
 	;=========================
 	movff nav_col,WREG
-	CPFSEQ rcolor,a
+	CPFSEQ rcolor,0
 	bra $+4
-	bsf Sensor,3,a
+	bsf Sensor,3,0
 	
 	determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
 	col_det_done_S5:
 	movlw 0
-	cpfseq rcolor,a
+	cpfseq rcolor,0
 	bra $+4
-	incf tmp,a
+	incf tmp,0
 	;=========================
 	movff nav_col,WREG
-	CPFSEQ rcolor,a
+	CPFSEQ rcolor,0
 	bra $+4
-	bsf Sensor,4,a
+	bsf Sensor,4,0
 	
     	movlw 5
-	cpfseq tmp,a
+	cpfseq tmp,0
 	bra $+8
 	call stop
 	bra $+4
@@ -147,7 +147,7 @@ Sensor_LLI_Generate:
     
 Check_Nav_Col:
     call Check_Nav_Select
-    movwf nav_col,a
+    movwf nav_col,0
     return
 
 Check_Nav_Select:
