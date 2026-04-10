@@ -4,11 +4,8 @@ PROCESSOR   18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
-;CONFIG CCP1MX = PORTC2 
 CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
-;CONFIG CCP4MX = PORTB0
-;CONFIG CCP5MX = PORTE2
    
 #include    <xc.inc>
 #include    "pic18f45k22.inc"
@@ -36,12 +33,14 @@ org 20h	;Start for code setup
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-main:	
-    ;call calibrate_test
-    call calibrate_start
+main:
+		     ;2_F ;1_F   ;2_B ;1_B
+    ;set_motor_pwm   0x00,0xFA,  0x00,0x00
+    call calibrate_test
+    ;call calibrate_start
     call Check_Nav_Col
-    call start_on_touch
-    wait_timer H333ms, L333ms
+    ;call start_on_touch
+    ;wait_timer H333ms, L333ms
     call Detect_LLI
     bra $-4
     bra exit

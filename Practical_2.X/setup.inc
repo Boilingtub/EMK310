@@ -75,10 +75,10 @@ bsf   IOCB, 5, 1       ; Enable Interrupt-on-change for RB5
 bcf   INTCON2, 7, 0  ;Global RBPU enable (0 = ON)
     
 ;Enable Interrupts
-movf  PORTB, 0	; Read Port B (clear mismatch)
-bcf   INTCON, 0, a     ; Clear RBIF flag (bit 0)
-bsf   INTCON, 3, a     ; Enable RBIE (Port B change interrupt, bit 3)
-bsf   INTCON, 7, a      ; Enable GIE (Global interrupt, bit 7)
+movf  PORTB, 0,1	; Read Port B (clear mismatch)
+bcf   INTCON, 0, 1     ; Clear RBIF flag (bit 0)
+bsf   INTCON, 3, 1     ; Enable RBIE (Port B change interrupt, bit 3)
+bsf   INTCON, 7, 1      ; Enable GIE (Global interrupt, bit 7)
 
 call pwm_setup
     

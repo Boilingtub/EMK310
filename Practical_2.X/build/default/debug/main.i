@@ -11,11 +11,8 @@ PROCESSOR 18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
-;CONFIG CCP1MX = PORTC2
 CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
-;CONFIG CCP4MX = PORTB0
-;CONFIG CCP5MX = PORTE2
 
 # 1 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 1 3
 
@@ -8795,7 +8792,7 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 6 "/opt/microchip/xc8/v3.10/pic/include/xc.inc" 2 3
-# 14 "main.s" 2
+# 11 "main.s" 2
 
 
 # 1 "./constants.inc" 1
@@ -9024,7 +9021,7 @@ CAP_THRES EQU 22
 ;===== PORT Aliases =====
 DUMP_REG EQU PORTD
 RGB_REG EQU PORTC
-# 17 "main.s" 2
+# 14 "main.s" 2
 
 PSECT code,abs ; Start Code section
 org 0h ; startup address = 0000h
@@ -9115,16 +9112,16 @@ bsf IOCB, 5, 1 ; Enable Interrupt-on-change for RB5
 bcf INTCON2, 7, 0 ;Global ((INTCON2) and 0FFh), 7, a enable (0 = ON)
 
 ;Enable Interrupts
-movf PORTB, 0 ; Read Port B (clear mismatch)
-bcf INTCON, 0, a ; Clear ((INTCON) and 0FFh), 0, a flag (bit 0)
-bsf INTCON, 3, a ; Enable ((INTCON) and 0FFh), 3, a (Port B change interrupt, bit 3)
-bsf INTCON, 7, a ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
+movf PORTB, 0,1 ; Read Port B (clear mismatch)
+bcf INTCON, 0, 1 ; Clear ((INTCON) and 0FFh), 0, a flag (bit 0)
+bsf INTCON, 3, 1 ; Enable ((INTCON) and 0FFh), 3, a (Port B change interrupt, bit 3)
+bsf INTCON, 7, 1 ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
 
 call pwm_setup
 
 movlb 0x00
 return
-# 30 "main.s" 2
+# 27 "main.s" 2
 # 1 "./pwm_setup.inc" 1
 pwm_setup:
     movlb 0xF
@@ -9169,7 +9166,7 @@ pwm_setup:
     movlw 0b00000001; (E) ((PORTE) and 0FFh), 2, a, (E) ((PORTD) and 0FFh), 1, a, (E) CCP3 (E) CCP2 (D) ((PORTC) and 0FFh), 2, a
     movwf PMD1,0
     return
-# 31 "main.s" 2
+# 28 "main.s" 2
 # 1 "./timer.inc" 1
 wait_n_cycles macro num, l_addr1, l_addr2
     movlw num
@@ -9200,7 +9197,7 @@ wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
     bra $-4
     bcf T0CON, 7, c ; timer is turned off
 endm
-# 32 "main.s" 2
+# 29 "main.s" 2
 # 1 "./Sensor.inc" 1
 fake_RGB_measure macro rR, vR, rG, vG ,rB, vB
     movlw vR
@@ -9213,11 +9210,11 @@ endm
 
 divSensoradd macro numerator,r1,r2
     movlw numerator
-    mulwf r1,a
-    btfsc PRODL,7,a
-    bsf PRODH,0,a
+    mulwf r1,0
+    btfsc PRODL,7,0
+    bsf PRODH,0,0
     movff PRODH,WREG
-    addwf r2,a
+    addwf r2,0
 endm
 
 average_values macro r1,r2,r3,r4,r5,rr
@@ -9232,24 +9229,24 @@ endm
 
 ADC_measure macro r1
     ;wait_timer 0x01,0x01
-    bsf ADCON0,1,a ;Start conversion
-    btfsc ADCON0,1,a ;Is conversion done?, NO, test again
+    bsf ADCON0,1,0 ;Start conversion
+    btfsc ADCON0,1,0 ;Is conversion done?, NO, test again
     bra $-2
     movff ADRESH, r1
 endm
 
 RGB_measure macro rR, rG, rB
     movlw 6
-    movwf RGB_REG,a
+    movwf RGB_REG,0
     ADC_measure rR
     movlw 5
-    movwf RGB_REG,a
+    movwf RGB_REG,0
     ADC_measure rG
     movlw 3
-    movwf RGB_REG,a
+    movwf RGB_REG,0
     ADC_measure rB
     movlw 0
-    movwf RGB_REG,a
+    movwf RGB_REG,0
 endm
 
 read_Sensor_all:
@@ -9262,39 +9259,39 @@ read_Sensor_all:
 
 read_Sensor1:
     movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
-    movwf ADCON0,a
+    movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s1r, s1g, s1b
     return
 
 read_Sensor2:
     movlw 0b01000001 ;((PORTC) and 0FFh), 4, a a.k.a RC4, ADC on
-    movwf ADCON0,a
+    movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s2r, s2g, s2b
     return
 
 read_Sensor3:
     movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
-    movwf ADCON0,a
+    movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s3r, s3g, s3b
     return
 
 read_Sensor4:
     movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
-    movwf ADCON0,a
+    movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s4r, s4g, s4b
     return
 
 read_Sensor5:
     movlw 0b01001101 ;((PORTC) and 0FFh), 7, a /.k.a RC7, ADC on
-    movwf ADCON0,a
+    movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s5r, s5g, s5b
     return
-# 33 "main.s" 2
+# 30 "main.s" 2
 # 1 "./touch.inc" 1
 touch_measure:
     movlb 0xF
@@ -9345,7 +9342,7 @@ start_on_touch:
     bra $+4
     bra start_on_touch
     return
-# 34 "main.s" 2
+# 31 "main.s" 2
 # 1 "./color_detection.inc" 1
 check_navline macro sv, col_reg, rr, bit
     movff nav_col,WREG
@@ -9419,7 +9416,7 @@ det_col_LED:
     return
 
 Sensor_LLI_Generate:
-    clrf Sensor,a
+    ;clrf Sensor,a
     clrf tmp,a
     call read_Sensor_all
     get_LLI_color:
@@ -9468,7 +9465,7 @@ Sensor_LLI_Generate:
  incf tmp,a
  ;=========================
  movff nav_col,WREG
- CPFSEQ rcolor,a
+ cpfseq rcolor,a
  bra $+4
  bsf Sensor,3,a
 
@@ -9500,46 +9497,46 @@ Check_Nav_Col:
     return
 
 Check_Nav_Select:
-    clrf tmp,0
+    clrf tmp,a
 
-    btfss PORTA,0,0
+    btfss PORTA,0,a
     bra $+4
-    bsf tmp,0,1
+    bsf tmp,0,b
 
-    btfss PORTA,1,0
+    btfss PORTA,1,a
     bra $+4
-    bsf tmp,1,0
+    bsf tmp,1,a
 
     movlw 0
-    cpfseq tmp,0
+    cpfseq tmp,a
     bra $+8
     movlw 0b00000000
-    movwf PORTD,0
+    movwf PORTD,a
     retlw 0
 
     movlw 1
-    cpfseq tmp,0
+    cpfseq tmp,a
     bra $+8
     movlw 0b00000100
-    movwf PORTD,0
+    movwf PORTD,a
     retlw 1
 
     movlw 2
-    cpfseq tmp,0
+    cpfseq tmp,a
     bra $+8
     movlw 0b00010000
-    movwf PORTD,0
+    movwf PORTD,a
     retlw 2
 
     movlw 3
-    cpfseq tmp,0
+    cpfseq tmp,a
     bra $+8
     movlw 0b00001000
-    movwf PORTD,0
+    movwf PORTD,a
     retlw 3
 
     movlw 0b00000000
-    movwf PORTD,0
+    movwf PORTD,a
     retlw 0
 
 Detect_LLI:
@@ -9557,7 +9554,7 @@ color_detection_test:
     show_color:
  call det_col_LED
  bra color_detection_test
-# 35 "main.s" 2
+# 32 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRL:
     nop
@@ -9603,7 +9600,7 @@ ISRH:
 
     ISRH_done:
  retfie
-# 36 "main.s" 2
+# 33 "main.s" 2
 # 1 "./calibration.inc" 1
 flash_Reg macro count_addr, count_val, out_reg, out_val
     movlw count_val
@@ -9876,7 +9873,7 @@ calibrate_test_int:
     btfss rcalib,1,a
     bra $-2
     bra $-16
-# 37 "main.s" 2
+# 34 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
 set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
     movlw ccp2 ; Duty Cycle for CCP2 (RB3) but3 off for setup
@@ -10002,14 +9999,16 @@ stop: ;2_F ;1_F ;2_B ;1_B
 search: ;2_F ;1_F ;2_B ;1_B
     set_motor_pwm 0xAF,0x00, 0x00,0x00
     return
-# 38 "main.s" 2
+# 35 "main.s" 2
 
 main:
-    ;call calibrate_test
-    call calibrate_start
+       ;2_F ;1_F ;2_B ;1_B
+    ;set_motor_pwm 0x00,0xFA, 0x00,0x00
+    call calibrate_test
+    ;call calibrate_start
     call Check_Nav_Col
-    call start_on_touch
-    wait_timer H333ms, L333ms
+    ;call start_on_touch
+    ;wait_timer H333ms, L333ms
     call Detect_LLI
     bra $-4
     bra exit

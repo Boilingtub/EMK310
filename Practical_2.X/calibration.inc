@@ -1,37 +1,37 @@
 flash_Reg macro count_addr, count_val, out_reg, out_val
     movlw count_val
-    movwf count_addr,0
+    movwf count_addr,a
     movlw out_val			      ;movlw is		 2 bytes
-    movwf out_reg,0			      ;movwf is	         2 bytes
+    movwf out_reg,a			      ;movwf is	         2 bytes
     wait_timer H333ms,L333ms		      ;wait_timer is    22 bytes
-    clrf  out_reg,0			      ;clrf is		 2 bytes
+    clrf  out_reg,a			      ;clrf is		 2 bytes
     wait_timer H333ms,L333ms		      ;wait_timer is	22 bytes
-    decfsz  count_addr,0		      ;decfsz is	 2 bytes
+    decfsz  count_addr,a		      ;decfsz is	 2 bytes
     bra	    $-52			      ;put PC		52 bytes back
 endm
 
 calc_threshold_min macro margin,v,rr
     movlw Thres_var
-    cpfslt v,1
+    cpfslt v,b
     bra $+8
     movlw 0
-    movwf rr,1
+    movwf rr,b
     bra $+10
     movff v,rr
     movlw Thres_var
-    subwf rr,1
+    subwf rr,b
 endm
  
 calc_threshold_max macro margin,v,rr
     movlw 255-Thres_var
-    cpfsgt v,1
+    cpfsgt v,b
     bra $+8
     movlw 255
-    movwf rr,1
+    movwf rr,b
     bra $+10
     movff v,rr
     movlw Thres_var
-    addwf rr,1
+    addwf rr,b
 endm
     
 Calc_Color_Threshold macro rr,rg,rb,thres
