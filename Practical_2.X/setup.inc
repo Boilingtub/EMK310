@@ -55,7 +55,7 @@ movwf OSCCON,0
 
 ;Initialize ADC (Check DataSheet)
 movlw	0b00111010 ; left Justify 20 TAD, FOSC/32, 
-;movlw	0b00110101 ; left Justify 16 TAD, FOSC/16, 
+;movlw	0b00111101 ; left Justify 20 TAD, FOSC/16, 
 movwf ADCON2,0
 movlw 0b00000000 ;ADC ref = Vdd,Vss    
 movwf ADCON1,0

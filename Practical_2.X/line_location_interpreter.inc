@@ -97,6 +97,7 @@ search_logic:;as the code tuns sequencially, this will always be the last option
     return
 
 right:		    ;2_F ;1_F   ;2_B ;1_B
+    ;set_motor_pwm   0x00,0xFA,  0x00,0x00
     set_motor_pwm   0x00,0xFA,  0x00,0x00
     return
     
@@ -105,15 +106,17 @@ slight_right:	    ;2_F ;1_F   ;2_B ;1_B
     return
   
 left:		    ;1_F ;2_F   ;1_B ;2_B
+    ;set_motor_pwm   0xFA,0x00,  0x00,0x00
     set_motor_pwm   0xFA,0x00,  0x00,0x00
     return
     
 slight_left:	    ;2_F ;1_F   ;2_B ;1_B
-    set_motor_pwm   0xAA,0x00,  0x00,0x00
+    set_motor_pwm   0xAD,0x00,  0x00,0x00
     return
    
 straight:	    ;2_F ;1_F   ;2_B ;1_B
-    set_motor_pwm   0xFA,0xFA,  0x00,0x00
+    ;set_motor_pwm   0xFA,0xFA,  0x00,0x00
+    set_motor_pwm   0xBA,0xBA,  0x00,0x00
     return
  
 stop:		    ;2_F ;1_F   ;2_B ;1_B
@@ -121,5 +124,5 @@ stop:		    ;2_F ;1_F   ;2_B ;1_B
     return
     
 search:		    ;2_F ;1_F   ;2_B ;1_B
-    set_motor_pwm   0xAF,0x00,  0x00,0x00
+    set_motor_pwm   0xAD,0x00,  0x00,0x00
     return    
