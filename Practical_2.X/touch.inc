@@ -46,5 +46,6 @@ start_on_touch:
     tstfsz cap_reg,a
     bra $+4
     bra start_on_touch
+    wait_timer H333ms, L333ms
     return
     

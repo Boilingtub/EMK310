@@ -40,7 +40,6 @@ main:
     call calibrate_start
     call Check_Nav_Col
     call start_on_touch
-    wait_timer H333ms, L333ms
     call Detect_LLI
     bra $-4
     bra exit

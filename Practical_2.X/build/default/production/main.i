@@ -9342,6 +9342,7 @@ start_on_touch:
     tstfsz cap_reg,a
     bra $+4
     bra start_on_touch
+    wait_timer H333ms, L333ms
     return
 # 31 "main.s" 2
 # 1 "./color_detection.inc" 1
@@ -9592,12 +9593,12 @@ ISRH:
      bra Reset_RB4
  RB4_dump_value:
      ;NOTHING DUMPING !
-     wait_timer H333ms,L333ms
-     wait_timer H333ms,L333ms
-     wait_timer H333ms,L333ms
-     wait_timer H333ms,L333ms
-     wait_timer H333ms,L333ms
-     wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
+     ;wait_timer H333ms,L333ms
      incf r_RB4_do,a
 
      bra Reset_RB4
@@ -10016,7 +10017,6 @@ main:
     call calibrate_start
     call Check_Nav_Col
     call start_on_touch
-    wait_timer H333ms, L333ms
     call Detect_LLI
     bra $-4
     bra exit
