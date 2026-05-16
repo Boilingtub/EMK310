@@ -67,7 +67,7 @@ det_col_LED:
     decf WREG,a
     btfss  r_col_det,4,a
     bra $-12
-    movff r_col_det,DUMP_REG
+    movff r_col_det,SSD
     return
 	
 Sensor_LLI_Generate:

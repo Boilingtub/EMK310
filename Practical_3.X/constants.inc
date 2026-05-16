@@ -226,6 +226,8 @@ LEDR equ PORTC,0
 LEDG equ PORTC,1
 LEDB equ PORTB,7
 SSD equ PORTA
+CAP equ PORTB,5
+
 
 
 

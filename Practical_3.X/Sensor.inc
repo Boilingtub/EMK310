@@ -35,17 +35,17 @@ ADC_measure macro r1
 endm
     
 RGB_measure macro rR, rG, rB    
-    movlw 6
-    movwf RGB_REG,0
+    bsf LEDG ;Due to Tansistor, LED is inverted logic
+    bsf LEDB
+    bcf LEDR
     ADC_measure rR
-    movlw 5
-    movwf RGB_REG,0
+    bsf LEDR
+    bcf LEDG
     ADC_measure rG
-    movlw 3
-    movwf   RGB_REG,0
+    bsf LEDG
+    bcf LEDB
     ADC_measure rB
-    movlw 0
-    movwf RGB_REG,0
+    bsf LEDB
 endm
     
 read_Sensor_all:
@@ -57,14 +57,14 @@ read_Sensor_all:
     return
     
 read_Sensor1: 
-    movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
+    movlw 0b01001101 ;AN19 a.k.a RC7, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s1r, s1g, s1b
     return
 
 read_Sensor2: 
-    movlw 0b01000001 ;AN16 a.k.a RC4, ADC on
+    movlw 0b01001001 ;AN18 a.k.a RC6, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s2r, s2g, s2b
@@ -78,14 +78,14 @@ read_Sensor3:
     return
 
 read_Sensor4: 
-    movlw 0b01001001 ;AN18 a.k.a RC6, ADC on
+    movlw 0b01011101 ;AN23 a.k.a RD3, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s4r, s4g, s4b
     return
 
 read_Sensor5: 
-    movlw 0b01001101 ;AN19 /.k.a RC7, ADC on
+    movlw 0b01011001 ;AN22 a.k.a RD2, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL  
     RGB_measure s5r, s5g, s5b

@@ -48,13 +48,13 @@ calibrate:
     return 
     
 calibrate_start:
-    clrf DUMP_REG,a
+    clrf SSD,a
     clrf    rcalib,a
     bsf   rcalib,0,a
     calibrate_for_white:
 	movff	rcalib,WREG
 	movlw 0b00011100
-	movwf DUMP_REG,a
+	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -64,11 +64,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00011100
+	flash_Reg tmp, 3, SSD, 0b00011100
     calibrate_for_green:
 	movff rcalib,WREG
 	movlw 0b00001000
-	movwf DUMP_REG,a 
+	movwf SSD,a 
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -78,11 +78,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00001000
+	flash_Reg tmp, 3, SSD, 0b00001000
     calibrate_for_blue:
     	movff rcalib,WREG
 	movlw 0b00010000
-	movwf DUMP_REG,a
+	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -92,11 +92,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00010000
+	flash_Reg tmp, 3, SSD, 0b00010000
     calibrate_for_black:
 	movff rcalib,WREG
 	movlw 0b00010100
-	movwf DUMP_REG,a
+	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -106,11 +106,11 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00010100
+	flash_Reg tmp, 3, SSD, 0b00010100
     calibrate_for_red:
 	movff rcalib,WREG
 	movlw 0b00000100
-	movwf DUMP_REG,a
+	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
@@ -120,8 +120,8 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
-	flash_Reg tmp, 3, DUMP_REG, 0b00000100
-    clrf DUMP_REG,a
+	flash_Reg tmp, 3, SSD, 0b00000100
+    clrf SSD,a
     clrf rcalib,a
     return     
     
@@ -252,18 +252,18 @@ calibrate_test:
 calibrate_test_cont:
     cont_test_loop:
     call read_Sensor5
-    movff s5r,DUMP_REG
+    movff s5r,SSD
     wait_timer H333ms,L333ms
-    movff s5g,DUMP_REG
+    movff s5g,SSD
     wait_timer H333ms,L333ms
-    movff s5b,DUMP_REG
+    movff s5b,SSD
     wait_timer H333ms,L333ms
-    clrf DUMP_REG,a
+    clrf SSD,a
     bra cont_test_loop
     
 calibrate_test_int:
     call read_Sensor1
-    movff ADRESH,DUMP_REG
+    movff ADRESH,SSD
     clrf rcalib,a
     bsf	 rcalib,0,a
     btfss rcalib,1,a

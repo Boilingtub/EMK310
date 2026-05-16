@@ -9024,6 +9024,7 @@ LEDR equ PORTC,0
 LEDG equ PORTC,1
 LEDB equ PORTB,7
 SSD equ PORTA
+CAP equ PORTB,5
 # 14 "main.s" 2
 
 PSECT code,abs ; Start Code section
@@ -9040,6 +9041,9 @@ org 20h ;Start for code setup
 # 1 "./setup.inc" 1
 setup:
 movlb 0xF ;Set BSR for banked SFRs (Bank 15)
+; Clear Registers
+    clrf search_sensor
+
 ;Initialize Port A (check Data Sheet)
 clrf PORTA, 1 ; Init port A, clear output of data latches
 clrf LATA, 1 ; Alternate way to clear all data latches
@@ -9069,9 +9073,9 @@ movwf TRISC,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
 ;Initialize Port D (check Data Sheet)
 clrf PORTD,1
 clrf LATD,1
-movlw 0b00000000
+movlw 0b00001100
 movwf ANSELD,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Digital
-movlw 0b00000011
+movlw 0b00001111
 movwf TRISD,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
 
 ;Initialize Port E (check Data Sheet)
@@ -9098,7 +9102,7 @@ movwf ADCON1,0
 movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
 movwf ADCON0,0
 
-;Setup UART
+;Setup UART !!!! NEEDS CHANGE !!!!
     ; Baud rate setup (Datasheet ((PORTC) and 0FFh), 7, a#1)
     MOVLW 12 ; 19200 BAUD @ 4 MHz
     ; table 18-5 of datasheet
@@ -9121,7 +9125,7 @@ movwf ADCON0,0
     BSF RCSTA2,4 ; Enable continuous reception (Datasheet ((PORTC) and 0FFh), 7, a#6)
 
 
-;Setup I2C
+;Setup I2C !!!! NEEDS CHANGE !!!!
     ; Set up the BAUD rate to 100 kHz
     MOVLW 00001001B ;BRG value from Table 15-3 for 100 kHz
     MOVWF SSP1ADD
@@ -9314,14 +9318,14 @@ read_Sensor_all:
     return
 
 read_Sensor1:
-    movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
+    movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s1r, s1g, s1b
     return
 
 read_Sensor2:
-    movlw 0b01000001 ;((PORTC) and 0FFh), 4, a a.k.a RC4, ADC on
+    movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s2r, s2g, s2b
@@ -9335,14 +9339,14 @@ read_Sensor3:
     return
 
 read_Sensor4:
-    movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
+    movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s4r, s4g, s4b
     return
 
 read_Sensor5:
-    movlw 0b01001101 ;((PORTC) and 0FFh), 7, a /.k.a RC7, ADC on
+    movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
     movwf ADCON0,0
     wait_timer ADCAQTH,ADCAQTL
     RGB_measure s5r, s5g, s5b
@@ -9374,8 +9378,6 @@ touch_measure:
 
     return
 
-
-
 read_touch:
     movlw 0b00110101 ;((PORTB) and 0FFh), 5, a a.k.a RB5, ADC on
     movwf ADCON0,a
@@ -9387,9 +9389,9 @@ read_touch:
 touch_led:
     tstfsz cap_reg,a
     bra $+6
-    bcf PORTD,2,a
+    bcf PORTA,2,a
     bra $+4
-    bsf PORTD,2,a
+    bsf PORTA,2,a
     return
 
 start_on_touch:
@@ -9470,7 +9472,7 @@ det_col_LED:
     decf WREG,a
     btfss r_col_det,4,a
     bra $-12
-    movff r_col_det,DUMP_REG
+    movff r_col_det,SSD
     return
 
 Sensor_LLI_Generate:
@@ -9715,13 +9717,13 @@ calibrate:
     return
 
 calibrate_start:
-    clrf DUMP_REG,a
+    clrf SSD,a
     clrf rcalib,a
     bsf rcalib,0,a
     calibrate_for_white:
  movff rcalib,WREG
  movlw 0b00011100
- movwf DUMP_REG,a
+ movwf SSD,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9731,11 +9733,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00011100
+ flash_Reg tmp, 3, SSD, 0b00011100
     calibrate_for_green:
  movff rcalib,WREG
  movlw 0b00001000
- movwf DUMP_REG,a
+ movwf SSD,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9745,11 +9747,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00001000
+ flash_Reg tmp, 3, SSD, 0b00001000
     calibrate_for_blue:
      movff rcalib,WREG
  movlw 0b00010000
- movwf DUMP_REG,a
+ movwf SSD,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9759,11 +9761,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00010000
+ flash_Reg tmp, 3, SSD, 0b00010000
     calibrate_for_black:
  movff rcalib,WREG
  movlw 0b00010100
- movwf DUMP_REG,a
+ movwf SSD,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9773,11 +9775,11 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00010100
+ flash_Reg tmp, 3, SSD, 0b00010100
     calibrate_for_red:
  movff rcalib,WREG
  movlw 0b00000100
- movwf DUMP_REG,a
+ movwf SSD,a
  btfss rcalib,1,a
  bra $-2
  bcf rcalib,1,a
@@ -9787,8 +9789,8 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
- flash_Reg tmp, 3, DUMP_REG, 0b00000100
-    clrf DUMP_REG,a
+ flash_Reg tmp, 3, SSD, 0b00000100
+    clrf SSD,a
     clrf rcalib,a
     return
 
@@ -9919,18 +9921,18 @@ calibrate_test:
 calibrate_test_cont:
     cont_test_loop:
     call read_Sensor5
-    movff s5r,DUMP_REG
+    movff s5r,SSD
     wait_timer H333ms,L333ms
-    movff s5g,DUMP_REG
+    movff s5g,SSD
     wait_timer H333ms,L333ms
-    movff s5b,DUMP_REG
+    movff s5b,SSD
     wait_timer H333ms,L333ms
-    clrf DUMP_REG,a
+    clrf SSD,a
     bra cont_test_loop
 
 calibrate_test_int:
     call read_Sensor1
-    movff ADRESH,DUMP_REG
+    movff ADRESH,SSD
     clrf rcalib,a
     bsf rcalib,0,a
     btfss rcalib,1,a

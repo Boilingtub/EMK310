@@ -1,5 +1,8 @@
 setup:
 movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
+; Clear Registers
+    clrf search_sensor
+    
 ;Initialize Port A (check Data Sheet)
 clrf	PORTA, 1    ; Init port A, clear output of data latches
 clrf	LATA, 1	    ; Alternate way to clear all data latches
@@ -58,7 +61,7 @@ movwf ADCON1,0
 movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
 movwf ADCON0,0
    
-;Setup UART   
+;Setup UART   !!!! NEEDS CHANGE !!!! 
     ; Baud rate setup (Datasheet RX#1)
     MOVLW   12			; 19200 BAUD @ 4 MHz
 				; table 18-5 of datasheet
@@ -81,7 +84,7 @@ movwf ADCON0,0
     BSF	    RCSTA2,4		; Enable continuous reception (Datasheet RX#6)
 
     
-;Setup I2C 
+;Setup I2C  !!!! NEEDS CHANGE !!!!
     ; Set up the BAUD rate to 100 kHz
     MOVLW   00001001B		;BRG value from Table 15-3 for 100 kHz 
     MOVWF   SSP1ADD	     

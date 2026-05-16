@@ -10,7 +10,6 @@
       <itemPath>interrupts.inc</itemPath>
       <itemPath>line_location_interpreter.inc</itemPath>
       <itemPath>setup.inc</itemPath>
-      <itemPath>calibration_white.inc</itemPath>
       <itemPath>calibration.inc</itemPath>
       <itemPath>Sensor.inc</itemPath>
       <itemPath>pwm_setup.inc</itemPath>

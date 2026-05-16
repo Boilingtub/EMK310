@@ -23,8 +23,6 @@ touch_measure:
    
     return
     
-    
-    
 read_touch:
     movlw 0b00110101 ;AN13 a.k.a RB5, ADC on
     movwf ADCON0,a
@@ -36,9 +34,9 @@ read_touch:
 touch_led:
     tstfsz cap_reg,a
     bra $+6
-    bcf PORTD,2,a
+    bcf PORTA,2,a
     bra $+4
-    bsf PORTD,2,a
+    bsf PORTA,2,a
     return
 
 start_on_touch:
