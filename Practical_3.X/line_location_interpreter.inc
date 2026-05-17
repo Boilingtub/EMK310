@@ -1,4 +1,4 @@
-set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
+set_motor_pwm macro ccp2, ccp3, ccp1, ccp5
     movlw   ccp2    ; Duty Cycle for CCP2 (RB3) but3 off for setup
     banksel CCPR2L
     movwf   CCPR2L,1 ;M1 F
@@ -106,14 +106,14 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 
 right:		    
     movlw 0b00000001
-    movwf search_sensor 
+    movwf search_sensor,0 
 		    ;2_F ;1_F   ;2_B ;1_B
     set_motor_pwm   0x00,0xFA,  0x00,0x00
     return
     
 slight_right:	  
     movlw 0b00000010
-    movwf search_sensor 
+    movwf search_sensor,0
 		    ;1_F ;2_F   ;1_B ;2_B
     set_motor_pwm   0x00,0xAD,  0x00,0x00
     return
@@ -121,27 +121,27 @@ slight_right:
   
 left:		    
     movlw 0b00000100
-    movwf search_sensor 
+    movwf search_sensor,0
     set_motor_pwm   0xFA,0x00,  0x00,0x00
     return
     
 slight_left:	    
     movlw 0b00001000
-    movwf search_sensor 
+    movwf search_sensor,0
 		    ;1_F ;2_F   ;1_B ;2_B
     set_motor_pwm   0xAD,0x00,  0x00,0x00
     return
    
 straight:	    
     movlw 0b00010000
-    movwf search_sensor 
+    movwf search_sensor,0 
 		    ;1_F ;2_F   ;1_B ;2_B
     set_motor_pwm   0xBA,0xBA,  0x00,0x00
     return
  
 stop:		    
     movlw 0b00000000
-    movwf search_sensor
+    movwf search_sensor,0
 		    ;2_F ;1_F   ;2_B ;1_B
     set_motor_pwm   0x00,0x00,  0x00,0x00
     return

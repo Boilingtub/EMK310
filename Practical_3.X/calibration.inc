@@ -53,7 +53,7 @@ calibrate_start:
     bsf   rcalib,0,a
     calibrate_for_white:
 	movff	rcalib,WREG
-	movlw 0b00011100
+	movlw SSD_W
 	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
@@ -64,10 +64,10 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
-	flash_Reg tmp, 3, SSD, 0b00011100
+	flash_Reg tmp, 3, SSD, SSD_W
     calibrate_for_green:
 	movff rcalib,WREG
-	movlw 0b00001000
+	movlw SSD_G
 	movwf SSD,a 
 	btfss	rcalib,1,a 
 	bra $-2
@@ -78,10 +78,10 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
-	flash_Reg tmp, 3, SSD, 0b00001000
+	flash_Reg tmp, 3, SSD, SSD_G
     calibrate_for_blue:
     	movff rcalib,WREG
-	movlw 0b00010000
+	movlw SSD_B
 	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
@@ -92,10 +92,10 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
-	flash_Reg tmp, 3, SSD, 0b00010000
+	flash_Reg tmp, 3, SSD, SSD_B
     calibrate_for_black:
 	movff rcalib,WREG
-	movlw 0b00010100
+	movlw SSD_K
 	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
@@ -106,10 +106,10 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-	flash_Reg tmp, 3, SSD, 0b00010100
+	flash_Reg tmp, 3, SSD, SSD_K
     calibrate_for_red:
 	movff rcalib,WREG
-	movlw 0b00000100
+	movlw SSD_R
 	movwf SSD,a
 	btfss	rcalib,1,a 
 	bra $-2
@@ -120,7 +120,7 @@ calibrate_start:
 	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
-	flash_Reg tmp, 3, SSD, 0b00000100
+	flash_Reg tmp, 3, SSD, SSD_R
     clrf SSD,a
     clrf rcalib,a
     return     

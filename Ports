@@ -5,13 +5,13 @@ RB5 / RC6 / RE0 - CPP3 RE0
 RB3 / RC1       - CPP2 RB3
 RC2             - CPP1 RC2
 #========== Implemented Mappings Final ===========
-RA0 - SSD-0
-RA1 - SSD-1
-RA2 - SSD-2
-RA3 - SSD-3
-RA4 - SSD-4
-RA5 - SSD-5
-RA6 - SSD-6
+RA0 - SSD-a (UM) Upper Middle
+RA1 - SSD-b (UR) Upper Right
+RA2 - SSD-c (LR) Lower Right
+RA3 - SSD-d (LM) Lower Middle
+RA4 - SSD-e (LL) Lower Left
+RA5 - SSD-f (UL) Upper Left
+RA6 - SSD-g (MM) Middle Middle
 RA7 - 
 
 RB0 - USB-to-UART RST

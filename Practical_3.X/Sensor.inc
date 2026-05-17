@@ -34,18 +34,22 @@ ADC_measure macro r1
     movff ADRESH, r1
 endm
     
-RGB_measure macro rR, rG, rB    
-    bsf LEDG ;Due to Tansistor, LED is inverted logic
-    bsf LEDB
-    bcf LEDR
+RGB_measure macro rR, rG, rB   
+    ;Due to Tansistor, LED is inverted logic
+    bsf PORTB,7 ;LEDB
+    bsf PORTC,1 ;LEDG
+    
+    bcf PORTC,0 ;LEDR
     ADC_measure rR
-    bsf LEDR
-    bcf LEDG
+    bsf PORTC,0 ;LEDR
+    
+    bcf PORTC,1 ;LEDG
     ADC_measure rG
-    bsf LEDG
-    bcf LEDB
+    bsf PORTC,1 ;LEDG
+    
+    bcf PORTB,7 ;LEDB
     ADC_measure rB
-    bsf LEDB
+    bsf PORTB,7 ;LEDB
 endm
     
 read_Sensor_all:

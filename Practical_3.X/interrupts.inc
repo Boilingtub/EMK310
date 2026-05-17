@@ -1,44 +1,42 @@
 ISRL:
-    nop
-    nop
-    nop
     retfie
     
 ISRH:
-    btfss INTCON,0,a ;check if RBIF is 1 else retfie
-    goto ISRH_done
-   
-    btfss PORTB,4,a ;check if RB4 is set
-    bra Reset_RB4
-    tstfsz rcalib,a
-    bra inter_calib
-    bra RB4_do
-    inter_calib:
-	bsf rcalib,1,a
-	wait_timer H333ms,L333ms
-	bra Reset_RB4
-    RB4_do:
-	tstfsz r_RB4_do,a
-	bra RB4_dump_value
-	bra RB4_dump_value
-	RB4_dump_color:
-	    movff r_col_det,DUMP_REG
-	    clrf r_RB4_do,a
-	    bra Reset_RB4
-	RB4_dump_value:
-	    ;NOTHING DUMPING !
-	    ;wait_timer H333ms,L333ms
-	    ;wait_timer H333ms,L333ms
-	    ;wait_timer H333ms,L333ms
-	    ;wait_timer H333ms,L333ms
-	    ;wait_timer H333ms,L333ms
-	    ;wait_timer H333ms,L333ms
-	    incf r_RB4_do,a
+    btfsc RC2IF
+    bra RC_ISR
+    
+    bra ISRH_done
+    
+    RC_ISR:
+	btfss rx_done,0
+	bra RC_read
+	clrf rx_byte_count
+	lfsr 0,rx_sto_addr
+	clrf rx_done
+	RC_read:
+	    movf RCREG2,0,0
+	    movwf POSTINC0
+	    incf rx_byte_count
+	
+	    movf RCSTA2,0,0
 	    
-	    bra Reset_RB4
-    Reset_RB4:
-	movf  PORTB,w,a
-	bcf   INTCON,0,a
+	    movlw 0x0D
+	    cpfseq RCREG2
+	    bra $+4
+	    bra RC_READ_DONE
+	    
+	    movlw 0xFF
+	    cpfseq rx_byte_count
+	    bra $+4
+	    bra RC_READ_DONE
+	
+	    bra ISRH_done
+	
+	RC_READ_DONE:
+	    bsf rx_done,0
+	    call echo_last_rx
+	    bra ISRH_done
+	
 	    
     ISRH_done:
 	retfie

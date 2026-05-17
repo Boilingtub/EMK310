@@ -36,7 +36,7 @@ org 20h	;Start for code setup
 #include "serial.inc"
  
 main:
-    call serial_test
+    call tx_startup_message
    
 exit:
     nop

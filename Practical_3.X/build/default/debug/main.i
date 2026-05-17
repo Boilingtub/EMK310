@@ -8809,6 +8809,9 @@ r_col_det equ 0x9
 r_RB4_do equ 0xB
 cap_reg equ 0xD
 search_sensor equ 0xE
+rx_byte_count equ 0xF
+rx_byte equ 0x10
+rx_done equ 0x11
 
 s1r equ 0x21
 s1g equ 0x22
@@ -9020,11 +9023,27 @@ CAPTH EQU 0xF5H
 CAPTL EQU 0xFF
 CAP_THRES EQU 22
 ;===== PORT Aliases =====
-LEDR equ PORTC,0
-LEDG equ PORTC,1
-LEDB equ PORTB,7
+;LEDR equ PORTC,0
+;LEDG equ PORTC,1
+;LEDB equ PORTB,7
 SSD equ PORTA
-CAP equ PORTB,5
+;CAP equ PORTB,5
+SSD_W equ 0b01001001
+SSD_K equ 0b01110000
+SSD_R equ 0b01010000
+SSD_G equ 0b01101111
+SSD_B equ 0b01111100
+SSD_0 equ 0b00111111
+SSD_1 equ 0b00000110
+SSD_2 equ 0b00111011
+SSD_3 equ 0b01001111
+SSD_4 equ 0b01100110
+SSD_5 equ 0b01101101
+SSD_6 equ 0b01111101
+SSD_7 equ 0b00000111
+SSD_8 equ 0b11111111
+SSD_9 equ 0b01101111
+rx_sto_addr equ 0x200
 # 14 "main.s" 2
 
 PSECT code,abs ; Start Code section
@@ -9045,8 +9064,8 @@ movlb 0xF ;Set BSR for banked SFRs (Bank 15)
     clrf search_sensor
 
 ;Initialize Port A (check Data Sheet)
-clrf PORTA, 1 ; Init port A, clear output of data latches
-clrf LATA, 1 ; Alternate way to clear all data latches
+clrf PORTA ; Init port A, clear output of data latches
+clrf LATA ; Alternate way to clear all data latches
 movlw 0b00000000
 movwf ANSELA,1
 movlw 0b00000000
@@ -9054,37 +9073,37 @@ movwf TRISA,1
 
 
 ;Initialize Port B (check Data Sheet)
-clrf PORTB,1 ;clear output of data latches
-clrf LATB, 1 ;alternative method
+clrf PORTB ;clear output of data latches
+clrf LATB
 movlw 0b00100000
-movwf ANSELB, 1 ;Set RB<7:5,3:0> to Digital, RB<4> to Analog
+movwf ANSELB,1
 movlw 0b00100000
-movwf TRISB, 1 ; RB<7:6,3:0> OUT, RB<5,4> IN
+movwf TRISB, 1
 
 
 ;Initialize Port C (check Data Sheet)
-clrf PORTC,1
-clrf LATC,1
+clrf PORTC
+clrf LATC
 movlw 0b11100000
-movwf ANSELC,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Digital
+movwf ANSELC,1
 movlw 0b11111000
-movwf TRISC,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
+movwf TRISC,1
 
 ;Initialize Port D (check Data Sheet)
-clrf PORTD,1
-clrf LATD,1
+clrf PORTD
+clrf LATD
 movlw 0b00001100
-movwf ANSELD,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Digital
-movlw 0b00001111
-movwf TRISD,1 ;Set ((EECON1) and 0FFh), 0, a<7:0> to Output
+movwf ANSELD,1
+movlw 0b11001100
+movwf TRISD,1
 
 ;Initialize Port E (check Data Sheet)
-clrf PORTE,0
-clrf LATE,0
+clrf PORTE
+clrf LATE
 movlw 0b00000000
-movwf ANSELE,0 ;Set RE<7:0> to Digital
+movwf ANSELE,0
 movlw 0b00000000
-movwf TRISE,0 ;Set RE<7:0> to Output
+movwf TRISE,0
 
 
 ;Initialize Timer (Check DataSheet)
@@ -9102,28 +9121,18 @@ movwf ADCON1,0
 movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
 movwf ADCON0,0
 
-;Setup UART !!!! NEEDS CHANGE !!!!
+;Setup UART
     ; Baud rate setup (Datasheet ((PORTC) and 0FFh), 7, a#1)
-    MOVLW 12 ; 19200 BAUD @ 4 MHz
+    MOVLW 51 ; 19230 BAUD @ 16 MHz
     ; table 18-5 of datasheet
-    ;MOVLW 25 ; 9600 BAUD @ 4 MHz
     MOVWF SPBRG2 ; load baudrate register
     CLRF SPBRGH2
-    BSF TXSTA2,2 ; Enable high BAUDrate
-    BCF BAUDCON2,3 ; Use 8 bit baud generator
-
-    ; Enable asynchronous serial port
-    BCF TXSTA2,4 ; Enable asynchronous transmission
-    BSF RCSTA2,7 ; Enable Serial Port (Datasheet ((PORTC) and 0FFh), 7, a#3)
-
-    ; Transmit setup (((PORTC) and 0FFh), 6, a)
-    BSF BAUDCON2,4 ; Inverted polarity
-    BSF TXSTA2,5 ; Enable transmit
-
-    ; Receive setup (((PORTC) and 0FFh), 7, a)
-    BSF BAUDCON2,5 ; Inverted polarity (Datasheet ((PORTC) and 0FFh), 7, a#5)
-    BSF RCSTA2,4 ; Enable continuous reception (Datasheet ((PORTC) and 0FFh), 7, a#6)
-
+    movlw 0b00000000
+    movwf BAUDCON2
+    movlw 0b00100100
+    movwf TXSTA2
+    movlw 0b10010000
+    movwf RCSTA2
 
 ;Setup I2C !!!! NEEDS CHANGE !!!!
     ; Set up the BAUD rate to 100 kHz
@@ -9167,17 +9176,15 @@ bsf IOCB, 5, 1 ; Enable Interrupt-on-change for RB5
 bcf INTCON2, 7, 0 ;Global ((INTCON2) and 0FFh), 7, a enable (0 = ON)
 
 ; set up interrupts for UART
-BCF RDIF ; Clear ((PIR1) and 0FFh), 5, a Interrupt Flag
-BSF RDIE ; Set ((PIE1) and 0FFh), 5, a Interrupt Enable (Datasheet ((PORTC) and 0FFh), 7, a#4)
-
+BCF ((PIR3) and 0FFh), 5, a ; Clear ((PIR1) and 0FFh), 5, a Interrupt Flag
+BSF ((PIE3) and 0FFh), 5, a ; Set ((PIE1) and 0FFh), 5, a Interrupt Enable (Datasheet ((PORTC) and 0FFh), 7, a#4)
 
 ;Enable Interrupts
 movf PORTB, 0,1 ; Read Port B (clear mismatch)
 bcf INTCON, 0, 1 ; Clear ((INTCON) and 0FFh), 0, a flag (bit 0)
 bsf INTCON, 3, 1 ; Enable ((INTCON) and 0FFh), 3, a (Port B change interrupt, bit 3)
 bsf INTCON, 7, 1 ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
-
-
+bsf ((INTCON) and 0FFh), 6, a
 
 movlb 0x00
 return
@@ -9296,17 +9303,21 @@ ADC_measure macro r1
 endm
 
 RGB_measure macro rR, rG, rB
-    movlw 6
-    movwf RGB_REG,0
+    ;Due to Tansistor, LED is inverted logic
+    bsf PORTB,7 ;LEDB
+    bsf PORTC,1 ;LEDG
+
+    bcf PORTC,0 ;LEDR
     ADC_measure rR
-    movlw 5
-    movwf RGB_REG,0
+    bsf PORTC,0 ;LEDR
+
+    bcf PORTC,1 ;LEDG
     ADC_measure rG
-    movlw 3
-    movwf RGB_REG,0
+    bsf PORTC,1 ;LEDG
+
+    bcf PORTB,7 ;LEDB
     ADC_measure rB
-    movlw 0
-    movwf RGB_REG,0
+    bsf PORTB,7 ;LEDB
 endm
 
 read_Sensor_all:
@@ -9622,46 +9633,44 @@ color_detection_test:
 # 32 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRL:
-    nop
-    nop
-    nop
     retfie
 
 ISRH:
-    btfss INTCON,0,a ;check if ((INTCON) and 0FFh), 0, a is 1 else retfie
-    goto ISRH_done
+    btfsc ((PIR3) and 0FFh), 5, a
+    bra RC_ISR
 
-    btfss PORTB,4,a ;check if RB4 is set
-    bra Reset_RB4
-    tstfsz rcalib,a
-    bra inter_calib
-    bra RB4_do
-    inter_calib:
- bsf rcalib,1,a
- wait_timer H333ms,L333ms
- bra Reset_RB4
-    RB4_do:
- tstfsz r_RB4_do,a
- bra RB4_dump_value
- bra RB4_dump_value
- RB4_dump_color:
-     movff r_col_det,DUMP_REG
-     clrf r_RB4_do,a
-     bra Reset_RB4
- RB4_dump_value:
-     ;NOTHING DUMPING !
-     ;wait_timer H333ms,L333ms
-     ;wait_timer H333ms,L333ms
-     ;wait_timer H333ms,L333ms
-     ;wait_timer H333ms,L333ms
-     ;wait_timer H333ms,L333ms
-     ;wait_timer H333ms,L333ms
-     incf r_RB4_do,a
+    bra ISRH_done
 
-     bra Reset_RB4
-    Reset_RB4:
- movf PORTB,w,a
- bcf INTCON,0,a
+    RC_ISR:
+ btfss rx_done,0
+ bra RC_read
+ clrf rx_byte_count
+ lfsr 0,rx_sto_addr
+ clrf rx_done
+ RC_read:
+     movf RCREG2,0,0
+     movwf POSTINC0
+     incf rx_byte_count
+
+     movf RCSTA2,0,0
+
+     movlw 0x0D
+     cpfseq RCREG2
+     bra $+4
+     bra RC_READ_DONE
+
+     movlw 0xFF
+     cpfseq rx_byte_count
+     bra $+4
+     bra RC_READ_DONE
+
+     bra ISRH_done
+
+ RC_READ_DONE:
+     bsf rx_done,0
+     call echo_last_rx
+     bra ISRH_done
+
 
     ISRH_done:
  retfie
@@ -9722,7 +9731,7 @@ calibrate_start:
     bsf rcalib,0,a
     calibrate_for_white:
  movff rcalib,WREG
- movlw 0b00011100
+ movlw SSD_W
  movwf SSD,a
  btfss rcalib,1,a
  bra $-2
@@ -9733,10 +9742,10 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
- flash_Reg tmp, 3, SSD, 0b00011100
+ flash_Reg tmp, 3, SSD, SSD_W
     calibrate_for_green:
  movff rcalib,WREG
- movlw 0b00001000
+ movlw SSD_G
  movwf SSD,a
  btfss rcalib,1,a
  bra $-2
@@ -9747,10 +9756,10 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
- flash_Reg tmp, 3, SSD, 0b00001000
+ flash_Reg tmp, 3, SSD, SSD_G
     calibrate_for_blue:
      movff rcalib,WREG
- movlw 0b00010000
+ movlw SSD_B
  movwf SSD,a
  btfss rcalib,1,a
  bra $-2
@@ -9761,10 +9770,10 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
- flash_Reg tmp, 3, SSD, 0b00010000
+ flash_Reg tmp, 3, SSD, SSD_B
     calibrate_for_black:
  movff rcalib,WREG
- movlw 0b00010100
+ movlw SSD_K
  movwf SSD,a
  btfss rcalib,1,a
  bra $-2
@@ -9775,10 +9784,10 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
- flash_Reg tmp, 3, SSD, 0b00010100
+ flash_Reg tmp, 3, SSD, SSD_K
     calibrate_for_red:
  movff rcalib,WREG
- movlw 0b00000100
+ movlw SSD_R
  movwf SSD,a
  btfss rcalib,1,a
  bra $-2
@@ -9789,7 +9798,7 @@ calibrate_start:
  Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
  Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
- flash_Reg tmp, 3, SSD, 0b00000100
+ flash_Reg tmp, 3, SSD, SSD_R
     clrf SSD,a
     clrf rcalib,a
     return
@@ -9940,7 +9949,7 @@ calibrate_test_int:
     bra $-16
 # 34 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
-set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
+set_motor_pwm macro ccp2, ccp3, ccp1, ccp5
     movlw ccp2 ; Duty Cycle for CCP2 (RB3) but3 off for setup
     banksel CCPR2L
     movwf CCPR2L,1 ;M1 F
@@ -10048,14 +10057,14 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 
 right:
     movlw 0b00000001
-    movwf search_sensor
+    movwf search_sensor,0
       ;2_F ;1_F ;2_B ;1_B
     set_motor_pwm 0x00,0xFA, 0x00,0x00
     return
 
 slight_right:
     movlw 0b00000010
-    movwf search_sensor
+    movwf search_sensor,0
       ;1_F ;2_F ;1_B ;2_B
     set_motor_pwm 0x00,0xAD, 0x00,0x00
     return
@@ -10063,27 +10072,27 @@ slight_right:
 
 left:
     movlw 0b00000100
-    movwf search_sensor
+    movwf search_sensor,0
     set_motor_pwm 0xFA,0x00, 0x00,0x00
     return
 
 slight_left:
     movlw 0b00001000
-    movwf search_sensor
+    movwf search_sensor,0
       ;1_F ;2_F ;1_B ;2_B
     set_motor_pwm 0xAD,0x00, 0x00,0x00
     return
 
 straight:
     movlw 0b00010000
-    movwf search_sensor
+    movwf search_sensor,0
       ;1_F ;2_F ;1_B ;2_B
     set_motor_pwm 0xBA,0xBA, 0x00,0x00
     return
 
 stop:
     movlw 0b00000000
-    movwf search_sensor
+    movwf search_sensor,0
       ;2_F ;1_F ;2_B ;1_B
     set_motor_pwm 0x00,0x00, 0x00,0x00
     return
@@ -10094,10 +10103,60 @@ eeprom_test:
 # 36 "main.s" 2
 # 1 "./serial.inc" 1
 serial_test:
+    movlw '>'
+    call byte_tx
+    movlw ' '
+    call byte_tx
+    movlw 0xD
+    call byte_tx
+    return
+
+byte_tx:
+    movwf TXREG2
+poll_tx:
+    btfss TXSTA2,1
+    bra poll_tx
+    return
+
+
+echo_last_rx:
+    lfsr 0,rx_sto_addr
+    movff rx_byte_count,tmp
+    bra echo_loop_check
+    echo_loop:
+ movf POSTINC0,0,0
+ call byte_tx
+ echo_loop_check:
+     decfsz tmp
+     bra echo_loop
+ return
+
+
+tx_startup_message:
+    movlw 0x00
+    movwf TBLPTRU
+    movlw 0x50
+    movwf TBLPTRH
+    movlw 0x00
+    movwf TBLPTRL
+
+    startup_message_loop:
+ TBLRD*+
+ movf TABLAT,0,0
+ call byte_tx
+ movwf 0xD
+ cpfseq TABLAT
+ bra startup_message_loop
+ return
+
+org 0x5000
+startup_message:
+    db "St",0xD
+    db "Jy kan maar glo Jessie baby daar's geen ander een",0xD
 # 37 "main.s" 2
 
 main:
-    call serial_test
+    call tx_startup_message
 
 exit:
     nop

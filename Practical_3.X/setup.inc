@@ -4,8 +4,8 @@ movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
     clrf search_sensor
     
 ;Initialize Port A (check Data Sheet)
-clrf	PORTA, 1    ; Init port A, clear output of data latches
-clrf	LATA, 1	    ; Alternate way to clear all data latches
+clrf	PORTA	    ; Init port A, clear output of data latches
+clrf	LATA	    ; Alternate way to clear all data latches
 movlw	0b00000000
 movwf	ANSELA,1
 movlw	0b00000000
@@ -13,37 +13,37 @@ movwf	TRISA,1
     
   
 ;Initialize Port B (check Data Sheet)
-clrf	PORTB,1	;clear output of data latches
-clrf	LATB, 1	;alternative method
+clrf	PORTB	;clear output of data latches
+clrf	LATB
 movlw	0b00100000
-movwf	ANSELB, 1 ;Set RB<7:5,3:0> to Digital, RB<4> to Analog
+movwf	ANSELB,1
 movlw	0b00100000
-movwf   TRISB,	1       ; RB<7:6,3:0> OUT, RB<5,4> IN
+movwf   TRISB,	1      
     
 
 ;Initialize Port C (check Data Sheet)
-clrf	PORTC,1
-clrf	LATC,1
+clrf	PORTC
+clrf	LATC
 movlw	0b11100000
-movwf	ANSELC,1    ;Set RD<7:0> to Digital
+movwf	ANSELC,1    
 movlw	0b11111000
-movwf	TRISC,1   ;Set RD<7:0> to Output
+movwf	TRISC,1   
     
 ;Initialize Port D (check Data Sheet)
-clrf	PORTD,1
-clrf	LATD,1
+clrf	PORTD
+clrf	LATD
 movlw	0b00001100
-movwf	ANSELD,1    ;Set RD<7:0> to Digital
-movlw	0b00001111
-movwf	TRISD,1    ;Set RD<7:0> to Output
+movwf	ANSELD,1    
+movlw	0b11001100
+movwf	TRISD,1   
     
 ;Initialize Port E (check Data Sheet)
-clrf	PORTE,0
-clrf	LATE,0
+clrf	PORTE
+clrf	LATE
 movlw	0b00000000
-movwf	ANSELE,0    ;Set RE<7:0> to Digital
+movwf	ANSELE,0   
 movlw	0b00000000
-movwf	TRISE,0    ;Set RE<7:0> to Output
+movwf	TRISE,0    
     
     
 ;Initialize Timer (Check DataSheet)
@@ -61,29 +61,19 @@ movwf ADCON1,0
 movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
 movwf ADCON0,0
    
-;Setup UART   !!!! NEEDS CHANGE !!!! 
+;Setup UART  
     ; Baud rate setup (Datasheet RX#1)
-    MOVLW   12			; 19200 BAUD @ 4 MHz
+    MOVLW   51			; 19230 BAUD @ 16 MHz
 				; table 18-5 of datasheet
-    ;MOVLW   25			; 9600 BAUD @ 4 MHz
     MOVWF   SPBRG2	  	; load baudrate register
     CLRF    SPBRGH2
-    BSF     TXSTA2,2		; Enable high BAUDrate
-    BCF	    BAUDCON2,3		; Use 8 bit baud generator
-      
-    ; Enable asynchronous serial port
-    BCF     TXSTA2,4		; Enable asynchronous transmission
-    BSF	    RCSTA2,7		; Enable Serial Port (Datasheet RX#3)
-    
-    ; Transmit setup (TX)
-    BSF	    BAUDCON2,4		; Inverted polarity
-    BSF	    TXSTA2,5		; Enable transmit
-    
-    ; Receive setup (RX)
-    BSF	    BAUDCON2,5		; Inverted polarity (Datasheet RX#5)
-    BSF	    RCSTA2,4		; Enable continuous reception (Datasheet RX#6)
-
-    
+    movlw 0b00000000
+    movwf BAUDCON2
+    movlw 0b00100100
+    movwf TXSTA2
+    movlw 0b10010000
+    movwf RCSTA2
+        
 ;Setup I2C  !!!! NEEDS CHANGE !!!!
     ; Set up the BAUD rate to 100 kHz
     MOVLW   00001001B		;BRG value from Table 15-3 for 100 kHz 
@@ -124,19 +114,17 @@ bsf   IOCB, 5, 1       ; Enable Interrupt-on-change for RB5
 
 ;Global Pull-up Enable
 bcf   INTCON2, 7, 0  ;Global RBPU enable (0 = ON)
-    
-; set up interrupts for UART
-BCF    RDIF			; Clear RCIF Interrupt Flag
-BSF    RDIE			; Set RCIE Interrupt Enable (Datasheet RX#4)
 
-    
+; set up interrupts for UART
+BCF    RC2IF			; Clear RCIF Interrupt Flag
+BSF    RC2IE			; Set RCIE Interrupt Enable (Datasheet RX#4)    
+
 ;Enable Interrupts
 movf  PORTB, 0,1	; Read Port B (clear mismatch)
 bcf   INTCON, 0, 1     ; Clear RBIF flag (bit 0)
 bsf   INTCON, 3, 1     ; Enable RBIE (Port B change interrupt, bit 3)
 bsf   INTCON, 7, 1      ; Enable GIE (Global interrupt, bit 7)
-
-
+bsf PEIE
     
 movlb 0x00
 return
