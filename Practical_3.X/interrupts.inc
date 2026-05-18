@@ -1,6 +1,3 @@
-ISRL:
-    retfie
-    
 ISRH:
     btfsc RC2IF
     bra RC_ISR
@@ -20,7 +17,7 @@ ISRH:
 	
 	    movf RCSTA2,0,0
 	    
-	    movlw 0x0D
+	    movlw 0x0A
 	    cpfseq RCREG2
 	    bra $+4
 	    bra RC_READ_DONE
@@ -34,7 +31,7 @@ ISRH:
 	
 	RC_READ_DONE:
 	    bsf rx_done,0
-	    call echo_last_rx
+	    call match_rx
 	    bra ISRH_done
 	
 	    

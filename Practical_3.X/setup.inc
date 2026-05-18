@@ -17,7 +17,7 @@ clrf	PORTB	;clear output of data latches
 clrf	LATB
 movlw	0b00100000
 movwf	ANSELB,1
-movlw	0b00100000
+movlw	0b11100000
 movwf   TRISB,	1      
     
 
@@ -76,7 +76,7 @@ movwf ADCON0,0
         
 ;Setup I2C  !!!! NEEDS CHANGE !!!!
     ; Set up the BAUD rate to 100 kHz
-    MOVLW   00001001B		;BRG value from Table 15-3 for 100 kHz 
+    MOVLW   00100111B		;BRG value from Table 15-3 for 100 kHz 
     MOVWF   SSP1ADD	     
     
     ; Set up MSSP status register
@@ -93,9 +93,7 @@ movwf ADCON0,0
     ;	handle the Acknowledge bits
     CLRF    SSP1CON2
     
-    ; Clear interrupt flags
-    BCF	    SSP1IF
-    BCF	    BCL1IF
+
 
     
 ;Enable CCP modules
@@ -103,26 +101,21 @@ call pwm_setup
     
 ;Setup Interrupts    
 ;Setup ADC on complete interrupt
-bsf PIE1,6,1
-bsf IPR1,6,1
     
 ;Configure Pull-ups and IOC (Bank 15)
-bsf   WPUB, 4, 1	; Enable weak pull-up for RB4
-bsf   IOCB, 4, 1        ; Enable Interrupt-on-change for RB4
-;bsf   WPUB, 5, b	; Enable weak pull-up for RB5
-bsf   IOCB, 5, 1       ; Enable Interrupt-on-change for RB5
+
 
 ;Global Pull-up Enable
-bcf   INTCON2, 7, 0  ;Global RBPU enable (0 = ON)
 
 ; set up interrupts for UART
 BCF    RC2IF			; Clear RCIF Interrupt Flag
 BSF    RC2IE			; Set RCIE Interrupt Enable (Datasheet RX#4)    
 
+; Clear I2C interrupt flags
+BCF	SSP1IF
+BCF	BCL1IF
+    
 ;Enable Interrupts
-movf  PORTB, 0,1	; Read Port B (clear mismatch)
-bcf   INTCON, 0, 1     ; Clear RBIF flag (bit 0)
-bsf   INTCON, 3, 1     ; Enable RBIE (Port B change interrupt, bit 3)
 bsf   INTCON, 7, 1      ; Enable GIE (Global interrupt, bit 7)
 bsf PEIE
     

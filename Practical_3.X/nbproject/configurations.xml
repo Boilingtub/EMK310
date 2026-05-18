@@ -16,6 +16,8 @@
       <itemPath>touch.inc</itemPath>
       <itemPath>eeprom.inc</itemPath>
       <itemPath>serial.inc</itemPath>
+      <itemPath>modes.inc</itemPath>
+      <itemPath>simulate.inc</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

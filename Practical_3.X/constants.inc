@@ -4,7 +4,7 @@ Delay1 EQU 0x2
 Delay2 EQU 0x3
 flash_counter EQU 0x4
 Sensor equ 0x5
-rcalib equ 0x6
+rcount equ 0x6
 rcolor equ 0x7
 nav_col equ 0x8
 r_col_det equ 0x9
@@ -14,7 +14,15 @@ search_sensor equ 0xE
 rx_byte_count equ 0xF
 rx_byte equ 0x10
 rx_done equ 0x11
-
+eeprom_addr equ 0x13
+i2c_len equ 0x14
+i2c_char equ 0x15
+i2c_byte equ 0x17
+mode_reg equ 0x18
+cmd equ 0x19
+cyoc equ 0x20
+ 
+ 
 s1r equ 0x21
 s1g equ 0x22
 s1b equ 0x23
@@ -221,13 +229,13 @@ H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
 ADCAQTL EQU 0xDD
-CAPTH	EQU 0xF5H
+CAPTH	EQU 0xF5
 CAPTL	EQU 0xFF
-CAP_THRES EQU 22
+CAP_THRES EQU 0x70
 ;===== PORT Aliases =====
 ;LEDR equ PORTC,0
 ;LEDG equ PORTC,1
-;LEDB equ PORTB,7
+;LEDB equ PORTC,2
 SSD equ PORTA
 ;CAP equ PORTB,5
 SSD_W equ 0b01001001
@@ -235,6 +243,7 @@ SSD_K equ 0b01110000
 SSD_R equ 0b01010000
 SSD_G equ 0b01101111
 SSD_B equ 0b01111100
+SSD_P equ 0b01110011
 SSD_0 equ 0b00111111
 SSD_1 equ 0b00000110
 SSD_2 equ 0b00111011
@@ -246,3 +255,11 @@ SSD_7 equ 0b00000111
 SSD_8 equ 0b11111111
 SSD_9 equ 0b01101111
 rx_sto_addr equ 0x200
+i2c_sto_addr equ 0x300
+ 
+WRITE_CONTROL equ 10100000B
+READ_CONTROL  equ 10100000B
+ 
+eeprom_startmsg_addr equ 0x0
+eeprom_menu_addr equ 0x3c
+eeprom_slogan_addr equ 0xBA

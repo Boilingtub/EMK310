@@ -1,4 +1,4 @@
-set_motor_pwm macro ccp2, ccp3, ccp1, ccp5
+set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
     movlw   ccp2    ; Duty Cycle for CCP2 (RB3) but3 off for setup
     banksel CCPR2L
     movwf   CCPR2L,1 ;M1 F
@@ -7,9 +7,9 @@ set_motor_pwm macro ccp2, ccp3, ccp1, ccp5
     banksel CCPR3L
     movwf   CCPR3L,1 ;M2 F
     
-    movlw   ccp1  ; Duty Cycle for CCP1 (RC2) off for setup
-    banksel CCPR1L
-    movwf   CCPR1L,1 ;M1 B
+    movlw   ccp4  ; Duty Cycle for CCP1 (RD1) off for setup
+    banksel CCPR4L
+    movwf   CCPR4L,1 ;M1 B
     
     movlw   ccp5  ; Duty Cycle for CCP5 (RE2) off for setup
     banksel CCPR5L

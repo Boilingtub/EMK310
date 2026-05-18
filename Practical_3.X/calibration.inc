@@ -44,20 +44,15 @@ Calc_Color_Threshold macro rr,rg,rb,thres
 endm
 
 calibrate:
-    call calibrate_start
-    return 
-    
+    call tx_calibrate_message
 calibrate_start:
     clrf SSD,a
-    clrf    rcalib,a
-    bsf   rcalib,0,a
     calibrate_for_white:
-	movff	rcalib,WREG
 	movlw SSD_W
 	movwf SSD,a
-	btfss	rcalib,1,a 
-	bra $-2
-	bcf	rcalib,1,a
+	call tx_calibrate_calibrate_message
+	call tx_calibrate_white_message
+	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
 	Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
@@ -65,13 +60,13 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_W
+	call tx_success_message
     calibrate_for_green:
-	movff rcalib,WREG
 	movlw SSD_G
 	movwf SSD,a 
-	btfss	rcalib,1,a 
-	bra $-2
-	bcf	rcalib,1,a
+	call tx_calibrate_calibrate_message
+	call tx_calibrate_green_message
+	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
 	Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
@@ -79,13 +74,13 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_G
+	call tx_success_message
     calibrate_for_blue:
-    	movff rcalib,WREG
 	movlw SSD_B
 	movwf SSD,a
-	btfss	rcalib,1,a 
-	bra $-2
-	bcf	rcalib,1,a
+	call tx_calibrate_calibrate_message
+	call tx_calibrate_blue_message
+	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
 	Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
@@ -93,13 +88,13 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_B
+	call tx_success_message
     calibrate_for_black:
-	movff rcalib,WREG
 	movlw SSD_K
 	movwf SSD,a
-	btfss	rcalib,1,a 
-	bra $-2
-	bcf	rcalib,1,a
+	call tx_calibrate_calibrate_message
+	call tx_calibrate_black_message
+	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
 	Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
@@ -107,13 +102,13 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_K
+	call tx_success_message
     calibrate_for_red:
-	movff rcalib,WREG
 	movlw SSD_R
 	movwf SSD,a
-	btfss	rcalib,1,a 
-	bra $-2
-	bcf	rcalib,1,a
+	call tx_calibrate_calibrate_message
+	call tx_calibrate_red_message
+	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
 	Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
@@ -121,8 +116,8 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_R
+	call tx_success_message
     clrf SSD,a
-    clrf rcalib,a
     return     
     
 ;========== Tests ==========
@@ -260,12 +255,3 @@ calibrate_test_cont:
     wait_timer H333ms,L333ms
     clrf SSD,a
     bra cont_test_loop
-    
-calibrate_test_int:
-    call read_Sensor1
-    movff ADRESH,SSD
-    clrf rcalib,a
-    bsf	 rcalib,0,a
-    btfss rcalib,1,a
-    bra $-2
-    bra $-16

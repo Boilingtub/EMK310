@@ -19,10 +19,6 @@ goto main
 org 08h ;High priority Interrupt Vector
 goto ISRH
  
-org 18h	;Low priority Interrupt Vector
-goto ISRL
- 
-org 20h	;Start for code setup 
 #include "setup.inc"
 #include "pwm_setup.inc"
 #include "timer.inc"
@@ -34,14 +30,62 @@ org 20h	;Start for code setup
 #include "line_location_interpreter.inc"
 #include "eeprom.inc"
 #include "serial.inc"
+#include "modes.inc"
+#include "simulate.inc"
  
 main:
-    call tx_startup_message
-   
-exit:
-    nop
-    bra $-2
+    ;bra prac_2_loop
+    bra p3_main
+    ;bra pwr_debug
+    ;call read_touch
+    ;call tx_startup_message
+    ;call eeprom_test
+    bra main
     
+exit:
+    bra $
+    
+p3_main: 
+    call EEPROM_default
+    call EEPROM_startup_message
+    call tx_FSR0
+    movlw 'J'
+    movwf cyoc
+    movwf mode_reg
+    
+    call tx_startup_message
+    p3_loop:
+	movlw 'C'
+	cpfseq mode_reg
+	bra $+4
+	bra p3_color_select
+	
+	movlw 'R'
+	cpfseq mode_reg
+	bra $+4
+	bra p3_calibrate
+	
+	movlw 'A'
+	cpfseq mode_reg
+	bra $+4
+	bra p3_attack
+	
+	movlw 'S'
+	cpfseq mode_reg
+	bra $+4
+	bra p3_simulate
+	
+	movlw 'H'
+	cpfseq mode_reg
+	bra $+4
+	bra p3_hotload
+	
+	movf cyoc,0,0
+	
+	cpfseq mode_reg
+	bra $+4
+	bra p3_cyoc
+	
 prac_2_loop:
     		    ;2_F ;1_F   ;2_B ;1_B
     ;set_motor_pwm   0x00,0xFA,  0x00,0x00
@@ -51,6 +95,15 @@ prac_2_loop:
     call Detect_LLI
     bra $-4
     bra exit
+    
+    
+pwr_debug:
+    clrf PORTA
+    bsf PORTA,0
+    pwr_debug_loop:
+	rlcf PORTA
+	wait_timer H333ms,L333ms
+	bra pwr_debug_loop
     
 
 

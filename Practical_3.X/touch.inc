@@ -9,6 +9,7 @@ touch_measure:
     bcf PORTB,5,0
     bsf ANSELB,5,1
     bsf TRISB,5,1
+    movlb 0x0
     
     wait_timer CAPTH,CAPTL
     
@@ -17,9 +18,9 @@ touch_measure:
     movlw CAP_THRES
     cpfslt cap_reg,a
     bra $+6
-    setf cap_reg,a
-    bra $+4
     clrf cap_reg,a
+    bra $+4
+    setf cap_reg,a
    
     return
     
@@ -34,9 +35,9 @@ read_touch:
 touch_led:
     tstfsz cap_reg,a
     bra $+6
-    bcf PORTA,2,a
+    bcf PORTA,4,a
     bra $+4
-    bsf PORTA,2,a
+    bsf PORTA,4,a
     return
 
 start_on_touch:
@@ -45,5 +46,12 @@ start_on_touch:
     bra $+4
     bra start_on_touch
     wait_timer H333ms, L333ms
+    return
+ 
+wait_for_touch:
+    call read_touch
+    tstfsz cap_reg,a
+    bra $+4
+    bra wait_for_touch
     return
     

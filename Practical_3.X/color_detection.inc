@@ -159,11 +159,11 @@ Check_Nav_Col:
 Check_Nav_Select:
     clrf tmp,a
     
-    btfss PORTA,0,a
+    btfss PORTB,6,a
     bra $+4
     bsf	tmp,0,b
    
-    btfss PORTA,1,a
+    btfss PORTB,7,a
     bra $+4
     bsf tmp,1,a
     
