@@ -18,6 +18,7 @@ wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
 endm
 
 ADC_measure macro r1
+    ;wait_timer ADCAQTH,ADCAQTL  
     bsf	  ADCON0,1,0 ;Start conversion
     btfsc ADCON0,1,0 ;Is conversion done?, NO, test again
     bra   $-2
@@ -111,6 +112,8 @@ endm
 	
 Race:
     Sensor_LLI_Generate:
+	clrf tmp
+	
     	movlw 0b01000101 ;AN17 a.k.a RC5, ADC on
 	movwf ADCON0,0
 	RGB_measure s3r, s3g, s3b ; Sensor 3
@@ -139,7 +142,7 @@ Race:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bra right
+	bra left
 	
 	movlw 0b01001101 ;AN19 a.k.a RC7, ADC on
 	movwf ADCON0,0
@@ -154,7 +157,7 @@ Race:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bra left
+	bra right
 	
 	movlw 0b01011101 ;AN23 a.k.a RD3, ADC on
 	movwf ADCON0,0
@@ -169,7 +172,7 @@ Race:
 	movff nav_col,WREG
 	cpfseq rcolor,a
 	bra $+4
-	bra slight_right
+	bra slight_left
 	
 	movlw 0b01001001 ;AN18 a.k.a RC6, ADC on
 	movwf ADCON0,0
@@ -184,42 +187,44 @@ Race:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bra slight_left
+	bra slight_right
 	
 	movlw 5
 	cpfseq tmp,a
 	bra $+4
 	bra stop
-	bra Sensor_LLI_Generate
+	goto Sensor_LLI_Generate
 
     right:		    
 			;2_F ;1_F   ;2_B ;1_B
-	set_motor_pwm   0x00,0xFA,  0x00,0x00
-	bra Sensor_LLI_Generate
+	set_motor_pwm   0x00,0x00,  0x00,0x00
+	set_motor_pwm   0x00, 218,   218,0x00
+	goto Sensor_LLI_Generate
     
     slight_right:	  
 			;1_F ;2_F   ;1_B ;2_B
-	set_motor_pwm   0x00,0xAD,  0x00,0x00
-    	bra Sensor_LLI_Generate
+	set_motor_pwm   109,218,  0x00,0x00
+    	goto Sensor_LLI_Generate
   
     left:		   
 			;1_F ;2_F   ;1_B ;2_B
-	set_motor_pwm	0xFA,0x00,  0x00,0x00
-	bra Sensor_LLI_Generate
+	set_motor_pwm	0x00,0x00,  0x00,0x00
+	set_motor_pwm   218,0x00,  0x00,218
+	goto Sensor_LLI_Generate
 
     
     slight_left:	    
 			;1_F ;2_F   ;1_B ;2_B
-	set_motor_pwm	0xAD,0x00,  0x00,0x00
-	bra Sensor_LLI_Generate
+	set_motor_pwm	218, 109,  0x00,0x00
+	goto Sensor_LLI_Generate
 
    
     straight:	    
 			;1_F ;2_F   ;1_B ;2_B
-	set_motor_pwm	0xBA,0xBA,  0x00,0x00
-        bra Sensor_LLI_Generate
+	set_motor_pwm	252, 252,  0x00,0x00
+        goto Sensor_LLI_Generate
 
     stop:		    
 			;2_F ;1_F   ;2_B ;1_B
 	set_motor_pwm   0x00,0x00,  0x00,0x00
-	bra Sensor_LLI_Generate
+	goto Sensor_LLI_Generate

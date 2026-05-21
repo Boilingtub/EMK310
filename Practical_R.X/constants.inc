@@ -210,7 +210,7 @@ S5_K_B_Thres_min equ 0xC4
 S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants ===== 
-Thres_var equ 32
+Thres_var equ 24
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
@@ -218,6 +218,7 @@ ADCAQTL EQU 0xDD
 CAPTH	EQU 0xF5
 CAPTL	EQU 0xFF
 CAP_THRES EQU 0x65
+TURN_STOP_COUNT equ 10
 ;===== PORT Aliases =====
 ;LEDR equ PORTC,0
 ;LEDG equ PORTC,1

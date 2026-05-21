@@ -3,63 +3,64 @@ Set_Nav_col:
     
     btfss PORTB,6,a
     bra $+4
-    bsf	tmp,0,b
+    bsf	tmp,0
    
     btfss PORTB,7,a
     bra $+4
-    bsf tmp,1,a
+    bsf tmp,1
     
     movlw 0
     cpfseq tmp,a
-    bra $+8
-    movlw 0b00000000
+    bra $+6
     movwf nav_col,a
+    return
     
     movlw 1
     cpfseq tmp,a
-    bra $+8
-    movlw 0b00000100
+    bra $+6
     movwf nav_col,a
     return
     
     movlw 2
     cpfseq tmp,a
-    bra $+8
-    movlw 0b00010000
+    bra $+6
     movwf nav_col,a
     return
     
     movlw 3
     cpfseq tmp,a
-    bra $+8
-    movlw 0b00001000
+    bra $+6
     movwf nav_col,a
     return
     
-    movlw 0b00000000
     movwf nav_col,a
     return
    
     
-get_SSD_from_nav_col:
+set_SSD_from_nav_col:
     movlw 0
     cpfseq nav_col
     bra $+4
-    retlw SSD_K
+    movwf PORTA
+    return
     
     movlw 1
     cpfseq nav_col
     bra $+4
-    retlw SSD_R
+    movwf PORTA
+    return
     
     movlw 2
     cpfseq nav_col
     bra $+4
-    retlw SSD_B
+    movwf PORTA
+    return
     
     movlw 3
     cpfseq nav_col
     bra $+4
-    retlw SSD_G
+    movwf PORTA
+    return
     
-    retlw SSD_0
+    movwf PORTA
+    return
