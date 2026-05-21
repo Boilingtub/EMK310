@@ -9159,85 +9159,27 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
 endm
 
 Race:
-Sensor_LLI_Generate:
-    clrf tmp,a
-
- movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
- movwf ADCON0,0
- RGB_measure s1r, s1g, s1b ;Sensor 1
-
- movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
- movwf ADCON0,0
- RGB_measure s2r, s2g, s2b ; Sensor 2
-
- movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
+    Sensor_LLI_Generate:
+     movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
  movwf ADCON0,0
  RGB_measure s3r, s3g, s3b ; Sensor 3
-
- movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
- movwf ADCON0,0
- RGB_measure s4r, s4g, s4b ; Sensor 4
+ determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+ col_det_done_S3:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra straight
 
  movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
  movwf ADCON0,0
  RGB_measure s5r, s5g, s5b ; Sensor 5
-
-    get_LLI_color:
- determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
- col_det_done_S1:
-     bcf Sensor,0,a
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bsf Sensor,0,a
-
- determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
- col_det_done_S2:
- bcf Sensor,1,a
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bsf Sensor,1,a
-
- determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
- col_det_done_S3:
- bcf Sensor,2,a
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bsf Sensor,2,a
-
- determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
- col_det_done_S4:
- bcf Sensor,3,a
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- cpfseq rcolor,a
- bra $+4
- bsf Sensor,3,a
-
  determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
  col_det_done_S5:
- bcf Sensor,4,a
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9246,25 +9188,57 @@ Sensor_LLI_Generate:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bsf Sensor,4,a
+ bra right
 
-     movlw 5
+ movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
+ movwf ADCON0,0
+ RGB_measure s1r, s1g, s1b ;Sensor 1
+ determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
+ col_det_done_S1:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra left
+
+ movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
+ movwf ADCON0,0
+ RGB_measure s4r, s4g, s4b ; Sensor 4
+ determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,col_det_done_S4
+ col_det_done_S4:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ cpfseq rcolor,a
+ bra $+4
+ bra slight_right
+
+ movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
+ movwf ADCON0,0
+ RGB_measure s2r, s2g, s2b ; Sensor 2
+ determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,col_det_done_S2
+ col_det_done_S2:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra slight_left
+
+ movlw 5
  cpfseq tmp,a
  bra $+4
  bra stop
-
-    LLI_Entry:
- movff Sensor,prev_sensor
- btfsc Sensor,0
- bra right
- btfsc Sensor,4
- bra left
- btfsc Sensor,1
- bra slight_right
- btfsc Sensor,3
- bra slight_left
- btfsc Sensor,2
- bra straight
  bra Sensor_LLI_Generate
 
     right:
@@ -9293,7 +9267,6 @@ Sensor_LLI_Generate:
    ;1_F ;2_F ;1_B ;2_B
  set_motor_pwm 0xBA,0xBA, 0x00,0x00
         bra Sensor_LLI_Generate
-
 
     stop:
    ;2_F ;1_F ;2_B ;1_B
