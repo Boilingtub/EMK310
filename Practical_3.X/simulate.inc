@@ -20,36 +20,44 @@ p3_simulate_sensor:
     call p3_simulate_det_col
 
     
-    movlw 0
-    movwf rcount
-    simulate_compare_sensor:
-	movf rcount,0,0
-	    lfsr 0,0x100
-	    movff PLUSW0,tmp
-	    lfsr 0,0x105
-	    movf PLUSW0,0,0
-	cpfseq tmp
-	bra tx_simulate_sensor
-	incf rcount
-	movlw 5
-	cpfseq rcount
-	bra simulate_compare_sensor
-	bra simulate_sensor_done
+    ;movlw 0
+    ;movwf rcount
+    ;simulate_compare_sensor:
+    ;	movf rcount,0,0
+    ;	    lfsr 0,0x400
+    ;	    movff PLUSW0,tmp
+    ;	    lfsr 0,0x405
+    ;	    movf PLUSW0,0,0
+    ;	cpfseq tmp
+    ;	bra tx_simulate_sensor
+    ;	incf rcount
+    ;	movlw 5
+    ;	cpfseq rcount
+    ;	bra simulate_compare_sensor
+    ;	bra simulate_sensor_done
 
 
     tx_simulate_sensor:
         movlw 5
 	movwf rcount
-	lfsr 0,0x100
+	lfsr 0,0x400
 	tx_simulate_sensor_loop:
 	    movf INDF0,0,0
 	    call byte_tx
 	    decfsz rcount
 	    bra tx_simulate_sensor_loop
+	    movlw 0xD
+	    call byte_tx
 
-    simulate_sensor_done:
-	simulate_sensor_done_loop:
-	    bra simulate_sensor_done_loop
+    ;simulate_sensor_done:
+    ;	movlw 4
+    ;	simulate_sensor_done_loop:
+    ;	    lfsr 0,0x400
+    ;	    movff PLUSW0,tmp
+    ;	    lfsr 0,0x405
+    ;	    movff tmp,PLUSW0
+    ;	    decfsz WREG
+    ;	    bra simulate_sensor_done_loop
 	    
     bra p3_simulate_loop
 

@@ -7,7 +7,7 @@ Sensor equ 0x5
 rcount equ 0x6
 rcolor equ 0x7
 nav_col equ 0x8
-r_col_det equ 0x9
+rflags equ 0x9
 r_RB4_do equ 0xB
 cap_reg equ 0xD
 search_sensor equ 0xE
@@ -231,8 +231,14 @@ ADCAQTH EQU 0xFD
 ADCAQTL EQU 0xDD
 CAPTH	EQU 0xF5
 CAPTL	EQU 0xFF
-CAP_THRES EQU 0x70
+CAP_THRES EQU 0x65
 ;===== PORT Aliases =====
+CALIBRATED equ 0
+NAV_COL equ 1
+RX_STRING equ 2
+COMP_COL equ 3
+COMP_CAL equ 4
+
 ;LEDR equ PORTC,0
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
@@ -258,7 +264,7 @@ rx_sto_addr equ 0x200
 i2c_sto_addr equ 0x300
  
 WRITE_CONTROL equ 10100000B
-READ_CONTROL  equ 10100000B
+READ_CONTROL  equ 10100001B
  
 eeprom_startmsg_addr equ 0x0
 eeprom_menu_addr equ 0x3c

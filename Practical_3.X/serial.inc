@@ -37,17 +37,21 @@ match_rx:
     movf POSTINC0,0,0
     movwf cmd  
     
+    bsf rflags,RX_STRING
+
     check_if_cmd_cyoc:
     movf cyoc,0,0
-    cpfseq cmd
-    bra check_if_mode_reg_cyoc
+    cpfseq mode_reg
+    bra check_if_cmd_Attack
     movff cmd,mode_reg
     return
     
-    check_if_mode_reg_cyoc:
+    check_if_cmd_Attack:
+    movlw 'A'
     cpfseq mode_reg
     return
     movff cmd,mode_reg
+
     
     return
     
@@ -168,30 +172,52 @@ simulate_stop_message:
     db "Stop !",0xD,0xA
     
 tx_attack_message:
-    set_tblptr attack_message
-    call message_loop
     movlw 0
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_black_message
+    bra attack_check_red
+    set_tblptr attack_black_message
+    call message_loop
+    return
     
+    attack_check_red:
     movlw 1
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_red_message
+    bra attack_check_blue
+    set_tblptr attack_red_message
+    call message_loop
+    return
     
+    attack_check_blue:
     movlw 2
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_blue_message
+    bra attack_check_green
+    set_tblptr attack_blue_message
+    call message_loop
+    return
     
+    attack_check_green:
     movlw 3
     cpfseq nav_col
     bra $+4
-    bra tx_calibrate_green_message
-attack_message:
-    db "Attack ",0x0
+    set_tblptr attack_green_message
+    call message_loop
+    return
     
+attack_black_message:
+    db "Attack Black",0xD,0xA
+attack_red_message:
+    db "Attack Red",0xD,0xA
+attack_blue_message:
+    db "Attack Blue",0xD,0xA,0x0
+attack_green_message:
+    db "Attack Green",0xD,0xA
+    
+    
+tx_hotload_message:
+    set_tblptr hotload_message
+    bra message_loop
+hotload_message:
+    db "Hotload eeprom slogan...",0xD,0xA
 message_loop:
     TBLRD*+
     movf TABLAT,0,0

@@ -1,7 +1,7 @@
 ### HEXMate logfile and output summary ###
 
 ### Command-line arguments ###
- /tmp/xcXAOdbCK/driver_tmp_3.o
+ /tmp/xcXdnmGPJ/driver_tmp_3.o
  -Odist/default/debug/Practical_3.X.debug.hex
  -logfile=dist/default/debug/Practical_3.X.debug.hxl
  -addressing=1
@@ -9,19 +9,19 @@
 
 ### Memory Usage ###
  Input file ranges:
-  0h - 356Bh		(/tmp/xcXAOdbCK/driver_tmp_3.o)
-  300001h - 300003h		(/tmp/xcXAOdbCK/driver_tmp_3.o)
-  300005h - 300006h		(/tmp/xcXAOdbCK/driver_tmp_3.o)
-  300008h - 30000Dh		(/tmp/xcXAOdbCK/driver_tmp_3.o)
+  0h - 3655h		(/tmp/xcXdnmGPJ/driver_tmp_3.o)
+  300001h - 300003h		(/tmp/xcXdnmGPJ/driver_tmp_3.o)
+  300005h - 300006h		(/tmp/xcXdnmGPJ/driver_tmp_3.o)
+  300008h - 30000Dh		(/tmp/xcXdnmGPJ/driver_tmp_3.o)
  Unused ranges:
-  356Ch - 300000h
+  3656h - 300000h
   300004h - 300004h
   300007h - 300007h
 
 ### Hex Memory Map ###
  Legend:
   -- = Unused memory
-  H1 = Input file             (/tmp/xcXAOdbCK/driver_tmp_3.o)
+  H1 = Input file             (/tmp/xcXdnmGPJ/driver_tmp_3.o)
 ----------------------------------------------------------
          | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 ----------------------------------------------------------
@@ -879,7 +879,22 @@
 00003530 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00003540 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00003550 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
-00003560 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 -- -- -- --
+00003560 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003570 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003580 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003590 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035A0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035B0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035C0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035D0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035E0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000035F0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003600 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003610 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003620 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003630 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003640 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+00003650 | H1 H1 H1 H1 H1 H1 -- -- -- -- -- -- -- -- -- --
 ----------------------------------------------------------
 00300000 | -- H1 H1 H1 -- H1 H1 -- H1 H1 H1 H1 H1 H1 -- --
 00300010 | --

@@ -117,6 +117,7 @@ calibrate_start:
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_R
 	call tx_success_message
+    bsf rflags,CALIBRATED
     clrf SSD,a
     return     
     
@@ -243,15 +244,3 @@ calibrate_test:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
 	return
-
-calibrate_test_cont:
-    cont_test_loop:
-    call read_Sensor5
-    movff s5r,SSD
-    wait_timer H333ms,L333ms
-    movff s5g,SSD
-    wait_timer H333ms,L333ms
-    movff s5b,SSD
-    wait_timer H333ms,L333ms
-    clrf SSD,a
-    bra cont_test_loop

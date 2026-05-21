@@ -1,10 +1,14 @@
 ISRH:
+    
+   
     btfsc RC2IF
     bra RC_ISR
+
     
     bra ISRH_done
     
     RC_ISR:
+	;bcf RC2IF
 	btfss rx_done,0
 	bra RC_read
 	clrf rx_byte_count
@@ -22,7 +26,7 @@ ISRH:
 	    bra $+4
 	    bra RC_READ_DONE
 	    
-	    movlw 0xFF
+	    movlw 0xFE
 	    cpfseq rx_byte_count
 	    bra $+4
 	    bra RC_READ_DONE
@@ -33,7 +37,12 @@ ISRH:
 	    bsf rx_done,0
 	    call match_rx
 	    bra ISRH_done
-	
+	    	    
+	ISR_NAV_COL:
+	    movf PORTB,0,0
+	    bcf RBIF
+	    call Check_Nav_Col
+	    bra ISRH_done
 	    
     ISRH_done:
 	retfie

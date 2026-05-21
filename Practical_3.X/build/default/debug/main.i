@@ -8805,7 +8805,7 @@ Sensor equ 0x5
 rcount equ 0x6
 rcolor equ 0x7
 nav_col equ 0x8
-r_col_det equ 0x9
+rflags equ 0x9
 r_RB4_do equ 0xB
 cap_reg equ 0xD
 search_sensor equ 0xE
@@ -9029,8 +9029,14 @@ ADCAQTH EQU 0xFD
 ADCAQTL EQU 0xDD
 CAPTH EQU 0xF5
 CAPTL EQU 0xFF
-CAP_THRES EQU 0x70
+CAP_THRES EQU 0x65
 ;===== PORT Aliases =====
+CALIBRATED equ 0
+NAV_COL equ 1
+RX_STRING equ 2
+COMP_COL equ 3
+COMP_CAL equ 4
+
 ;LEDR equ PORTC,0
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
@@ -9056,7 +9062,7 @@ rx_sto_addr equ 0x200
 i2c_sto_addr equ 0x300
 
 WRITE_CONTROL equ 10100000B
-READ_CONTROL equ 10100000B
+READ_CONTROL equ 10100001B
 
 eeprom_startmsg_addr equ 0x0
 eeprom_menu_addr equ 0x3c
@@ -9090,7 +9096,7 @@ clrf PORTB ;clear output of data latches
 clrf LATB
 movlw 0b00100000
 movwf ANSELB,1
-movlw 0b11100000
+movlw 0b11100110
 movwf TRISB, 1
 
 
@@ -9173,6 +9179,12 @@ movwf ADCON0,0
 call pwm_setup
 
 ;Setup Interrupts
+;clrf INTCON,0
+;bsf ((INTCON3) and 0FFh), 3, a
+;movf PORTB,0
+;bsf ((IOCB) and 0FFh), 6, a
+;bsf ((IOCB) and 0FFh), 7, a
+;bsf ((INTCON) and 0FFh), 3, a
 ;Setup ADC on complete interrupt
 
 ;Configure Pull-ups and IOC (Bank 15)
@@ -9487,17 +9499,17 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
 endm
 
 det_col_LED:
-    clrf r_col_det,a
-    bsf r_col_det,0,a
+    ;clrf r_col_det,a
+    ;bsf r_col_det,0,a
     movlw 4
     cpfseq rcolor,a
     bra $+4
     bra $+10
-    rlncf r_col_det,a
+    ;rlncf r_col_det,a
     decf WREG,a
-    btfss r_col_det,4,a
+    ;btfss r_col_det,4,a
     bra $-12
-    movff r_col_det,SSD
+    ;movff r_col_det,SSD
     return
 
 Sensor_LLI_Generate:
@@ -9629,11 +9641,34 @@ Check_Nav_Select:
     movwf PORTD,a
     retlw 0
 
+
+get_SSD_from_nav_col:
+    movlw 0
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_K
+
+    movlw 1
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_R
+
+    movlw 2
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_B
+
+    movlw 3
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_G
+
+    retlw SSD_0
+
 Detect_LLI:
     do_Detect_LLI:
  call Sensor_LLI_Generate
- ;bra do_Detect_LLI
-return
+    return
 
 ;========== TESTS ==========
 
@@ -9647,12 +9682,16 @@ color_detection_test:
 # 28 "main.s" 2
 # 1 "./interrupts.inc" 1
 ISRH:
+
+
     btfsc ((PIR3) and 0FFh), 5, a
     bra RC_ISR
+
 
     bra ISRH_done
 
     RC_ISR:
+ ;bcf ((PIR3) and 0FFh), 5, a
  btfss rx_done,0
  bra RC_read
  clrf rx_byte_count
@@ -9670,7 +9709,7 @@ ISRH:
      bra $+4
      bra RC_READ_DONE
 
-     movlw 0xFF
+     movlw 0xFE
      cpfseq rx_byte_count
      bra $+4
      bra RC_READ_DONE
@@ -9682,6 +9721,11 @@ ISRH:
      call match_rx
      bra ISRH_done
 
+ ISR_NAV_COL:
+     movf PORTB,0,0
+     bcf ((INTCON) and 0FFh), 0, a
+     call Check_Nav_Col
+     bra ISRH_done
 
     ISRH_done:
  retfie
@@ -9806,6 +9850,7 @@ calibrate_start:
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_R
  call tx_success_message
+    bsf rflags,CALIBRATED
     clrf SSD,a
     return
 
@@ -9932,18 +9977,6 @@ calibrate_test:
  Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
  return
-
-calibrate_test_cont:
-    cont_test_loop:
-    call read_Sensor5
-    movff s5r,SSD
-    wait_timer H333ms,L333ms
-    movff s5g,SSD
-    wait_timer H333ms,L333ms
-    movff s5b,SSD
-    wait_timer H333ms,L333ms
-    clrf SSD,a
-    bra cont_test_loop
 # 30 "main.s" 2
 # 1 "./line_location_interpreter.inc" 1
 set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
@@ -10217,7 +10250,6 @@ I2C_START_CONDITION:
 wait_START:
     BTFSC SSP1CON2,0
     BRA wait_START
-    BTFSS SSP1STAT,3 ; S bit should be set after Start
     RETURN
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="2. I2C Restart">
@@ -10282,12 +10314,12 @@ I2C_SEND_NACK:
     BSF SSP1CON2,5 ; ACKDT = 1 -> NACK
     BCF ((PIR1) and 0FFh), 3, a
     BSF SSP1CON2,4 ; ACKEN = 1
-    movlw 255
-    movwf tmp
+    ;movlw 255
+    ;movwf tmp
 WAIT_NACK:
-    decfsz tmp
-    bra $+4
-    return
+    ;decfsz tmp
+    ;bra $+4
+    ;return
 
     BTFSS ((PIR1) and 0FFh), 3, a
     BRA WAIT_NACK
@@ -10316,7 +10348,7 @@ Poll_NotReady:
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="9. I2C Error">
 I2C_ERROR:
-    GOTO $
+    return
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="10. Delay">
 DELAY:
@@ -10335,21 +10367,21 @@ LOOP2:
 ;</editor-fold>
 
 EEPROM_startup_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_startmsg_addr
     movwf eeprom_addr
     call EEPROM_read
     return
 
 EEPROM_menu_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_menu_addr
     movwf eeprom_addr
     call EEPROM_read
     return
 
 EEPROM_slogan_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_slogan_addr
     movwf eeprom_addr
     call EEPROM_read
@@ -10365,6 +10397,16 @@ write_table_to_eeprom:
     cpfseq i2c_char
     bra write_table_to_eeprom
     return
+
+write_lfsr_to_eeprom:
+    movff POSTINC0,i2c_char
+    call EEPROM_write
+    incf eeprom_addr
+    movlw 0xA
+    cpfseq i2c_char
+    bra write_lfsr_to_eeprom
+    return
+
 
 
 EEPROM_default:
@@ -10454,17 +10496,21 @@ match_rx:
     movf POSTINC0,0,0
     movwf cmd
 
+    bsf rflags,RX_STRING
+
     check_if_cmd_cyoc:
     movf cyoc,0,0
-    cpfseq cmd
-    bra check_if_mode_reg_cyoc
+    cpfseq mode_reg
+    bra check_if_cmd_Attack
     movff cmd,mode_reg
     return
 
-    check_if_mode_reg_cyoc:
+    check_if_cmd_Attack:
+    movlw 'A'
     cpfseq mode_reg
     return
     movff cmd,mode_reg
+
 
     return
 
@@ -10585,30 +10631,52 @@ simulate_stop_message:
     db "Stop !",0xD,0xA
 
 tx_attack_message:
-    set_tblptr attack_message
-    call message_loop
     movlw 0
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_black_message
+    bra attack_check_red
+    set_tblptr attack_black_message
+    call message_loop
+    return
 
+    attack_check_red:
     movlw 1
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_red_message
+    bra attack_check_blue
+    set_tblptr attack_red_message
+    call message_loop
+    return
 
+    attack_check_blue:
     movlw 2
     cpfseq nav_col
-    bra $+4
-    bra tx_calibrate_blue_message
+    bra attack_check_green
+    set_tblptr attack_blue_message
+    call message_loop
+    return
 
+    attack_check_green:
     movlw 3
     cpfseq nav_col
     bra $+4
-    bra tx_calibrate_green_message
-attack_message:
-    db "Attack ",0x0
+    set_tblptr attack_green_message
+    call message_loop
+    return
 
+attack_black_message:
+    db "Attack Black",0xD,0xA
+attack_red_message:
+    db "Attack Red",0xD,0xA
+attack_blue_message:
+    db "Attack Blue",0xD,0xA,0x0
+attack_green_message:
+    db "Attack Green",0xD,0xA
+
+
+tx_hotload_message:
+    set_tblptr hotload_message
+    bra message_loop
+hotload_message:
+    db "Hotload eeprom slogan...",0xD,0xA
 message_loop:
     TBLRD*+
     movf TABLAT,0,0
@@ -10662,14 +10730,15 @@ p3_color_select:
  bra p3_color_select_done
 
     p3_color_select_invalid:
- movlw 'C'
+ movlw 'U'
  movwf cmd
  call tx_invalid_color_message
  bra p3_color_select
 
     p3_color_select_done:
+ bsf rflags,NAV_COL
  movff cyoc,mode_reg
- bra p3_loop
+ goto p3_loop
 
 
 p3_calibrate:
@@ -10677,18 +10746,65 @@ p3_calibrate:
     movwf PORTA
     call calibrate
     movff cyoc,mode_reg
-    bra p3_loop
+    goto p3_loop
 
 p3_attack:
     movlw SSD_3
     movwf PORTA
 
+    call tx_attack_message
 
+    race_wait_for_touch:
+     movlw 'A'
+ cpfseq mode_reg
+ goto p3_loop
+
+
+ call read_touch
+ tstfsz cap_reg,a
+ bra $+4
+ goto race_wait_for_touch
+
+ call get_SSD_from_nav_col
+ movwf PORTD
+
+ movlw 'A'
+ cpfseq mode_reg
+ goto p3_loop
+
+
+    p3_race_mode:
+ btfss rflags,CALIBRATED
+ bra $+4
+ bra p3_attack_loop
+
+ call calibrate
+ bra p3_race_mode
+
+    p3_attack_loop:
+        btfss rflags,NAV_COL
+ call Check_Nav_Col
+ bra p3_attack_loop_go
+
+ p3_attack_loop_go:
+     call Sensor_LLI_Generate
+     movlw 'A'
+     cpfseq mode_reg
+     goto p3_loop
+     goto p3_attack_loop
+
+
+
+wait_for_touch_to_race:
+    call read_touch
 
     movlw 'A'
     cpfseq mode_reg
-    bra p3_loop
-    bra p3_attack
+    goto p3_loop
+
+    tstfsz cap_reg,a
+    bra p3_race_mode
+    bra wait_for_touch_to_race
 
 p3_simulate:
     movlw SSD_4
@@ -10719,25 +10835,43 @@ p3_simulate:
 
  movlw 'S'
  cpfseq mode_reg
- bra p3_loop
+ goto p3_loop
  bra p3_simulate_loop
 
 p3_hotload:
     movlw SSD_5
     movwf PORTA
+    call tx_hotload_message
 
-    movlw 'H'
-    cpfseq mode_reg
-    bra p3_loop
-    bra p3_hotload
+    call EEPROM_slogan_message
+    lfsr 0,i2c_sto_addr
+    call tx_FSR0
+
+    bcf rflags,RX_STRING
+    btfss rflags,RX_STRING
+    bra $-2
+
+
+    lfsr 0,rx_sto_addr
+    call write_lfsr_to_eeprom
+
+    call EEPROM_slogan_message
+    lfsr 0,i2c_sto_addr
+    call tx_FSR0
+
+    movff cyoc,mode_reg
+    goto p3_loop
 
 p3_cyoc:
+    movlw SSD_6
+    movwf PORTA,0
     call EEPROM_menu_message
+    lfsr 0,i2c_sto_addr
     call tx_FSR0
     p3_cyoc_loop:
     movf cyoc,0,0
     cpfseq mode_reg
-    bra p3_loop
+    goto p3_loop
     bra p3_cyoc_loop
 # 34 "main.s" 2
 # 1 "./simulate.inc" 1
@@ -10763,36 +10897,44 @@ p3_simulate_sensor:
     call p3_simulate_det_col
 
 
-    movlw 0
-    movwf rcount
-    simulate_compare_sensor:
- movf rcount,0,0
-     lfsr 0,0x100
-     movff PLUSW0,tmp
-     lfsr 0,0x105
-     movf PLUSW0,0,0
- cpfseq tmp
- bra tx_simulate_sensor
- incf rcount
- movlw 5
- cpfseq rcount
- bra simulate_compare_sensor
- bra simulate_sensor_done
+    ;movlw 0
+    ;movwf rcount
+    ;simulate_compare_sensor:
+    ; movf rcount,0,0
+    ; lfsr 0,0x400
+    ; movff PLUSW0,tmp
+    ; lfsr 0,0x405
+    ; movf PLUSW0,0,0
+    ; cpfseq tmp
+    ; bra tx_simulate_sensor
+    ; incf rcount
+    ; movlw 5
+    ; cpfseq rcount
+    ; bra simulate_compare_sensor
+    ; bra simulate_sensor_done
 
 
     tx_simulate_sensor:
         movlw 5
  movwf rcount
- lfsr 0,0x100
+ lfsr 0,0x400
  tx_simulate_sensor_loop:
      movf INDF0,0,0
      call byte_tx
      decfsz rcount
      bra tx_simulate_sensor_loop
+     movlw 0xD
+     call byte_tx
 
-    simulate_sensor_done:
- simulate_sensor_done_loop:
-     bra simulate_sensor_done_loop
+    ;simulate_sensor_done:
+    ; movlw 4
+    ; simulate_sensor_done_loop:
+    ; lfsr 0,0x400
+    ; movff PLUSW0,tmp
+    ; lfsr 0,0x405
+    ; movff tmp,PLUSW0
+    ; decfsz WREG
+    ; bra simulate_sensor_done_loop
 
     bra p3_simulate_loop
 
@@ -10896,56 +11038,72 @@ p3_simulate_continue:
 
 main:
     ;bra prac_2_loop
-    bra p3_main
+    goto p3_main
     ;bra pwr_debug
     ;call read_touch
+    ;bra $-4
     ;call tx_startup_message
     ;call eeprom_test
-    bra main
+    ;goto main
 
 exit:
     bra $
 
 p3_main:
     call EEPROM_default
+    movlw SSD_8
+    movwf PORTA
+
+    bsf PORTB,0
+
     call EEPROM_startup_message
+    lfsr 0,i2c_sto_addr
     call tx_FSR0
+    movlw SSD_7
+
+    movwf PORTA
+    clrf rflags
+
+    movlw 0
+    movwf nav_col
     movlw 'J'
     movwf cyoc
+    movlw 'A'
     movwf mode_reg
-
-    call tx_startup_message
     p3_loop:
+ ;btfss PORTB,1
+ ;btfss PORTB,2
+
  movlw 'C'
  cpfseq mode_reg
  bra $+4
- bra p3_color_select
+ goto p3_color_select
 
  movlw 'R'
  cpfseq mode_reg
  bra $+4
- bra p3_calibrate
+ goto p3_calibrate
 
  movlw 'A'
  cpfseq mode_reg
  bra $+4
- bra p3_attack
+ goto p3_attack
 
  movlw 'S'
  cpfseq mode_reg
  bra $+4
- bra p3_simulate
+ goto p3_simulate
 
  movlw 'H'
  cpfseq mode_reg
  bra $+4
- bra p3_hotload
+ goto p3_hotload
 
  movf cyoc,0,0
 
  cpfseq mode_reg
  bra $+4
- bra p3_cyoc
+ goto p3_cyoc
 
 prac_2_loop:
           ;2_F ;1_F ;2_B ;1_B

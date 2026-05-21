@@ -57,17 +57,17 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
 endm
 	
 det_col_LED:
-    clrf r_col_det,a
-    bsf r_col_det,0,a
+    ;clrf r_col_det,a
+    ;bsf r_col_det,0,a
     movlw 4
     cpfseq  rcolor,a
     bra $+4
     bra $+10
-    rlncf   r_col_det,a
+    ;rlncf   r_col_det,a
     decf WREG,a
-    btfss  r_col_det,4,a
+    ;btfss  r_col_det,4,a
     bra $-12
-    movff r_col_det,SSD
+    ;movff r_col_det,SSD
     return
 	
 Sensor_LLI_Generate:
@@ -198,12 +198,35 @@ Check_Nav_Select:
     movlw 0b00000000
     movwf PORTD,a
     retlw 0
+   
+    
+get_SSD_from_nav_col:
+    movlw 0
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_K
+    
+    movlw 1
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_R
+    
+    movlw 2
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_B
+    
+    movlw 3
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_G
+    
+    retlw SSD_0
     
 Detect_LLI: 
     do_Detect_LLI:
 	call Sensor_LLI_Generate
-	;bra do_Detect_LLI
-return
+    return
 
 ;========== TESTS ==========
 	

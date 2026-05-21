@@ -17,7 +17,7 @@ clrf	PORTB	;clear output of data latches
 clrf	LATB
 movlw	0b00100000
 movwf	ANSELB,1
-movlw	0b11100000
+movlw	0b11100110
 movwf   TRISB,	1      
     
 
@@ -100,6 +100,12 @@ movwf ADCON0,0
 call pwm_setup
     
 ;Setup Interrupts    
+;clrf INTCON,0
+;bsf INT1IE
+;movf PORTB,0
+;bsf IOCB6
+;bsf IOCB7
+;bsf RBIE   
 ;Setup ADC on complete interrupt
     
 ;Configure Pull-ups and IOC (Bank 15)

@@ -35,56 +35,72 @@ goto ISRH
  
 main:
     ;bra prac_2_loop
-    bra p3_main
+    goto p3_main
     ;bra pwr_debug
     ;call read_touch
+    ;bra $-4
     ;call tx_startup_message
     ;call eeprom_test
-    bra main
+    ;goto main
     
 exit:
     bra $
     
 p3_main: 
     call EEPROM_default
+    movlw SSD_8
+    movwf PORTA
+  
+    bsf PORTB,0
+    
     call EEPROM_startup_message
+    lfsr 0,i2c_sto_addr
     call tx_FSR0
+    movlw SSD_7
+    
+    movwf PORTA
+    clrf rflags
+    
+    movlw 0
+    movwf nav_col
     movlw 'J'
     movwf cyoc
+    movlw 'A'
     movwf mode_reg
-    
-    call tx_startup_message
     p3_loop:
+	;btfss PORTB,1
+	;btfss PORTB,2
+    
 	movlw 'C'
 	cpfseq mode_reg
 	bra $+4
-	bra p3_color_select
+	goto p3_color_select
 	
 	movlw 'R'
 	cpfseq mode_reg
 	bra $+4
-	bra p3_calibrate
+	goto p3_calibrate
 	
 	movlw 'A'
 	cpfseq mode_reg
 	bra $+4
-	bra p3_attack
+	goto p3_attack
 	
 	movlw 'S'
 	cpfseq mode_reg
 	bra $+4
-	bra p3_simulate
+	goto p3_simulate
 	
 	movlw 'H'
 	cpfseq mode_reg
 	bra $+4
-	bra p3_hotload
+	goto p3_hotload
 	
 	movf cyoc,0,0
 	
 	cpfseq mode_reg
 	bra $+4
-	bra p3_cyoc
+	goto p3_cyoc
 	
 prac_2_loop:
     		    ;2_F ;1_F   ;2_B ;1_B

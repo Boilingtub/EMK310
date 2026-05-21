@@ -120,7 +120,6 @@ I2C_START_CONDITION:
 wait_START:
     BTFSC   SSP1CON2,0
     BRA     wait_START
-    BTFSS   SSP1STAT,3      ; S bit should be set after Start
     RETURN
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="2. I2C Restart">
@@ -185,12 +184,12 @@ I2C_SEND_NACK:
     BSF     SSP1CON2,5      ; ACKDT = 1 -> NACK
     BCF     SSP1IF
     BSF     SSP1CON2,4      ; ACKEN = 1
-    movlw 255
-    movwf tmp
+    ;movlw 255
+    ;movwf tmp
 WAIT_NACK:
-    decfsz tmp
-    bra $+4
-    return
+    ;decfsz tmp
+    ;bra $+4
+    ;return
     
     BTFSS   SSP1IF
     BRA     WAIT_NACK
@@ -219,7 +218,7 @@ Poll_NotReady:
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="9. I2C Error">
 I2C_ERROR:
-    GOTO    $
+    return
 ;</editor-fold>
 ;<editor-fold defaultstate="collapsed" desc="10. Delay">
 DELAY:
@@ -238,21 +237,21 @@ LOOP2:
 ;</editor-fold>  
     
 EEPROM_startup_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_startmsg_addr
     movwf eeprom_addr
     call EEPROM_read
     return
     
 EEPROM_menu_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_menu_addr
     movwf eeprom_addr
     call EEPROM_read
     return
     
 EEPROM_slogan_message:
-    lfsr 0,0x300
+    lfsr 0,i2c_sto_addr
     movlw eeprom_slogan_addr
     movwf eeprom_addr
     call EEPROM_read
@@ -268,6 +267,16 @@ write_table_to_eeprom:
     cpfseq i2c_char
     bra write_table_to_eeprom
     return
+    
+write_lfsr_to_eeprom:
+    movff POSTINC0,i2c_char
+    call EEPROM_write
+    incf eeprom_addr
+    movlw 0xA
+    cpfseq i2c_char
+    bra write_lfsr_to_eeprom
+    return
+    
     
     
 EEPROM_default:
