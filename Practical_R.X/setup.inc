@@ -1,7 +1,7 @@
 setup:
 movlb	0xF	    ;Set BSR for banked SFRs (Bank 15)
 ; Clear Registers
-    clrf search_sensor
+clrf prev_sensor
     
 ;Initialize Port A (check Data Sheet)
 clrf	PORTA	    ; Init port A, clear output of data latches
@@ -60,70 +60,43 @@ movlw 0b00000000 ;ADC ref = Vdd,Vss
 movwf ADCON1,0
 movlw 0b00111101 ;AN15 a.k.a RC3, ADC on
 movwf ADCON0,0
-   
-;Setup UART  
-    ; Baud rate setup (Datasheet RX#1)
-    MOVLW   51			; 19230 BAUD @ 16 MHz
-				; table 18-5 of datasheet
-    MOVWF   SPBRG2	  	; load baudrate register
-    CLRF    SPBRGH2
-    movlw 0b00000000
-    movwf BAUDCON2
-    movlw 0b00100100
-    movwf TXSTA2
-    movlw 0b10010000
-    movwf RCSTA2
-        
-;Setup I2C  !!!! NEEDS CHANGE !!!!
-    ; Set up the BAUD rate to 100 kHz
-    MOVLW   00100111B		;BRG value from Table 15-3 for 100 kHz 
-    MOVWF   SSP1ADD	     
-    
-    ; Set up MSSP status register
-    CLRF    SSP1STAT
-    BSF	    SSP1STAT, 7	   
-    
-    ; MSSP Control register 1 (SSPxCON1) 
-    ;   used to enable the MSSP peripheral and set the device in I2C Master mode    
-    MOVLW   00101000B
-    MOVWF   SSP1CON1
-    
-    ; MSSP Control register 2 (SSPxCON2) 
-    ;	used to send the Start and Stop conditions, set the Receive mode and
-    ;	handle the Acknowledge bits
-    CLRF    SSP1CON2
-    
-
-
     
 ;Enable CCP modules
-call pwm_setup
+    ;Select Timer2 for CCP1,2,3 modules
+    clrf    CCPTMRS0,1    ; select Timer 2
+    ;Select Timer 2 for CCP 4 and 5
+    clrf    CCPTMRS1,1
+    ;Set CCP PWM period
+    movlw   249
+    movwf   PR2,1
+    ;set CCP Duty cycles
+    movlw   0x00  ;Duty Cycle for CCP1 (RB3) but off for setup
+    movwf   CCPR2L,1
     
-;Setup Interrupts    
-;clrf INTCON,0
-;bsf INT1IE
-;movf PORTB,0
-;bsf IOCB6
-;bsf IOCB7
-;bsf RBIE   
-;Setup ADC on complete interrupt
+    movlw   0x00  ;Duty Cycle for CCP2 (RE0) but off for setup
+    movwf   CCPR3L,1
     
-;Configure Pull-ups and IOC (Bank 15)
-
-
-;Global Pull-up Enable
-
-; set up interrupts for UART
-BCF    RC2IF			; Clear RCIF Interrupt Flag
-BSF    RC2IE			; Set RCIE Interrupt Enable (Datasheet RX#4)    
-
-; Clear I2C interrupt flags
-BCF	SSP1IF
-BCF	BCL1IF
+    movlw   0x00  ;Duty Cycle for CCP4 (RD1) off for setup
+    movwf   CCPR4L,1
     
-;Enable Interrupts
-bsf   INTCON, 7, 1      ; Enable GIE (Global interrupt, bit 7)
-bsf PEIE
+    movlw   0x00  ;Duty Cycle for CCP5 (RE2) off for setup
+    movwf   CCPR5L,1
+    ; Set ccp's to standard PWM modes
+    movlw   0b00111100 ;0b00111100
+    movwf   CCP2CON,1
+    movwf   CCP3CON,1
+    movwf   CCP4CON,1
+    movwf   CCP5CON,1
+    ;Start Timer 2
+    movlw   0b00000100
+    movwf   T2CON,1
+    ;PheriPheral Module Register
+    movlw   0b00000001; (E) CCP5, (E) CCP4, (E) CCP3 (E) CCP2 (D) CCP1
+    movwf   PMD1,0
+    
+    ;Enable Interrupts
+    bsf   INTCON, 7, 1      ; Enable GIE (Global interrupt, bit 7)
+    bsf PEIE
     
 movlb 0x00
 return

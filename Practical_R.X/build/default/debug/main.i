@@ -8802,24 +8802,10 @@ Delay1 EQU 0x2
 Delay2 EQU 0x3
 flash_counter EQU 0x4
 Sensor equ 0x5
-rcount equ 0x6
 rcolor equ 0x7
 nav_col equ 0x8
-rflags equ 0x9
-r_RB4_do equ 0xB
 cap_reg equ 0xD
-search_sensor equ 0xE
-rx_byte_count equ 0xF
-rx_byte equ 0x10
-rx_done equ 0x11
-eeprom_addr equ 0x13
-i2c_len equ 0x14
-i2c_char equ 0x15
-i2c_byte equ 0x17
-mode_reg equ 0x18
-cmd equ 0x19
-cyoc equ 0x20
-
+prev_sensor equ 0xE
 
 s1r equ 0x21
 s1g equ 0x22
@@ -9031,17 +9017,11 @@ CAPTH EQU 0xF5
 CAPTL EQU 0xFF
 CAP_THRES EQU 0x65
 ;===== PORT Aliases =====
-CALIBRATED equ 0
-NAV_COL equ 1
-RX_STRING equ 2
-COMP_COL equ 3
-COMP_CAL equ 4
-
 ;LEDR equ PORTC,0
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
-SSD equ PORTA
 ;CAP equ PORTB,5
+SSD equ PORTA
 SSD_W equ 0b01001001
 SSD_K equ 0b01110000
 SSD_R equ 0b01010000
@@ -9058,212 +9038,16 @@ SSD_6 equ 0b01111101
 SSD_7 equ 0b00000111
 SSD_8 equ 0b11111111
 SSD_9 equ 0b01101111
-rx_sto_addr equ 0x200
-i2c_sto_addr equ 0x300
-
-WRITE_CONTROL equ 10100000B
-READ_CONTROL equ 10100001B
-
-eeprom_startmsg_addr equ 0x0
-eeprom_menu_addr equ 0x3c
-eeprom_slogan_addr equ 0xBA
 # 14 "main.s" 2
 
 PSECT code,abs ; Start Code section
 org 0h ; startup address = 0000h
 call setup
 goto main
-org 08h ;High priority Interrupt Vector
-goto ISRH
+org 08h ;Interrupt Vector
+retfie
 
-# 1 "./setup.inc" 1
-setup:
-movlb 0xF ;Set BSR for banked SFRs (Bank 15)
-; Clear Registers
-    clrf search_sensor
-
-;Initialize Port A (check Data Sheet)
-clrf PORTA ; Init port A, clear output of data latches
-clrf LATA ; Alternate way to clear all data latches
-movlw 0b00000000
-movwf ANSELA,1
-movlw 0b00000000
-movwf TRISA,1
-
-
-;Initialize Port B (check Data Sheet)
-clrf PORTB ;clear output of data latches
-clrf LATB
-movlw 0b00100000
-movwf ANSELB,1
-movlw 0b11100110
-movwf TRISB, 1
-
-
-;Initialize Port C (check Data Sheet)
-clrf PORTC
-clrf LATC
-movlw 0b11100000
-movwf ANSELC,1
-movlw 0b11111000
-movwf TRISC,1
-
-;Initialize Port D (check Data Sheet)
-clrf PORTD
-clrf LATD
-movlw 0b00001100
-movwf ANSELD,1
-movlw 0b11001100
-movwf TRISD,1
-
-;Initialize Port E (check Data Sheet)
-clrf PORTE
-clrf LATE
-movlw 0b00000000
-movwf ANSELE,0
-movlw 0b00000000
-movwf TRISE,0
-
-
-;Initialize Timer (Check DataSheet)
-movlw 0b01110100
-movwf OSCCON,0
-;movlw 0b00000000
-;movwf OSCCON2,a
-
-;Initialize ADC (Check DataSheet)
-movlw 0b00111010 ; left Justify 20 TAD, FOSC/32,
-;movlw 0b00111101 ; left Justify 20 TAD, FOSC/16,
-movwf ADCON2,0
-movlw 0b00000000 ;ADC ref = Vdd,Vss
-movwf ADCON1,0
-movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
-movwf ADCON0,0
-
-;Setup UART
-    ; Baud rate setup (Datasheet ((PORTC) and 0FFh), 7, a#1)
-    MOVLW 51 ; 19230 BAUD @ 16 MHz
-    ; table 18-5 of datasheet
-    MOVWF SPBRG2 ; load baudrate register
-    CLRF SPBRGH2
-    movlw 0b00000000
-    movwf BAUDCON2
-    movlw 0b00100100
-    movwf TXSTA2
-    movlw 0b10010000
-    movwf RCSTA2
-
-;Setup I2C !!!! NEEDS CHANGE !!!!
-    ; Set up the BAUD rate to 100 kHz
-    MOVLW 00100111B ;BRG value from Table 15-3 for 100 kHz
-    MOVWF SSP1ADD
-
-    ; Set up MSSP status register
-    CLRF SSP1STAT
-    BSF SSP1STAT, 7
-
-    ; MSSP Control register 1 (SSPxCON1)
-    ; used to enable the MSSP peripheral and set the device in I2C Master mode
-    MOVLW 00101000B
-    MOVWF SSP1CON1
-
-    ; MSSP Control register 2 (SSPxCON2)
-    ; used to send the Start and Stop conditions, set the Receive mode and
-    ; handle the Acknowledge bits
-    CLRF SSP1CON2
-
-
-
-
-;Enable CCP modules
-call pwm_setup
-
-;Setup Interrupts
-;clrf INTCON,0
-;bsf ((INTCON3) and 0FFh), 3, a
-;movf PORTB,0
-;bsf ((IOCB) and 0FFh), 6, a
-;bsf ((IOCB) and 0FFh), 7, a
-;bsf ((INTCON) and 0FFh), 3, a
-;Setup ADC on complete interrupt
-
-;Configure Pull-ups and IOC (Bank 15)
-
-
-;Global Pull-up Enable
-
-; set up interrupts for UART
-BCF ((PIR3) and 0FFh), 5, a ; Clear ((PIR1) and 0FFh), 5, a Interrupt Flag
-BSF ((PIE3) and 0FFh), 5, a ; Set ((PIE1) and 0FFh), 5, a Interrupt Enable (Datasheet ((PORTC) and 0FFh), 7, a#4)
-
-; Clear I2C interrupt flags
-BCF ((PIR1) and 0FFh), 3, a
-BCF ((PIR2) and 0FFh), 3, a
-
-;Enable Interrupts
-bsf INTCON, 7, 1 ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
-bsf ((INTCON) and 0FFh), 6, a
-
-movlb 0x00
-return
-# 23 "main.s" 2
-# 1 "./pwm_setup.inc" 1
-pwm_setup:
-    movlb 0xF
-    ;Select Timer2 for ((PORTC) and 0FFh), 2, a,2,3 modules
-    banksel CCPTMRS0
-    clrf CCPTMRS0,1 ; select Timer 2
-    ;Set CCP PWM period
-    banksel PR2
-    ;movlw 0b11111001 ; Sets period for ~1kHz at 16MHz with 1:16 prescale
-    movlw 249
-    movwf PR2,1
-    ;set CCP Duty cycles
-    banksel CCPR2L
-    movlw 0x00 ;Duty Cycle for ((PORTC) and 0FFh), 2, a (RB3) but off for setup
-    movwf CCPR2L,1
-
-    banksel CCPR3L
-    movlw 0x00 ;Duty Cycle for CCP2 (RE0) but off for setup
-    movwf CCPR3L,1
-
-    banksel CCPR4L
-    movlw 0x00 ;Duty Cycle for ((PORTD) and 0FFh), 1, a (RD1) off for setup
-    movwf CCPR4L,1
-
-    banksel CCPR5L
-    movlw 0x00 ;Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
-    movwf CCPR5L,1
-    ; Set ccp's to standard PWM modes
-    movlw 0b00111100 ;0b00111100
-    banksel CCP2CON
-    movwf CCP2CON,1
-    banksel CCP3CON
-    movwf CCP3CON,1
-    banksel CCP4CON
-    movwf CCP4CON,1
-    banksel CCP5CON
-    movwf CCP5CON,1
-    ;Start Timer 2
-    movlw 0b00000100
-    movwf T2CON,1
-    ;PheriPheral Module Register
-    movlw 0b00000001; (E) ((PORTE) and 0FFh), 2, a, (E) ((PORTD) and 0FFh), 1, a, (E) CCP3 (E) CCP2 (D) ((PORTC) and 0FFh), 2, a
-    movwf PMD1,0
-    return
-# 24 "main.s" 2
-# 1 "./timer.inc" 1
-wait_n_cycles macro num, l_addr1, l_addr2
-    movlw num
-    movwf l_addr1, a
-    movwf l_addr2, a
-    decfsz l_addr1, a
-    bra $-2
-    movwf l_addr1,a
-    decfsz l_addr2, a
-    bra $-8
-endm
-
+# 1 "./race.inc" 1
 wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
     ;YYXX = 65535 - (time required)/((4/fosc)*prescaler)
     ;YYXX = 44723 -> 0XAEB3 in hex
@@ -9282,38 +9066,8 @@ wait_timer macro th,tl ;Wait_time = 0xFFFF - (OxFFFF/(Hz*2))
     bra $-4
     bcf T0CON, 7, c ; timer is turned off
 endm
-# 25 "main.s" 2
-# 1 "./Sensor.inc" 1
-fake_RGB_measure macro rR, vR, rG, vG ,rB, vB
-    movlw vR
-    movwf rR
-    movlw vG
-    movwf rG
-    movlw vB
-    movwf rB
-endm
-
-divSensoradd macro numerator,r1,r2
-    movlw numerator
-    mulwf r1,0
-    btfsc PRODL,7,0
-    bsf PRODH,0,0
-    movff PRODH,WREG
-    addwf r2,0
-endm
-
-average_values macro r1,r2,r3,r4,r5,rr
-    clrf rr,a
-    divSensoradd 51, r1, rr
-    divSensoradd 51, r2, rr
-    divSensoradd 51, r3, rr
-    divSensoradd 51, r4, rr
-    divSensoradd 51, r5, rr
-    ;movff r5,rr,a
-endm
 
 ADC_measure macro r1
-    ;wait_timer 0x01,0x01
     bsf ADCON0,1,0 ;Start conversion
     btfsc ADCON0,1,0 ;Is conversion done?, NO, test again
     bra $-2
@@ -9338,123 +9092,29 @@ RGB_measure macro rR, rG, rB
     bsf PORTC,2 ;LEDB
 endm
 
-read_Sensor_all:
-    call read_Sensor1
-    call read_Sensor2
-    call read_Sensor3
-    call read_Sensor4
-    call read_Sensor5
-    return
-
-read_Sensor1:
-    movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
-    movwf ADCON0,0
-    wait_timer ADCAQTH,ADCAQTL
-    RGB_measure s1r, s1g, s1b
-    return
-
-read_Sensor2:
-    movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
-    movwf ADCON0,0
-    wait_timer ADCAQTH,ADCAQTL
-    RGB_measure s2r, s2g, s2b
-    return
-
-read_Sensor3:
-    movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
-    movwf ADCON0,0
-    wait_timer ADCAQTH,ADCAQTL
-    RGB_measure s3r, s3g, s3b
-    return
-
-read_Sensor4:
-    movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
-    movwf ADCON0,0
-    wait_timer ADCAQTH,ADCAQTL
-    RGB_measure s4r, s4g, s4b
-    return
-
-read_Sensor5:
-    movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
-    movwf ADCON0,0
-    wait_timer ADCAQTH,ADCAQTL
-    RGB_measure s5r, s5g, s5b
-    return
-# 26 "main.s" 2
-# 1 "./touch.inc" 1
-touch_measure:
+set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
     movlb 0xF
-    bcf ANSELB,5,1
-    bcf TRISB,5,1
-    bcf PORTB,5,0
-    wait_timer ADCAQTH, ADCAQTL
-    bsf PORTB,5,0
-    wait_timer ADCAQTH, ADCAQTL
-    bcf PORTB,5,0
-    bsf ANSELB,5,1
-    bsf TRISB,5,1
+    movlw ccp2 ; Duty Cycle for CCP2 (RB3) but3 off for setup
+    movwf CCPR2L,1 ;M1 F
+
+    movlw ccp3 ; Duty Cycle for CCP3 (RE0) but off for setup
+    movwf CCPR3L,1 ;M2 F
+
+    movlw ccp4 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RD1) off for setup
+    movwf CCPR4L,1 ;M1 B
+
+    movlw ccp5 ; Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
+    movwf CCPR5L,1 ;M2 B
     movlb 0x0
-
-    wait_timer CAPTH,CAPTL
-
-    ADC_measure cap_reg
-
-    movlw CAP_THRES
-    cpfslt cap_reg,a
-    bra $+6
-    clrf cap_reg,a
-    bra $+4
-    setf cap_reg,a
-
-    return
-
-read_touch:
-    movlw 0b00110101 ;((PORTB) and 0FFh), 5, a a.k.a RB5, ADC on
-    movwf ADCON0,a
-    wait_timer ADCAQTH,ADCAQTL
-    call touch_measure
-    call touch_led
-    return
-
-touch_led:
-    tstfsz cap_reg,a
-    bra $+6
-    bcf PORTA,4,a
-    bra $+4
-    bsf PORTA,4,a
-    return
-
-start_on_touch:
-    call read_touch
-    tstfsz cap_reg,a
-    bra $+4
-    bra start_on_touch
-    wait_timer H333ms, L333ms
-    return
-
-wait_for_touch:
-    call read_touch
-    tstfsz cap_reg,a
-    bra $+4
-    bra wait_for_touch
-    return
-# 27 "main.s" 2
-# 1 "./color_detection.inc" 1
-check_navline macro sv, col_reg, rr, bit
-    movff nav_col,WREG
-    determine_color sv,col_reg
-    CPFSEQ col_reg,1
-    bra $+4
-    bsf rr,bit,1
 endm
 
 check_in_range macro r, min, max, next_label ;20 bytes PC
     movff min,WREG
-    cpfslt r,1
+    cpfslt r,0
     bra $+4
     bra $+10
     movff max,WREG
-    cpfsgt r,1
+    cpfsgt r,0
     bra $+4
     bra next_label
 endm
@@ -9498,26 +9158,31 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
  bra done_label
 endm
 
-det_col_LED:
-    ;clrf r_col_det,a
-    ;bsf r_col_det,0,a
-    movlw 4
-    cpfseq rcolor,a
-    bra $+4
-    bra $+10
-    ;rlncf r_col_det,a
-    decf WREG,a
-    ;btfss r_col_det,4,a
-    bra $-12
-    ;movff r_col_det,SSD
-    return
-
+Race:
 Sensor_LLI_Generate:
-    ;clrf Sensor,a
     clrf tmp,a
-    call read_Sensor_all
-    get_LLI_color:
 
+ movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
+ movwf ADCON0,0
+ RGB_measure s1r, s1g, s1b ;Sensor 1
+
+ movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
+ movwf ADCON0,0
+ RGB_measure s2r, s2g, s2b ; Sensor 2
+
+ movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
+ movwf ADCON0,0
+ RGB_measure s3r, s3g, s3b ; Sensor 3
+
+ movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
+ movwf ADCON0,0
+ RGB_measure s4r, s4g, s4b ; Sensor 4
+
+ movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
+ movwf ADCON0,0
+ RGB_measure s5r, s5g, s5b ; Sensor 5
+
+    get_LLI_color:
  determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,col_det_done_S1
  col_det_done_S1:
      bcf Sensor,0,a
@@ -9585,151 +9250,160 @@ Sensor_LLI_Generate:
 
      movlw 5
  cpfseq tmp,a
- bra $+8
- call stop
  bra $+4
- call LLI_Entry
+ bra stop
 
-    return
+    LLI_Entry:
+ movff Sensor,prev_sensor
+ btfsc Sensor,0
+ bra right
+ btfsc Sensor,4
+ bra left
+ btfsc Sensor,1
+ bra slight_right
+ btfsc Sensor,3
+ bra slight_left
+ btfsc Sensor,2
+ bra straight
+ bra Sensor_LLI_Generate
+
+    right:
+   ;2_F ;1_F ;2_B ;1_B
+ set_motor_pwm 0x00,0xFA, 0x00,0x00
+ bra Sensor_LLI_Generate
+
+    slight_right:
+   ;1_F ;2_F ;1_B ;2_B
+ set_motor_pwm 0x00,0xAD, 0x00,0x00
+     bra Sensor_LLI_Generate
+
+    left:
+   ;1_F ;2_F ;1_B ;2_B
+ set_motor_pwm 0xFA,0x00, 0x00,0x00
+ bra Sensor_LLI_Generate
 
 
-Check_Nav_Col:
-    call Check_Nav_Select
-    movwf nav_col,a
-    return
+    slight_left:
+   ;1_F ;2_F ;1_B ;2_B
+ set_motor_pwm 0xAD,0x00, 0x00,0x00
+ bra Sensor_LLI_Generate
 
-Check_Nav_Select:
-    clrf tmp,a
 
-    btfss PORTB,6,a
-    bra $+4
-    bsf tmp,0,b
+    straight:
+   ;1_F ;2_F ;1_B ;2_B
+ set_motor_pwm 0xBA,0xBA, 0x00,0x00
+        bra Sensor_LLI_Generate
 
-    btfss PORTB,7,a
-    bra $+4
-    bsf tmp,1,a
 
-    movlw 0
-    cpfseq tmp,a
-    bra $+8
-    movlw 0b00000000
-    movwf PORTD,a
-    retlw 0
+    stop:
+   ;2_F ;1_F ;2_B ;1_B
+ set_motor_pwm 0x00,0x00, 0x00,0x00
+ bra Sensor_LLI_Generate
+# 23 "main.s" 2
+# 1 "./setup.inc" 1
+setup:
+movlb 0xF ;Set BSR for banked SFRs (Bank 15)
+; Clear Registers
+clrf prev_sensor
 
-    movlw 1
-    cpfseq tmp,a
-    bra $+8
+;Initialize Port A (check Data Sheet)
+clrf PORTA ; Init port A, clear output of data latches
+clrf LATA ; Alternate way to clear all data latches
+movlw 0b00000000
+movwf ANSELA,1
+movlw 0b00000000
+movwf TRISA,1
+
+
+;Initialize Port B (check Data Sheet)
+clrf PORTB ;clear output of data latches
+clrf LATB
+movlw 0b00100000
+movwf ANSELB,1
+movlw 0b11100110
+movwf TRISB, 1
+
+
+;Initialize Port C (check Data Sheet)
+clrf PORTC
+clrf LATC
+movlw 0b11100000
+movwf ANSELC,1
+movlw 0b11111000
+movwf TRISC,1
+
+;Initialize Port D (check Data Sheet)
+clrf PORTD
+clrf LATD
+movlw 0b00001100
+movwf ANSELD,1
+movlw 0b11001100
+movwf TRISD,1
+
+;Initialize Port E (check Data Sheet)
+clrf PORTE
+clrf LATE
+movlw 0b00000000
+movwf ANSELE,0
+movlw 0b00000000
+movwf TRISE,0
+
+
+;Initialize Timer (Check DataSheet)
+movlw 0b01110100
+movwf OSCCON,0
+;movlw 0b00000000
+;movwf OSCCON2,a
+
+;Initialize ADC (Check DataSheet)
+movlw 0b00111010 ; left Justify 20 TAD, FOSC/32,
+;movlw 0b00111101 ; left Justify 20 TAD, FOSC/16,
+movwf ADCON2,0
+movlw 0b00000000 ;ADC ref = Vdd,Vss
+movwf ADCON1,0
+movlw 0b00111101 ;((PORTC) and 0FFh), 3, a a.k.a RC3, ADC on
+movwf ADCON0,0
+
+;Enable CCP modules
+    ;Select Timer2 for ((PORTC) and 0FFh), 2, a,2,3 modules
+    clrf CCPTMRS0,1 ; select Timer 2
+    ;Select Timer 2 for CCP 4 and 5
+    clrf CCPTMRS1,1
+    ;Set CCP PWM period
+    movlw 249
+    movwf PR2,1
+    ;set CCP Duty cycles
+    movlw 0x00 ;Duty Cycle for ((PORTC) and 0FFh), 2, a (RB3) but off for setup
+    movwf CCPR2L,1
+
+    movlw 0x00 ;Duty Cycle for CCP2 (RE0) but off for setup
+    movwf CCPR3L,1
+
+    movlw 0x00 ;Duty Cycle for ((PORTD) and 0FFh), 1, a (RD1) off for setup
+    movwf CCPR4L,1
+
+    movlw 0x00 ;Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
+    movwf CCPR5L,1
+    ; Set ccp's to standard PWM modes
+    movlw 0b00111100 ;0b00111100
+    movwf CCP2CON,1
+    movwf CCP3CON,1
+    movwf CCP4CON,1
+    movwf CCP5CON,1
+    ;Start Timer 2
     movlw 0b00000100
-    movwf PORTD,a
-    retlw 1
+    movwf T2CON,1
+    ;PheriPheral Module Register
+    movlw 0b00000001; (E) ((PORTE) and 0FFh), 2, a, (E) ((PORTD) and 0FFh), 1, a, (E) CCP3 (E) CCP2 (D) ((PORTC) and 0FFh), 2, a
+    movwf PMD1,0
 
-    movlw 2
-    cpfseq tmp,a
-    bra $+8
-    movlw 0b00010000
-    movwf PORTD,a
-    retlw 2
+    ;Enable Interrupts
+    bsf INTCON, 7, 1 ; Enable ((INTCON) and 0FFh), 7, a (Global interrupt, bit 7)
+    bsf ((INTCON) and 0FFh), 6, a
 
-    movlw 3
-    cpfseq tmp,a
-    bra $+8
-    movlw 0b00001000
-    movwf PORTD,a
-    retlw 3
-
-    movlw 0b00000000
-    movwf PORTD,a
-    retlw 0
-
-
-get_SSD_from_nav_col:
-    movlw 0
-    cpfseq nav_col
-    bra $+4
-    retlw SSD_K
-
-    movlw 1
-    cpfseq nav_col
-    bra $+4
-    retlw SSD_R
-
-    movlw 2
-    cpfseq nav_col
-    bra $+4
-    retlw SSD_B
-
-    movlw 3
-    cpfseq nav_col
-    bra $+4
-    retlw SSD_G
-
-    retlw SSD_0
-
-Detect_LLI:
-    do_Detect_LLI:
- call Sensor_LLI_Generate
-    return
-
-;========== TESTS ==========
-
-color_detection_test:
-    call read_Sensor1
-    determine_color S1_W_R_Thres_min,s1r, s1g, s1b, rcolor, show_color
-    bra color_detection_test
-    show_color:
- call det_col_LED
- bra color_detection_test
-# 28 "main.s" 2
-# 1 "./interrupts.inc" 1
-ISRH:
-
-
-    btfsc ((PIR3) and 0FFh), 5, a
-    bra RC_ISR
-
-
-    bra ISRH_done
-
-    RC_ISR:
- ;bcf ((PIR3) and 0FFh), 5, a
- btfss rx_done,0
- bra RC_read
- clrf rx_byte_count
- lfsr 0,rx_sto_addr
- clrf rx_done
- RC_read:
-     movf RCREG2,0,0
-     movwf POSTINC0
-     incf rx_byte_count
-
-     movf RCSTA2,0,0
-
-     movlw 0x0A
-     cpfseq RCREG2
-     bra $+4
-     bra RC_READ_DONE
-
-     movlw 0xFE
-     cpfseq rx_byte_count
-     bra $+4
-     bra RC_READ_DONE
-
-     bra ISRH_done
-
- RC_READ_DONE:
-     bsf rx_done,0
-     call match_rx
-     bra ISRH_done
-
- ISR_NAV_COL:
-     movf PORTB,0,0
-     bcf ((INTCON) and 0FFh), 0, a
-     call Check_Nav_Col
-     bra ISRH_done
-
-    ISRH_done:
- retfie
-# 29 "main.s" 2
+movlb 0x00
+return
+# 24 "main.s" 2
 # 1 "./calibration.inc" 1
 flash_Reg macro count_addr, count_val, out_reg, out_val
     movlw count_val
@@ -9777,14 +9451,11 @@ Calc_Color_Threshold macro rr,rg,rb,thres
 endm
 
 calibrate:
-    call tx_calibrate_message
 calibrate_start:
     clrf SSD,a
     calibrate_for_white:
  movlw SSD_W
  movwf SSD,a
- call tx_calibrate_calibrate_message
- call tx_calibrate_white_message
  call wait_for_touch
  call read_Sensor_all
  Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
@@ -9793,12 +9464,9 @@ calibrate_start:
  Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_W
- call tx_success_message
     calibrate_for_green:
  movlw SSD_G
  movwf SSD,a
- call tx_calibrate_calibrate_message
- call tx_calibrate_green_message
  call wait_for_touch
  call read_Sensor_all
  Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
@@ -9807,12 +9475,9 @@ calibrate_start:
  Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_G
- call tx_success_message
     calibrate_for_blue:
  movlw SSD_B
  movwf SSD,a
- call tx_calibrate_calibrate_message
- call tx_calibrate_blue_message
  call wait_for_touch
  call read_Sensor_all
  Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
@@ -9821,12 +9486,9 @@ calibrate_start:
  Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_B
- call tx_success_message
     calibrate_for_black:
  movlw SSD_K
  movwf SSD,a
- call tx_calibrate_calibrate_message
- call tx_calibrate_black_message
  call wait_for_touch
  call read_Sensor_all
  Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
@@ -9835,12 +9497,9 @@ calibrate_start:
  Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_K
- call tx_success_message
     calibrate_for_red:
  movlw SSD_R
  movwf SSD,a
- call tx_calibrate_calibrate_message
- call tx_calibrate_red_message
  call wait_for_touch
  call read_Sensor_all
  Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
@@ -9849,1277 +9508,162 @@ calibrate_start:
  Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
  Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_R
- call tx_success_message
-    bsf rflags,CALIBRATED
     clrf SSD,a
     return
 
-;========== Tests ==========
-
-calibrate_test:
- movlw 250
- movwf s1r,a
- movwf s2r,a
- movwf s3r,a
- movwf s4r,a
- movwf s5r,a
- movlw 250
- movwf s1g,a
- movwf s2g,a
- movwf s3g,a
- movwf s4g,a
- movwf s5g,a
- movlw 250
- movwf s1b,a
- movwf s2b,a
- movwf s3b,a
- movwf s4b,a
- movwf s5b,a
- Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
-
- movlw 8
- movwf s1r,a
- movwf s2r,a
- movwf s3r,a
- movwf s4r,a
- movwf s5r,a
- movlw 10
- movwf s1g,a
- movwf s2g,a
- movwf s3g,a
- movwf s4g,a
- movwf s5g,a
- movlw 15
- movwf s1b,a
- movwf s2b,a
- movwf s3b,a
- movwf s4b,a
- movwf s5b,a
- Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-
- movlw 238
- movwf s1r,a
- movwf s2r,a
- movwf s3r,a
- movwf s4r,a
- movwf s5r,a
- movlw 39
- movwf s1g,a
- movwf s2g,a
- movwf s3g,a
- movwf s4g,a
- movwf s5g,a
- movlw 50
- movwf s1b,a
- movwf s2b,a
- movwf s3b,a
- movwf s4b,a
- movwf s5b,a
- Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
-
- movlw 98
- movwf s1r,a
- movwf s2r,a
- movwf s3r,a
- movwf s4r,a
- movwf s5r,a
- movlw 224
- movwf s1g,a
- movwf s2g,a
- movwf s3g,a
- movwf s4g,a
- movwf s5g,a
- movlw 63
- movwf s1b,a
- movwf s2b,a
- movwf s3b,a
- movwf s4b,a
- movwf s5b,a
- Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
-
- movlw 30
- movwf s1r,a
- movwf s2r,a
- movwf s3r,a
- movwf s4r,a
- movwf s5r,a
- movlw 68
- movwf s1g,a
- movwf s2g,a
- movwf s3g,a
- movwf s4g,a
- movwf s5g,a
- movlw 204
- movwf s1b,a
- movwf s2b,a
- movwf s3b,a
- movwf s4b,a
- movwf s5b,a
- Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
- return
-# 30 "main.s" 2
-# 1 "./line_location_interpreter.inc" 1
-set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
-    movlw ccp2 ; Duty Cycle for CCP2 (RB3) but3 off for setup
-    banksel CCPR2L
-    movwf CCPR2L,1 ;M1 F
-
-    movlw ccp3 ; Duty Cycle for CCP3 (RE0) but off for setup
-    banksel CCPR3L
-    movwf CCPR3L,1 ;M2 F
-
-    movlw ccp4 ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RD1) off for setup
-    banksel CCPR4L
-    movwf CCPR4L,1 ;M1 B
-
-    movlw ccp5 ; Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
-    banksel CCPR5L
-    movwf CCPR5L,1 ;M2 B
-    movlb 0
-endm
-;try and start the logic at left sothat it runs sequancially as i intended it to
-;-----------------------------------------------------------------------------
-;Move left logic
-LLI_Entry:
-left_logic:
-    movf Sensor,0,0;Move Sensor value to wreg
-    XORLW 0b00000001;check if the wreg and the binary value match exactly
- BZ left;z will be 1 if they match and it will then branch HOPE p82
-    movf Sensor,0,0
-    XORLW 0b00000011
- BZ left
-    movf Sensor,0,0
-    XORLW 0b00000111
- BZ left
-    movf Sensor,0,0
-    XORLW 0b00001111
- BZ left
-
-;-----------------------------------------------------------------------------
-;Move right logic
-right_logic:
-    MOVF Sensor,0,0
-    XORLW 0b00010000
- BZ right
-    MOVF Sensor,0,0
-    XORLW 0b00011000
- BZ right
-    MOVF Sensor,0,0
-    XORLW 0b00011100
- BZ right
-    MOVF Sensor,0,0
-    XORLW 0b00011110
- BZ right
-
-;-----------------------------------------------------------------------------
-;Move slight left logic
-slight_left_logic:
-    MOVF Sensor,0,0
-    XORLW 0b00000010
- BZ slight_left
-    MOVF Sensor,0,0
-    XORLW 0b00000110
- BZ slight_left
-
-;-----------------------------------------------------------------------------
-;Move slight right logic
-slight_right_logic:
-    MOVF Sensor,0,0
-    XORLW 0b00001000
- BZ slight_right
-    MOVF Sensor,0,0
-    XORLW 0b00011000
- BZ slight_right
-
-;-----------------------------------------------------------------------------
-;Move Straght logic
-straight_logic:
-    MOVF Sensor,0,0
-    XORLW 0b00000100
- BZ straight
-    MOVF Sensor,0,0
-    XORLW 0b00001110
- BZ straight
-
-;-----------------------------------------------------------------------------
-;Move search logic
-search_logic:;as the code tuns sequencially, this will always be the last option after non of the prev was chosen
-    MOVF search_sensor,0,0
-    XORLW 0b00000000
- BZ straight
-    MOVF search_sensor,0,0
-    XORLW 0b00000001
- BZ right
-    MOVF search_sensor,0,0
-    XORLW 0b00000010
- BZ slight_right
-    MOVF search_sensor,0,0
-    XORLW 0b00000100
- BZ left
-    MOVF search_sensor,0,0
-    XORLW 0b00001000
- BZ slight_left
-    BZ straight
-
-;-----------------------------------------------------------------------------
-;restart main as no action was taken
-    return
-
-right:
-    movlw 0b00000001
-    movwf search_sensor,0
-      ;2_F ;1_F ;2_B ;1_B
-    set_motor_pwm 0x00,0xFA, 0x00,0x00
-    return
-
-slight_right:
-    movlw 0b00000010
-    movwf search_sensor,0
-      ;1_F ;2_F ;1_B ;2_B
-    set_motor_pwm 0x00,0xAD, 0x00,0x00
-    return
-    return
-
-left:
-    movlw 0b00000100
-    movwf search_sensor,0
-    set_motor_pwm 0xFA,0x00, 0x00,0x00
-    return
-
-slight_left:
-    movlw 0b00001000
-    movwf search_sensor,0
-      ;1_F ;2_F ;1_B ;2_B
-    set_motor_pwm 0xAD,0x00, 0x00,0x00
-    return
-
-straight:
-    movlw 0b00010000
-    movwf search_sensor,0
-      ;1_F ;2_F ;1_B ;2_B
-    set_motor_pwm 0xBA,0xBA, 0x00,0x00
-    return
-
-stop:
-    movlw 0b00000000
-    movwf search_sensor,0
-      ;2_F ;1_F ;2_B ;1_B
-    set_motor_pwm 0x00,0x00, 0x00,0x00
-    return
-# 31 "main.s" 2
-# 1 "./eeprom.inc" 1
-EEPROM_write:
-    ;<editor-fold defaultstate="collapsed" desc="1. Generate start condition">
-    CALL I2C_START_CONDITION
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="2. Load & send the control byte/slave address (WRITE)">
-    MOVLW WRITE_CONTROL
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    ;--- Optional ACK check
-    BTFSC SSP1CON2,6 ; ACKSTAT = 1 means no ACK received
-    GOTO I2C_ERROR
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="3. Load & send the address">
-    MOVF eeprom_addr,W
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    ;--- Optional ACK check
-    BTFSC SSP1CON2,6
-    GOTO I2C_ERROR
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="4. Load & send the data">
-    MOVF i2c_char,W
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    ;--- Optional ACK check
-    BTFSC SSP1CON2,6
-    GOTO I2C_ERROR
-
-    CALL I2C_STOP_CONDITION
-
-    CALL POLLING_WRITE_ACK
-
-    return
-;</editor-fold>
-;Read
-;<editor-fold defaultstate="collapsed" desc="Read from EEPROM">
-
-
-EEPROM_read:
-    ;SET 4MHZ osccillator for I2C
-    clrf i2c_len
-    ;<editor-fold defaultstate="collapsed" desc="1. Generate start condition">
-    CALL I2C_START_CONDITION
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="2. Load & send the control byte/slave address: WRITE">
-    MOVLW WRITE_CONTROL
-    MOVWF i2c_byte
-
-    CALL I2C_WRITE
-
-    BTFSC SSP1CON2,6
-    GOTO I2C_ERROR
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="3. Load and send the EEPROM word address">
-    MOVF eeprom_addr,W
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    BTFSC SSP1CON2,6
-    GOTO I2C_ERROR
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="4. Restart to switch to receive mode">
-    CALL I2C_RESTART
-    ;</editor-fold>
-
-    ;<editor-fold defaultstate="collapsed" desc="5. Load and send the control byte/slave address: READ">
-    MOVLW READ_CONTROL
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    BTFSC SSP1CON2,6
-    GOTO I2C_ERROR
-    ;</editor-fold>
-
-Read_char:
-    ;<editor-fold defaultstate="collapsed" desc="6. Read byte into POSTINC0">
-    CALL I2C_READ_BYTE
-    ;</editor-fold>
-    incf i2c_len
-    movlw 0xF0
-    cpfseq i2c_len
-    bra $+4
-    bra Last_Byte
-    ;<editor-fold defaultstate="collapsed" desc="7. ACK all but last byte, NACK the last byte">
-    MOVLW 0x0A
-    CPFSEQ tmp
-    GOTO More_Bytes
-
-Last_Byte:
-    CALL I2C_SEND_NACK
-    GOTO Read_done
-
-More_Bytes:
-    CALL I2C_SEND_ACK
-    GOTO Read_char
-    ;</editor-fold>
-
-Read_done:
-    ;<editor-fold defaultstate="collapsed" desc="8. Stop">
-    CALL I2C_STOP_CONDITION
-    ;Set osscillator back to 16 MHz
-    ;</editor-fold>
-    return
-;</editor-fold>
-;SUB routines
-;<editor-fold defaultstate="collapsed" desc="SUB">
-;<editor-fold defaultstate="collapsed" desc="1. Start Condidtion">
-I2C_START_CONDITION:
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,0 ; SEN = 1
-wait_START:
-    BTFSC SSP1CON2,0
-    BRA wait_START
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="2. I2C Restart">
-I2C_RESTART:
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,1 ; RSEN = 1
-wait_RESTART:
-    BTFSC SSP1CON2,1
-    BRA wait_RESTART
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="3. I2C Stop Concition">
-I2C_STOP_CONDITION:
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,2 ; PEN = 1
-wait_STOP:
-    BTFSC SSP1CON2,2
-    BRA wait_STOP
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="4. Main I2C Write">
-I2C_WRITE:
-    BTFSC SSP1STAT,0 ; BF = 1 means buffer full
-    GOTO I2C_WRITE
-    BCF ((PIR1) and 0FFh), 3, a
-    MOVF i2c_byte,0,0
-    MOVWF SSP1BUF
-wait_WRITE:
-    BTFSS ((PIR1) and 0FFh), 3, a
-    BRA wait_WRITE
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="5. Read Byte">
-I2C_READ_BYTE:
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,3 ; RCEN = 1, enable receive mode
-WAIT1_READ:
-    BTFSS ((PIR1) and 0FFh), 3, a
-    BRA WAIT1_READ
-    BTFSS SSP1STAT,0 ; BF must be set when byte is received
-    BRA WAIT1_READ
-    MOVF SSP1BUF,W
-
-    MOVWF POSTINC0
-    movwf tmp
-
-    RETURN
-
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="6. Send ACK">
-I2C_SEND_ACK:
-    BCF SSP1CON2,5 ; ACKDT = 0 -> ACK
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,4 ; ACKEN = 1
-WAIT_ACK:
-    BTFSS ((PIR1) and 0FFh), 3, a
-    BRA WAIT_ACK
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="8. Send NACK">
-I2C_SEND_NACK:
-    BSF SSP1CON2,5 ; ACKDT = 1 -> NACK
-    BCF ((PIR1) and 0FFh), 3, a
-    BSF SSP1CON2,4 ; ACKEN = 1
-    ;movlw 255
-    ;movwf tmp
-WAIT_NACK:
-    ;decfsz tmp
-    ;bra $+4
-    ;return
-
-    BTFSS ((PIR1) and 0FFh), 3, a
-    BRA WAIT_NACK
-    RETURN
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="8. Poll write ACK">
-POLLING_WRITE_ACK:
-Poll_Loop:
-    CALL I2C_START_CONDITION
-
-    MOVLW WRITE_CONTROL
-    MOVWF i2c_byte
-    CALL I2C_WRITE
-
-    ; ACKSTAT = 1 => EEPROM still busy
-    BTFSC SSP1CON2,6
-    GOTO Poll_NotReady
-
-Poll_Ready:
-    CALL I2C_STOP_CONDITION
-    RETURN
-
-Poll_NotReady:
-    CALL I2C_STOP_CONDITION
-    GOTO Poll_Loop
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="9. I2C Error">
-I2C_ERROR:
-    return
-;</editor-fold>
-;<editor-fold defaultstate="collapsed" desc="10. Delay">
-DELAY:
-    MOVLW 0xFF
-    MOVWF Delay2
-LOOP1:
-    MOVLW 0xFF
-    MOVWF Delay1
-LOOP2:
-    DECFSZ Delay1
-    GOTO LOOP2
-    DECFSZ Delay2
-    GOTO LOOP1
-    RETURN
-;</editor-fold>
-;</editor-fold>
-
-EEPROM_startup_message:
-    lfsr 0,i2c_sto_addr
-    movlw eeprom_startmsg_addr
-    movwf eeprom_addr
-    call EEPROM_read
-    return
-
-EEPROM_menu_message:
-    lfsr 0,i2c_sto_addr
-    movlw eeprom_menu_addr
-    movwf eeprom_addr
-    call EEPROM_read
-    return
-
-EEPROM_slogan_message:
-    lfsr 0,i2c_sto_addr
-    movlw eeprom_slogan_addr
-    movwf eeprom_addr
-    call EEPROM_read
-    return
-
-
-write_table_to_eeprom:
-    TBLRD*+
-    movff TABLAT,i2c_char
-    call EEPROM_write
-    incf eeprom_addr
-    movlw 0xA
-    cpfseq i2c_char
-    bra write_table_to_eeprom
-    return
-
-write_lfsr_to_eeprom:
-    movff POSTINC0,i2c_char
-    call EEPROM_write
-    incf eeprom_addr
-    movlw 0xA
-    cpfseq i2c_char
-    bra write_lfsr_to_eeprom
-    return
-
-
-
-EEPROM_default:
-    movlw highword(startup_message)
-    movwf TBLPTRU
-    movlw high(startup_message)
-    movwf TBLPTRH
-    movlw low(startup_message)
-    movwf TBLPTRL
-    movlw eeprom_startmsg_addr
-    movwf eeprom_addr
-    call write_table_to_eeprom
-
-
-    movlw highword(menu_message)
-    movwf TBLPTRU
-    movlw high(menu_message)
-    movwf TBLPTRH
-    movlw low(menu_message)
-    movwf TBLPTRL
-    movlw eeprom_menu_addr
-    movwf eeprom_addr
-    call write_table_to_eeprom
-
-    movlw highword(default_slogan_message)
-    movwf TBLPTRU
-    movlw high(default_slogan_message)
-    movwf TBLPTRH
-    movlw low(default_slogan_message)
-    movwf TBLPTRL
-    movlw eeprom_slogan_addr
-    movwf eeprom_addr
-    call write_table_to_eeprom
-    return
-
-menu_message:
-    DB "Choose your MARV mode...", 0x0D
-    DB "(C)olour", 0x0D
-    DB "(R)eference", 0x0D
-    DB "(A)ttack", 0x0D
-    DB "(S)imulate race", 0x0D
-    DB "(H)otload EEPROM", 0x0D, 0x0A, 0x0
-
-startup_message:
-    db "Jy kan maar glo Jessie baby daar's geen ander een",0xD,0xA,0x0
-
-default_slogan_message:
-    db "JESSICA !!",0xD,0xA
-# 32 "main.s" 2
-# 1 "./serial.inc" 1
-set_tblptr macro lbl
-    movlw highword(lbl)
-    movwf TBLPTRU
-    movlw high(lbl)
-    movwf TBLPTRH
-    movlw low(lbl)
-    movwf TBLPTRL
-endm
-
-serial_test:
-    movlw '>'
-    call byte_tx
-    movlw ' '
-    call byte_tx
-    movlw 0xD
-    call byte_tx
-    return
-
-tx_FSR0:
-    movf POSTINC0,0,0
-    call byte_tx
-    movlw 0xA
-    cpfseq INDF0
-    bra tx_FSR0
-    return
-
-byte_tx:
-    movwf TXREG2
-poll_tx:
-    btfss TXSTA2,1
-    bra poll_tx
-    return
-
-match_rx:
-    call echo_last_rx
-    lfsr 0,rx_sto_addr
-    movf POSTINC0,0,0
-    movwf cmd
-
-    bsf rflags,RX_STRING
-
-    check_if_cmd_cyoc:
-    movf cyoc,0,0
-    cpfseq mode_reg
-    bra check_if_cmd_Attack
-    movff cmd,mode_reg
-    return
-
-    check_if_cmd_Attack:
-    movlw 'A'
-    cpfseq mode_reg
-    return
-    movff cmd,mode_reg
-
-
-    return
-
-echo_last_rx:
-    lfsr 0,rx_sto_addr
-    movff rx_byte_count,tmp
-    bra echo_loop_check
-    echo_loop:
- movf POSTINC0,0,0
- call byte_tx
- echo_loop_check:
-     decfsz tmp
-     bra echo_loop
-     movlw 0x0A
-     call byte_tx
-     return
-
-
-tx_startup_message:
-    set_tblptr startup_message
-    bra message_loop
-
-tx_color_select_message:
-    set_tblptr color_select_message
-    bra message_loop
-color_select_message:
-    db "Please Select a color for the marv to follow",0xD
-    db "R - selects Red Color",0xD
-    db "G - selects Green Color",0xD
-    db "B - selects Blue Color",0xD
-    db "K - select Black Color",0xD,0xA
-
-tx_invalid_color_message:
-    set_tblptr invalid_color_message
-    bra message_loop
-invalid_color_message:
-    db "Invalid color selected !",0xD,0xA
-
-tx_calibrate_message:
-    set_tblptr calibrate_message
-    bra message_loop
-calibrate_message:
-    db "Marv now calibrating...",0xD
-    db "Please put the marv on the instructed color "
-    db "and press the touch sensor",0xD,0xA
-
-tx_calibrate_calibrate_message:
-    set_tblptr calibrate_calibrate_message
-    bra message_loop
-calibrate_calibrate_message:
-    db "calibrating for ",0xD,0xA
-
-tx_calibrate_white_message:
-    set_tblptr calibrate_white_message
-    bra message_loop
-calibrate_white_message:
-    db "white",0xD,0xA,0x0
-
-tx_calibrate_red_message:
-    set_tblptr calibrate_red_message
-    bra message_loop
-calibrate_red_message:
-    db "red",0xD,0xA,0x0
-
-tx_calibrate_green_message:
-    set_tblptr calibrate_green_message
-    bra message_loop
-calibrate_green_message:
-    db "green",0xD,0xA,0x0
-
-tx_calibrate_blue_message:
-    set_tblptr calibrate_blue_message
-    bra message_loop
-calibrate_blue_message:
-    db "blue",0xD,0xA
-
-tx_calibrate_black_message:
-    set_tblptr calibrate_black_message
-    bra message_loop
-calibrate_black_message:
-    db "black",0xD,0xA,0x0
-
-tx_success_message:
-    set_tblptr success_message
-    bra message_loop
-success_message:
-    db "success !",0xD,0xD,0xA
-
-
-tx_simulate_message:
-    set_tblptr simulate_message
-    bra message_loop
-simulate_message:
-    db "Simulate Mode Started...",0xD,0xA
-
-tx_simulate_forward_message:
-    set_tblptr simulate_forward_message
-    bra message_loop
-simulate_forward_message:
-    db "Forward !",0xD,0xA,0x0
-
-tx_simulate_left_message:
-    set_tblptr simulate_left_message
-    bra message_loop
-simulate_left_message:
-    db "Left !",0xD,0xA
-
-tx_simulate_right_message:
-    set_tblptr simulate_right_message
-    bra message_loop
-simulate_right_message:
-    db "Right !",0xD,0xA,0x0
-
-tx_simulate_stop_message:
-    set_tblptr simulate_stop_message
-    bra message_loop
-simulate_stop_message:
-    db "Stop !",0xD,0xA
-
-tx_attack_message:
-    movlw 0
-    cpfseq nav_col
-    bra attack_check_red
-    set_tblptr attack_black_message
-    call message_loop
-    return
-
-    attack_check_red:
-    movlw 1
-    cpfseq nav_col
-    bra attack_check_blue
-    set_tblptr attack_red_message
-    call message_loop
-    return
-
-    attack_check_blue:
-    movlw 2
-    cpfseq nav_col
-    bra attack_check_green
-    set_tblptr attack_blue_message
-    call message_loop
-    return
-
-    attack_check_green:
-    movlw 3
-    cpfseq nav_col
-    bra $+4
-    set_tblptr attack_green_message
-    call message_loop
-    return
-
-attack_black_message:
-    db "Attack Black",0xD,0xA
-attack_red_message:
-    db "Attack Red",0xD,0xA
-attack_blue_message:
-    db "Attack Blue",0xD,0xA,0x0
-attack_green_message:
-    db "Attack Green",0xD,0xA
-
-
-tx_hotload_message:
-    set_tblptr hotload_message
-    bra message_loop
-hotload_message:
-    db "Hotload eeprom slogan...",0xD,0xA
-message_loop:
-    TBLRD*+
-    movf TABLAT,0,0
-    call byte_tx
-    movlw 0xA
-    cpfseq TABLAT
-    bra $-12
-    return
-# 33 "main.s" 2
-# 1 "./modes.inc" 1
-p3_color_select:
-    movlw SSD_1
-    movwf PORTA
-
-    call tx_color_select_message
-
-    movlw 'C'
-    cpfseq cmd,0
-    bra $+4
-    bra $-6
-
-    movlw 'R'
-    cpfseq cmd
-    bra p3_color_select_G
-    movlw 1
-    movwf nav_col
-    bra p3_color_select_done
-
-    p3_color_select_G:
- movlw 'G'
- cpfseq cmd
- bra p3_color_select_B
- movlw 3
- movwf nav_col
- bra p3_color_select_done
-
-    p3_color_select_B:
- movlw 'B'
- cpfseq cmd
- bra p3_color_select_K
- movlw 3
- movwf nav_col
- bra p3_color_select_done
-
-    p3_color_select_K:
- movlw 'K'
- cpfseq cmd
- bra p3_color_select_invalid
- movlw 4
- movwf nav_col
- bra p3_color_select_done
-
-    p3_color_select_invalid:
- movlw 'U'
- movwf cmd
- call tx_invalid_color_message
- bra p3_color_select
-
-    p3_color_select_done:
- bsf rflags,NAV_COL
- movff cyoc,mode_reg
- goto p3_loop
-
-
-p3_calibrate:
-    movlw SSD_2
-    movwf PORTA
-    call calibrate
-    movff cyoc,mode_reg
-    goto p3_loop
-
-p3_attack:
-    movlw SSD_3
-    movwf PORTA
-
-    call tx_attack_message
-
-    race_wait_for_touch:
-     movlw 'A'
- cpfseq mode_reg
- goto p3_loop
-
-
- call read_touch
- tstfsz cap_reg,a
- bra $+4
- goto race_wait_for_touch
-
- call get_SSD_from_nav_col
- movwf PORTD
-
- movlw 'A'
- cpfseq mode_reg
- goto p3_loop
-
-
-    p3_race_mode:
- btfss rflags,CALIBRATED
- bra $+4
- bra p3_attack_loop
-
- call calibrate
- bra p3_race_mode
-
-    p3_attack_loop:
-        btfss rflags,NAV_COL
- call Check_Nav_Col
- bra p3_attack_loop_go
-
- p3_attack_loop_go:
-     call Sensor_LLI_Generate
-     movlw 'A'
-     cpfseq mode_reg
-     goto p3_loop
-     goto p3_attack_loop
-
-
-
-wait_for_touch_to_race:
-    call read_touch
-
-    movlw 'A'
-    cpfseq mode_reg
-    goto p3_loop
-
-    tstfsz cap_reg,a
-    bra p3_race_mode
-    bra wait_for_touch_to_race
-
-p3_simulate:
-    movlw SSD_4
-    movwf PORTA
-    call tx_simulate_message
-    p3_simulate_loop:
- movlw 'S'
- cpfseq cmd
- bra $+4
- bra p3_simulate_sensor
-
- movlw 'F'
- cpfseq cmd
- bra $+4
- bra p3_simulate_forward
-
- movlw 'L'
- cpfseq cmd
- bra $+4
- bra p3_simulate_left
-
- movlw 'R'
- cpfseq cmd
- bra $+4
- bra p3_simulate_right
-
- bra p3_simulate_loop
-
- movlw 'S'
- cpfseq mode_reg
- goto p3_loop
- bra p3_simulate_loop
-
-p3_hotload:
-    movlw SSD_5
-    movwf PORTA
-    call tx_hotload_message
-
-    call EEPROM_slogan_message
-    lfsr 0,i2c_sto_addr
-    call tx_FSR0
-
-    bcf rflags,RX_STRING
-    btfss rflags,RX_STRING
-    bra $-2
-
-
-    lfsr 0,rx_sto_addr
-    call write_lfsr_to_eeprom
-
-    call EEPROM_slogan_message
-    lfsr 0,i2c_sto_addr
-    call tx_FSR0
-
-    movff cyoc,mode_reg
-    goto p3_loop
-
-p3_cyoc:
-    movlw SSD_6
-    movwf PORTA,0
-    call EEPROM_menu_message
-    lfsr 0,i2c_sto_addr
-    call tx_FSR0
-    p3_cyoc_loop:
-    movf cyoc,0,0
-    cpfseq mode_reg
-    goto p3_loop
-    bra p3_cyoc_loop
-# 34 "main.s" 2
-# 1 "./simulate.inc" 1
-p3_simulate_sensor:
-    lfsr 0,0x400
-
-    call read_Sensor_all
-
-    determine_color S1_W_R_Thres_min,s1r,s1g,s1b,rcolor,simulate_col_det_done_S1
-    simulate_col_det_done_S1:
-    call p3_simulate_det_col
-    determine_color S2_W_R_Thres_min,s2r,s2g,s2b,rcolor,simulate_col_det_done_S2
-    simulate_col_det_done_S2:
-    call p3_simulate_det_col
-    determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,simulate_col_det_done_S3
-    simulate_col_det_done_S3:
-    call p3_simulate_det_col
-    determine_color S4_W_R_Thres_min,s4r,s4g,s4b,rcolor,simulate_col_det_done_S4
-    simulate_col_det_done_S4:
-    call p3_simulate_det_col
-    determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,simulate_col_det_done_S5
-    simulate_col_det_done_S5:
-    call p3_simulate_det_col
-
-
-    ;movlw 0
-    ;movwf rcount
-    ;simulate_compare_sensor:
-    ; movf rcount,0,0
-    ; lfsr 0,0x400
-    ; movff PLUSW0,tmp
-    ; lfsr 0,0x405
-    ; movf PLUSW0,0,0
-    ; cpfseq tmp
-    ; bra tx_simulate_sensor
-    ; incf rcount
-    ; movlw 5
-    ; cpfseq rcount
-    ; bra simulate_compare_sensor
-    ; bra simulate_sensor_done
-
-
-    tx_simulate_sensor:
-        movlw 5
- movwf rcount
- lfsr 0,0x400
- tx_simulate_sensor_loop:
-     movf INDF0,0,0
-     call byte_tx
-     decfsz rcount
-     bra tx_simulate_sensor_loop
-     movlw 0xD
-     call byte_tx
-
-    ;simulate_sensor_done:
-    ; movlw 4
-    ; simulate_sensor_done_loop:
-    ; lfsr 0,0x400
-    ; movff PLUSW0,tmp
-    ; lfsr 0,0x405
-    ; movff tmp,PLUSW0
-    ; decfsz WREG
-    ; bra simulate_sensor_done_loop
-
-    bra p3_simulate_loop
-
-p3_simulate_det_col:
-    movlw 0
-    cpfseq rcolor
-    bra $+10
-    movlw 'K'
-    movwf POSTINC0
-    return
-
-    movlw 1
-    cpfseq rcolor
-    bra $+10
-    movlw 'R'
-    movwf POSTINC0
-    return
-
-    movlw 2
-    cpfseq rcolor
-    bra $+10
-    movlw 'B'
-    movwf POSTINC0
-    call byte_tx
-    return
-
-    movlw 3
-    cpfseq rcolor
-    bra $+10
-    movlw 'G'
-    movwf POSTINC0
-    call byte_tx
-    return
-
-    movlw 4
-    cpfseq rcolor
-    bra $+10
-    movlw 'W'
-    movwf POSTINC0
-    call byte_tx
-    return
-
-    movlw 'U'
-    movwf POSTINC0
-    return
-
-
-
-
-p3_simulate_forward:
-    movlw 0xF
-    tstfsz CCPR2L
-    bra simulate_forward_stop
-    bra simulate_forward_straight
-    simulate_forward_stop:
-        call tx_simulate_stop_message
- call stop
- bra p3_simulate_continue
-    simulate_forward_straight:
-        call tx_simulate_forward_message
- call straight
- bra p3_simulate_continue
-
-
-p3_simulate_left:
+read_Sensor_all:
+ movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
+ movwf ADCON0,0
+ RGB_measure s1r, s1g, s1b ; Sensor 1
+
+ movlw 0b01001001 ;((PORTC) and 0FFh), 6, a a.k.a RC6, ADC on
+ movwf ADCON0,0
+ RGB_measure s2r, s2g, s2b ; Sensor 2
+
+ movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
+ movwf ADCON0,0
+ RGB_measure s3r, s3g, s3b ;Sensor 3
+
+ movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
+ movwf ADCON0,0
+ RGB_measure s4r, s4g, s4b ;Sensor 4
+
+ movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
+ movwf ADCON0,0
+ RGB_measure s5r, s5g, s5b ;Sensor 5
+return
+# 25 "main.s" 2
+# 1 "./touch.inc" 1
+touch_measure:
     movlb 0xF
-    tstfsz CCPR2L
-    bra simulate_left_stop
-    bra simulate_left_left
-    simulate_left_stop:
-        call tx_simulate_stop_message
- call stop
- bra p3_simulate_continue
-    simulate_left_left:
-        call tx_simulate_left_message
- call left
- bra p3_simulate_continue
-
-
-p3_simulate_right:
-    movlb 0xF
-    tstfsz CCPR3L
-    bra simulate_right_stop
-    bra simulate_right_right
-    simulate_right_stop:
-        call tx_simulate_stop_message
- call stop
- bra p3_simulate_continue
-    simulate_right_right:
-        call tx_simulate_right_message
- call right
- bra p3_simulate_continue
-
-
-p3_simulate_continue:
+    bcf ANSELB,5,1
+    bcf TRISB,5,1
+    bcf PORTB,5,0
+    wait_timer ADCAQTH, ADCAQTL
+    bsf PORTB,5,0
+    wait_timer ADCAQTH, ADCAQTL
+    bcf PORTB,5,0
+    bsf ANSELB,5,1
+    bsf TRISB,5,1
     movlb 0x0
-    movlw 'S'
-    movwf cmd
-    bra p3_simulate_loop
-# 35 "main.s" 2
+
+    wait_timer CAPTH,CAPTL
+
+    ADC_measure cap_reg
+
+    movlw CAP_THRES
+    cpfslt cap_reg,a
+    bra $+6
+    clrf cap_reg,a
+    bra $+4
+    setf cap_reg,a
+
+    return
+
+read_touch:
+    movlw 0b00110101 ;((PORTB) and 0FFh), 5, a a.k.a RB5, ADC on
+    movwf ADCON0,a
+    wait_timer ADCAQTH,ADCAQTL
+    call touch_measure
+    return
+
+touch_led:
+    tstfsz cap_reg,a
+    bra $+6
+    bcf PORTA,4,a
+    bra $+4
+    bsf PORTA,4,a
+    return
+
+start_on_touch:
+    call read_touch
+    tstfsz cap_reg,a
+    bra $+4
+    bra start_on_touch
+    wait_timer H333ms, L333ms
+    return
+
+wait_for_touch:
+    call read_touch
+    tstfsz cap_reg,a
+    bra $+4
+    bra wait_for_touch
+    return
+# 26 "main.s" 2
+# 1 "./nav_col.inc" 1
+Set_Nav_col:
+    clrf tmp,a
+
+    btfss PORTB,6,a
+    bra $+4
+    bsf tmp,0,b
+
+    btfss PORTB,7,a
+    bra $+4
+    bsf tmp,1,a
+
+    movlw 0
+    cpfseq tmp,a
+    bra $+8
+    movlw 0b00000000
+    movwf nav_col,a
+
+    movlw 1
+    cpfseq tmp,a
+    bra $+8
+    movlw 0b00000100
+    movwf nav_col,a
+    return
+
+    movlw 2
+    cpfseq tmp,a
+    bra $+8
+    movlw 0b00010000
+    movwf nav_col,a
+    return
+
+    movlw 3
+    cpfseq tmp,a
+    bra $+8
+    movlw 0b00001000
+    movwf nav_col,a
+    return
+
+    movlw 0b00000000
+    movwf nav_col,a
+    return
+
+
+get_SSD_from_nav_col:
+    movlw 0
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_K
+
+    movlw 1
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_R
+
+    movlw 2
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_B
+
+    movlw 3
+    cpfseq nav_col
+    bra $+4
+    retlw SSD_G
+
+    retlw SSD_0
+# 27 "main.s" 2
 
 main:
-    ;bra prac_2_loop
-    goto p3_main
-    ;bra pwr_debug
-    ;call read_touch
-    ;bra $-4
-    ;call tx_startup_message
-    ;call eeprom_test
-    ;goto main
+    call calibrate_start
+    call Set_Nav_col
+    call wait_for_touch
+    call Race
+    bra $-4
 
 exit:
     bra $
-
-p3_main:
-    call EEPROM_default
-    movlw SSD_8
-    movwf PORTA
-
-    bsf PORTB,0
-
-    call EEPROM_startup_message
-    lfsr 0,i2c_sto_addr
-    call tx_FSR0
-    movlw SSD_7
-
-    movwf PORTA
-    clrf rflags
-
-    movlw 0
-    movwf nav_col
-    movlw 'J'
-    movwf cyoc
-    movlw 'A'
-    movwf mode_reg
-    p3_loop:
- ;btfss PORTB,1
- ;btfss PORTB,2
-
- movlw 'C'
- cpfseq mode_reg
- bra $+4
- goto p3_color_select
-
- movlw 'R'
- cpfseq mode_reg
- bra $+4
- goto p3_calibrate
-
- movlw 'A'
- cpfseq mode_reg
- bra $+4
- goto p3_attack
-
- movlw 'S'
- cpfseq mode_reg
- bra $+4
- goto p3_simulate
-
- movlw 'H'
- cpfseq mode_reg
- bra $+4
- goto p3_hotload
-
- movf cyoc,0,0
-
- cpfseq mode_reg
- bra $+4
- goto p3_cyoc
-
-prac_2_loop:
-          ;2_F ;1_F ;2_B ;1_B
-    ;set_motor_pwm 0x00,0xFA, 0x00,0x00
-    call calibrate_start
-    call Check_Nav_Col
-    call start_on_touch
-    call Detect_LLI
-    bra $-4
-    bra exit
-
-
-pwr_debug:
-    clrf PORTA
-    bsf PORTA,0
-    pwr_debug_loop:
- rlcf PORTA
- wait_timer H333ms,L333ms
- bra pwr_debug_loop

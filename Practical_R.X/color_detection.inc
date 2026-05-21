@@ -1,18 +1,10 @@
-check_navline macro sv, col_reg, rr, bit 
-    movff nav_col,WREG
-    determine_color sv,col_reg
-    CPFSEQ col_reg,1
-    bra $+4
-    bsf rr,bit,1
-endm
-
 check_in_range macro r, min, max, next_label ;20 bytes PC
     movff min,WREG
-    cpfslt r,1
+    cpfslt r,0
     bra $+4
     bra $+10
     movff max,WREG
-    cpfsgt r,1
+    cpfsgt r,0
     bra $+4
     bra next_label
 endm
@@ -56,19 +48,6 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
 	bra done_label
 endm
 	
-det_col_LED:
-    ;clrf r_col_det,a
-    ;bsf r_col_det,0,a
-    movlw 4
-    cpfseq  rcolor,a
-    bra $+4
-    bra $+10
-    ;rlncf   r_col_det,a
-    decf WREG,a
-    ;btfss  r_col_det,4,a
-    bra $-12
-    ;movff r_col_det,SSD
-    return
 	
 Sensor_LLI_Generate:
     ;clrf Sensor,a
@@ -156,7 +135,7 @@ Check_Nav_Col:
     movwf nav_col,a
     return
 
-Check_Nav_Select:
+Set_Nav_col:
     clrf tmp,a
     
     btfss PORTB,6,a
@@ -171,33 +150,32 @@ Check_Nav_Select:
     cpfseq tmp,a
     bra $+8
     movlw 0b00000000
-    movwf PORTD,a
-    retlw 0
+    movwf nav_col,a
     
     movlw 1
     cpfseq tmp,a
     bra $+8
     movlw 0b00000100
-    movwf PORTD,a
-    retlw 1
+    movwf nav_col,a
+    return
     
     movlw 2
     cpfseq tmp,a
     bra $+8
     movlw 0b00010000
-    movwf PORTD,a
-    retlw 2
+    movwf nav_col,a
+    return
     
     movlw 3
     cpfseq tmp,a
     bra $+8
     movlw 0b00001000
-    movwf PORTD,a
-    retlw 3
+    movwf nav_col,a
+    return
     
     movlw 0b00000000
-    movwf PORTD,a
-    retlw 0
+    movwf nav_col,a
+    return
    
     
 get_SSD_from_nav_col:
@@ -222,11 +200,6 @@ get_SSD_from_nav_col:
     retlw SSD_G
     
     retlw SSD_0
-    
-Detect_LLI: 
-    do_Detect_LLI:
-	call Sensor_LLI_Generate
-    return
 
 ;========== TESTS ==========
 	

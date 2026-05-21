@@ -29,7 +29,6 @@ read_touch:
     movwf ADCON0,a
     wait_timer ADCAQTH,ADCAQTL
     call touch_measure
-    call touch_led
     return
 
 touch_led:

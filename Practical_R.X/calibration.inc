@@ -44,14 +44,11 @@ Calc_Color_Threshold macro rr,rg,rb,thres
 endm
 
 calibrate:
-    call tx_calibrate_message
 calibrate_start:
     clrf SSD,a
     calibrate_for_white:
 	movlw SSD_W
 	movwf SSD,a
-	call tx_calibrate_calibrate_message
-	call tx_calibrate_white_message
 	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
@@ -60,12 +57,9 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_W
-	call tx_success_message
     calibrate_for_green:
 	movlw SSD_G
 	movwf SSD,a 
-	call tx_calibrate_calibrate_message
-	call tx_calibrate_green_message
 	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
@@ -74,12 +68,9 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_G
-	call tx_success_message
     calibrate_for_blue:
 	movlw SSD_B
 	movwf SSD,a
-	call tx_calibrate_calibrate_message
-	call tx_calibrate_blue_message
 	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
@@ -88,12 +79,9 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_B
-	call tx_success_message
     calibrate_for_black:
 	movlw SSD_K
 	movwf SSD,a
-	call tx_calibrate_calibrate_message
-	call tx_calibrate_black_message
 	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
@@ -102,12 +90,9 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_K
-	call tx_success_message
     calibrate_for_red:
 	movlw SSD_R
 	movwf SSD,a
-	call tx_calibrate_calibrate_message
-	call tx_calibrate_red_message
 	call wait_for_touch
 	call read_Sensor_all
 	Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
@@ -116,131 +101,27 @@ calibrate_start:
 	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
 	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
 	flash_Reg tmp, 3, SSD, SSD_R
-	call tx_success_message
-    bsf rflags,CALIBRATED
     clrf SSD,a
     return     
     
-;========== Tests ==========
-   
-calibrate_test:
-	movlw 250
-	movwf s1r,a
-	movwf s2r,a
-	movwf s3r,a
-	movwf s4r,a
-	movwf s5r,a
-	movlw 250
-	movwf s1g,a
-	movwf s2g,a
-	movwf s3g,a
-	movwf s4g,a
-	movwf s5g,a
-	movlw 250
-	movwf s1b,a
-	movwf s2b,a
-	movwf s3b,a
-	movwf s4b,a
-	movwf s5b,a
-	Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
-	Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
-	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
-	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
-	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
+read_Sensor_all:
+	movlw 0b01001101 ;AN19 a.k.a RC7, ADC on
+	movwf ADCON0,0 
+	RGB_measure s1r, s1g, s1b ; Sensor 1
 
-	movlw 8
-	movwf s1r,a
-	movwf s2r,a
-	movwf s3r,a
-	movwf s4r,a
-	movwf s5r,a
-	movlw 10
-	movwf s1g,a
-	movwf s2g,a
-	movwf s3g,a
-	movwf s4g,a
-	movwf s5g,a
-	movlw 15
-	movwf s1b,a
-	movwf s2b,a
-	movwf s3b,a
-	movwf s4b,a
-	movwf s5b,a
-	Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
-	Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
-	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
-	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
-	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
-	
-	movlw 238
-	movwf s1r,a
-	movwf s2r,a
-	movwf s3r,a
-	movwf s4r,a
-	movwf s5r,a
-	movlw 39
-	movwf s1g,a
-	movwf s2g,a
-	movwf s3g,a
-	movwf s4g,a
-	movwf s5g,a
-	movlw 50
-	movwf s1b,a
-	movwf s2b,a
-	movwf s3b,a
-	movwf s4b,a
-	movwf s5b,a
-	Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
-	Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
-	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
-	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
-	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
+	movlw 0b01001001 ;AN18 a.k.a RC6, ADC on
+	movwf ADCON0,0
+	RGB_measure s2r, s2g, s2b ; Sensor 2
 
-	movlw 98
-	movwf s1r,a
-	movwf s2r,a
-	movwf s3r,a
-	movwf s4r,a
-	movwf s5r,a
-	movlw 224
-	movwf s1g,a
-	movwf s2g,a
-	movwf s3g,a
-	movwf s4g,a
-	movwf s5g,a
-	movlw 63
-	movwf s1b,a
-	movwf s2b,a
-	movwf s3b,a
-	movwf s4b,a
-	movwf s5b,a
-	Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
-	Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
-	Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
-	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
-	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
+	movlw 0b01000101 ;AN17 a.k.a RC5, ADC on
+	movwf ADCON0,0
+	RGB_measure s3r, s3g, s3b ;Sensor 3
 
-	movlw 30
-	movwf s1r,a
-	movwf s2r,a
-	movwf s3r,a
-	movwf s4r,a
-	movwf s5r,a
-	movlw 68
-	movwf s1g,a
-	movwf s2g,a
-	movwf s3g,a
-	movwf s4g,a
-	movwf s5g,a
-	movlw 204
-	movwf s1b,a
-	movwf s2b,a
-	movwf s3b,a
-	movwf s4b,a
-	movwf s5b,a
-	Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
-	Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
-	Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
-	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
-	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
-	return
+	movlw 0b01011101 ;AN23 a.k.a RD3, ADC on
+	movwf ADCON0,0
+	RGB_measure s4r, s4g, s4b ;Sensor 4
+
+	movlw 0b01011001 ;AN22 a.k.a RD2, ADC on
+	movwf ADCON0,0
+	RGB_measure s5r, s5g, s5b ;Sensor 5
+return

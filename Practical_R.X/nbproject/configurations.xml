@@ -5,19 +5,12 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>timer.inc</itemPath>
-      <itemPath>color_detection.inc</itemPath>
       <itemPath>constants.inc</itemPath>
-      <itemPath>interrupts.inc</itemPath>
-      <itemPath>line_location_interpreter.inc</itemPath>
       <itemPath>setup.inc</itemPath>
       <itemPath>calibration.inc</itemPath>
-      <itemPath>Sensor.inc</itemPath>
-      <itemPath>pwm_setup.inc</itemPath>
       <itemPath>touch.inc</itemPath>
-      <itemPath>eeprom.inc</itemPath>
-      <itemPath>serial.inc</itemPath>
-      <itemPath>modes.inc</itemPath>
-      <itemPath>simulate.inc</itemPath>
+      <itemPath>nav_col.inc</itemPath>
+      <itemPath>race.inc</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -32,6 +25,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>main.s</itemPath>
+      <itemPath>Race_main.s</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -77,6 +71,8 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="Race_main.s" ex="true" overriding="false">
+      </item>
       <Simulator>
         <property key="codecoverage.enabled" value="Disable"/>
         <property key="codecoverage.enableoutputtofile" value="false"/>
