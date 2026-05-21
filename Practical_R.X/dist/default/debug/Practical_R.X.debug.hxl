@@ -1,7 +1,7 @@
 ### HEXMate logfile and output summary ###
 
 ### Command-line arguments ###
- /tmp/xcXJFeFjC/driver_tmp_3.o
+ /tmp/xcXKmkgan/driver_tmp_3.o
  -Odist/default/debug/Practical_R.X.debug.hex
  -logfile=dist/default/debug/Practical_R.X.debug.hxl
  -addressing=1
@@ -9,10 +9,10 @@
 
 ### Memory Usage ###
  Input file ranges:
-  0h - 18ADh		(/tmp/xcXJFeFjC/driver_tmp_3.o)
-  300001h - 300003h		(/tmp/xcXJFeFjC/driver_tmp_3.o)
-  300005h - 300006h		(/tmp/xcXJFeFjC/driver_tmp_3.o)
-  300008h - 30000Dh		(/tmp/xcXJFeFjC/driver_tmp_3.o)
+  0h - 18ADh		(/tmp/xcXKmkgan/driver_tmp_3.o)
+  300001h - 300003h		(/tmp/xcXKmkgan/driver_tmp_3.o)
+  300005h - 300006h		(/tmp/xcXKmkgan/driver_tmp_3.o)
+  300008h - 30000Dh		(/tmp/xcXKmkgan/driver_tmp_3.o)
  Unused ranges:
   18AEh - 300000h
   300004h - 300004h
@@ -21,7 +21,7 @@
 ### Hex Memory Map ###
  Legend:
   -- = Unused memory
-  H1 = Input file             (/tmp/xcXJFeFjC/driver_tmp_3.o)
+  H1 = Input file             (/tmp/xcXKmkgan/driver_tmp_3.o)
 ----------------------------------------------------------
          | 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 ----------------------------------------------------------

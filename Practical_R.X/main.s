@@ -28,7 +28,7 @@ retfie
 main: 
     call calibrate_start
     ;call Set_Nav_col 
-    movlw 2
+    movlw 1
     movwf nav_col
     
     movlw SSD_1 

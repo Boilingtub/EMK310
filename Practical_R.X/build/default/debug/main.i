@@ -9249,30 +9249,34 @@ Race:
     right:
    ;2_F ;1_F ;2_B ;1_B
  set_motor_pwm 0x00,0x00, 0x00,0x00
- set_motor_pwm 0x00, 218, 218,0x00
+ ;set_motor_pwm 0x00, 218, 218,0x00
+ set_motor_pwm 0x00, 254, 254,0x00
  goto Sensor_LLI_Generate
 
     slight_right:
    ;1_F ;2_F ;1_B ;2_B
- set_motor_pwm 109,218, 0x00,0x00
+ ;set_motor_pwm 109,218, 0x00,0x00
+ set_motor_pwm 127,254, 0x00,0x00
      goto Sensor_LLI_Generate
 
     left:
    ;1_F ;2_F ;1_B ;2_B
  set_motor_pwm 0x00,0x00, 0x00,0x00
- set_motor_pwm 218,0x00, 0x00,218
+ ;set_motor_pwm 218,0x00, 0x00,218
+ set_motor_pwm 254,0x00, 0x00,254
  goto Sensor_LLI_Generate
 
 
     slight_left:
    ;1_F ;2_F ;1_B ;2_B
- set_motor_pwm 218, 109, 0x00,0x00
+ ;set_motor_pwm 218, 109, 0x00,0x00
+ set_motor_pwm 254, 127, 0x00,0x00
  goto Sensor_LLI_Generate
 
 
     straight:
    ;1_F ;2_F ;1_B ;2_B
- set_motor_pwm 252, 252, 0x00,0x00
+ set_motor_pwm 254, 254, 0x00,0x00
         goto Sensor_LLI_Generate
 
     stop:
@@ -9642,7 +9646,7 @@ set_SSD_from_nav_col:
 main:
     call calibrate_start
     ;call Set_Nav_col
-    movlw 2
+    movlw 1
     movwf nav_col
 
     movlw SSD_1
