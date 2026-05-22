@@ -34,7 +34,7 @@ clrf	PORTD
 clrf	LATD
 movlw	0b00001100
 movwf	ANSELD,1    
-movlw	0b11001100
+movlw	0b11101100
 movwf	TRISD,1   
     
 ;Initialize Port E (check Data Sheet)

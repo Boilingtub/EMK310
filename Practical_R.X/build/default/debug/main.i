@@ -8802,10 +8802,15 @@ Delay1 EQU 0x2
 Delay2 EQU 0x3
 flash_counter EQU 0x4
 Sensor equ 0x5
-rcolor equ 0x7
-nav_col equ 0x8
-cap_reg equ 0xD
-prev_sensor equ 0xE
+rcolor equ 0x6
+nav_col equ 0x7
+cap_reg equ 0x8
+prev_sensor equ 0x9
+m1f equ 0xB
+m2f equ 0xD
+m1b equ 0xF
+m2b equ 0x10
+stop_set equ 0x11
 
 s1r equ 0x21
 s1g equ 0x22
@@ -9022,6 +9027,9 @@ TURN_STOP_COUNT equ 10
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
 ;CAP equ PORTB,5
+MOTOR_STEP_SIZE equ 16
+MOTOR_MAX equ 127
+MOTOR_HALF equ 64
 SSD equ PORTA
 SSD_W equ 0b01001001
 SSD_K equ 0b01110000
@@ -9130,8 +9138,7 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
  check_in_range rg, S+2, S+3, $+24
  check_in_range rb, S+4, S+5, $+4
  bra done_label
-    ;check_green; col_det_done_S3:
-
+    ;check_green;
  decf rcol,b
  check_in_range rr, S+12, S+13, $+44
  check_in_range rg, S+14, S+15, $+24
@@ -9161,24 +9168,49 @@ determine_color macro S,rr,rg,rb,rcol,done_label ; 322 bytes
  bra done_label
 endm
 
-Race:
-    Sensor_LLI_Generate:
- clrf tmp
 
-     movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
- movwf ADCON0,0
- RGB_measure s3r, s3g, s3b ; Sensor 3
- determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
- col_det_done_S3:
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bra straight
+sub_reg macro reg,step
+    movlw step
+    cpfslt reg
+    bra $+6
+    clrf reg
+    bra $+4
+    subwf reg
+endm
+
+add_reg macro reg,step,max
+    movlw max-step
+    cpfsgt reg
+    bra $+8
+    movlw max
+    movwf cap_reg
+    bra $+6
+    movlw step
+    addwf cap_reg
+endm
+
+Race:
+    clrf m1f
+    clrf m2f
+    clrf m1b
+    clrf m2b
+    goto straight
+    Sensor_LLI_Generate:
+        movlb 0xF ;2_F ;1_F ;2_B ;1_B
+ ; Duty Cycle for CCP2 (RB3) but3 off for setup
+ movff m2f,CCPR2L ;M1 F
+
+ ; Duty Cycle for CCP3 (RE0) but off for setup
+ movff m1f,CCPR3L ;M2 F
+
+ ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RD1) off for setup
+ movff m2b,CCPR4L ;M1 B
+
+ ; Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
+ movff m1b,CCPR5L ;M2 B
+ movlb 0x0
+
+ clrf tmp
 
  movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
  movwf ADCON0,0
@@ -9240,6 +9272,21 @@ Race:
  bra $+4
  bra slight_right
 
+ movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
+ movwf ADCON0,0
+ RGB_measure s3r, s3g, s3b ; Sensor 3
+ determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+ col_det_done_S3:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra straight
+
  movlw 5
  cpfseq tmp,a
  bra $+4
@@ -9248,40 +9295,85 @@ Race:
 
     right:
    ;2_F ;1_F ;2_B ;1_B
- set_motor_pwm 0x00,0x00, 0x00,0x00
- ;set_motor_pwm 0x00, 218, 218,0x00
- set_motor_pwm 0x00, 254, 254,0x00
+ clrf stop_set
+ sub_reg m2f, MOTOR_STEP_SIZE
+ add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
+ add_reg m2b, MOTOR_STEP_SIZE, MOTOR_MAX
+ sub_reg m1b, MOTOR_STEP_SIZE
+ ;set_motor_pwm 0x00, 254, 254,0x00
  goto Sensor_LLI_Generate
 
     slight_right:
-   ;1_F ;2_F ;1_B ;2_B
- ;set_motor_pwm 109,218, 0x00,0x00
- set_motor_pwm 127,254, 0x00,0x00
+   ;2_F ;1_F ;2_B ;1_B
+ clrf stop_set
+
+ movlw 127
+ cpfslt m2f
+ bra slight_left_m2f_add
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_HALF
+ slight_left_m2f_add:
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+
+ sub_reg m2b, MOTOR_STEP_SIZE
+ sub_reg m1b, MOTOR_STEP_SIZE, MOTOR_MAX
+ ;set_motor_pwm 127,254, 0x00,0x00
      goto Sensor_LLI_Generate
 
     left:
-   ;1_F ;2_F ;1_B ;2_B
- set_motor_pwm 0x00,0x00, 0x00,0x00
- ;set_motor_pwm 218,0x00, 0x00,218
- set_motor_pwm 254,0x00, 0x00,254
+   ;2_F ;1_F ;2_B ;1_B
+ clrf stop_set
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+ sub_reg m1f, MOTOR_STEP_SIZE
+ sub_reg m2b, MOTOR_STEP_SIZE
+ add_reg m1b, MOTOR_STEP_SIZE, MOTOR_MAX
+ ;set_motor_pwm 254,0x00, 0x00,254
  goto Sensor_LLI_Generate
 
 
     slight_left:
-   ;1_F ;2_F ;1_B ;2_B
- ;set_motor_pwm 218, 109, 0x00,0x00
- set_motor_pwm 254, 127, 0x00,0x00
+   ;2_F ;1_F ;2_B ;1_B
+ clrf stop_set
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+
+ movlw 127
+ cpfslt m1f
+ bra slight_left_m1f_add
+ add_reg m1f, MOTOR_STEP_SIZE, MOTOR_HALF
+ slight_left_m1f_add:
+ add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
+
+ sub_reg m2b, MOTOR_STEP_SIZE
+ sub_reg m1b, MOTOR_STEP_SIZE
+ ;set_motor_pwm 254, 127, 0x00,0x00
  goto Sensor_LLI_Generate
 
 
     straight:
-   ;1_F ;2_F ;1_B ;2_B
- set_motor_pwm 254, 254, 0x00,0x00
+   ;2_F ;1_F ;2_B ;1_B
+ clrf stop_set
+ add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+ add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
+ sub_reg m2b, MOTOR_STEP_SIZE
+ sub_reg m1b, MOTOR_STEP_SIZE,
+ ;set_motor_pwm 254, 254, 0x00,0x00
         goto Sensor_LLI_Generate
 
     stop:
    ;2_F ;1_F ;2_B ;1_B
- set_motor_pwm 0x00,0x00, 0x00,0x00
+ movlw 5
+ cpfseq stop_set
+ bra $+4
+ bra stop_do
+ incf stop_set
+ goto Sensor_LLI_Generate
+ stop_do:
+ sub_reg m2f, MOTOR_STEP_SIZE
+ sub_reg m1f, MOTOR_STEP_SIZE
+ sub_reg m2b, MOTOR_STEP_SIZE
+ sub_reg m1b, MOTOR_STEP_SIZE
+ ;set_motor_pwm 0x00,0x00, 0x00,0x00
  goto Sensor_LLI_Generate
 # 23 "main.s" 2
 # 1 "./setup.inc" 1
@@ -9321,7 +9413,7 @@ clrf PORTD
 clrf LATD
 movlw 0b00001100
 movwf ANSELD,1
-movlw 0b11001100
+movlw 0b11101100
 movwf TRISD,1
 
 ;Initialize Port E (check Data Sheet)
@@ -9577,84 +9669,87 @@ wait_for_touch:
 # 1 "./nav_col.inc" 1
 Set_Nav_col:
     clrf tmp,a
-
-    btfss PORTB,6,a
-    bra $+4
-    bsf tmp,0
-
-    btfss PORTB,7,a
-    bra $+4
-    bsf tmp,1
-
-    movlw 0
-    cpfseq tmp,a
-    bra $+6
-    movwf nav_col,a
-    return
-
-    movlw 1
-    cpfseq tmp,a
-    bra $+6
-    movwf nav_col,a
-    return
-
-    movlw 2
-    cpfseq tmp,a
-    bra $+6
-    movwf nav_col,a
-    return
-
-    movlw 3
-    cpfseq tmp,a
-    bra $+6
-    movwf nav_col,a
-    return
-
-    movwf nav_col,a
-    return
-
+    btfsc PORTD,5
+    bra go_red
+    btfsc PORTD,6
+    bra go_blue
+    btfsc PORTD,7
+    bra go_green
+    bra go_red
+    go_red:
+ movlw 1
+ movwf nav_col
+ return
+    go_blue:
+ movlw 2
+ movwf nav_col
+ return
+    go_green:
+ movlw 3
+ movwf nav_col
+ return
 
 set_SSD_from_nav_col:
     movlw 0
     cpfseq nav_col
-    bra $+4
+    bra $+8
+    movlw SSD_K
     movwf PORTA
     return
 
     movlw 1
     cpfseq nav_col
-    bra $+4
+    bra $+8
+    movlw SSD_R
     movwf PORTA
     return
 
     movlw 2
     cpfseq nav_col
-    bra $+4
+    bra $+8
+    movlw SSD_B
     movwf PORTA
     return
 
     movlw 3
     cpfseq nav_col
-    bra $+4
+    bra $+8
+    movlw SSD_G
     movwf PORTA
     return
 
+    movlw SSD_0
     movwf PORTA
     return
 # 27 "main.s" 2
 
 main:
     call calibrate_start
-    ;call Set_Nav_col
-    movlw 1
-    movwf nav_col
-
-    movlw SSD_1
-    movwf PORTA
+    call Set_Nav_col
     call wait_for_touch
     call set_SSD_from_nav_col
     call Race
     bra $-4
+
+sub_test:
+    movlw 32
+    cpfslt cap_reg
+    bra $+6
+    clrf cap_reg
+    bra $+4
+    subwf cap_reg
+    bra sub_test
+
+add_test:
+    movlw 254-32
+    cpfsgt cap_reg
+    bra $+8
+    movlw 254
+    movwf cap_reg
+    bra $+6
+    movlw 32
+    addwf cap_reg
+    bra add_test
 
 RGB_Test:
     movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
@@ -9675,8 +9770,5 @@ RGB_Test:
     ADC_measure 0x3
 
     bra RGB_Test
-
-
-
 
     return

@@ -27,16 +27,31 @@ retfie
  
 main: 
     call calibrate_start
-    ;call Set_Nav_col 
-    movlw 1
-    movwf nav_col
-    
-    movlw SSD_1 
-    movwf PORTA
+    call Set_Nav_col     
     call wait_for_touch
     call set_SSD_from_nav_col
     call Race
     bra $-4
+    
+sub_test:
+    movlw 32
+    cpfslt cap_reg
+    bra $+6
+    clrf cap_reg
+    bra $+4
+    subwf cap_reg
+    bra sub_test
+    
+add_test:
+    movlw 254-32
+    cpfsgt cap_reg
+    bra $+8
+    movlw 254
+    movwf cap_reg
+    bra $+6
+    movlw 32
+    addwf cap_reg
+    bra add_test
     
 RGB_Test:
     movlw 0b01011001 ;AN22 a.k.a RD2, ADC on
@@ -57,8 +72,5 @@ RGB_Test:
     ADC_measure 0x3
   
     bra RGB_Test
-
-
-
     
     return

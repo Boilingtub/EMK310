@@ -4,10 +4,15 @@ Delay1 EQU 0x2
 Delay2 EQU 0x3
 flash_counter EQU 0x4
 Sensor equ 0x5
-rcolor equ 0x7
-nav_col equ 0x8
-cap_reg equ 0xD
-prev_sensor equ 0xE
+rcolor equ 0x6
+nav_col equ 0x7
+cap_reg equ 0x8
+prev_sensor equ 0x9
+m1f equ 0xB
+m2f equ 0xD
+m1b equ 0xF
+m2b equ 0x10
+stop_set equ 0x11
 
 s1r equ 0x21
 s1g equ 0x22
@@ -224,6 +229,9 @@ TURN_STOP_COUNT equ 10
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
 ;CAP equ PORTB,5
+MOTOR_STEP_SIZE equ 16
+MOTOR_MAX equ 127
+MOTOR_HALF equ 64
 SSD equ PORTA
 SSD_W equ 0b01001001
 SSD_K equ 0b01110000
