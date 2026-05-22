@@ -1,5 +1,5 @@
 Set_Nav_col:
-    clrf tmp,a
+    clrf PORTD
     btfsc PORTD,5
     bra go_red
     btfsc PORTD,6

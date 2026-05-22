@@ -9027,9 +9027,11 @@ TURN_STOP_COUNT equ 10
 ;LEDG equ PORTC,1
 ;LEDB equ PORTC,2
 ;CAP equ PORTB,5
-MOTOR_STEP_SIZE equ 16
-MOTOR_MAX equ 127
-MOTOR_HALF equ 64
+MOTOR_STEP_BIG equ 16
+MOTOR_STEP_MED equ 10
+MOTOR_STEP_SMALL equ 8
+MOTOR_MAX equ 150
+MOTOR_HALF equ 75
 SSD equ PORTA
 SSD_W equ 0b01001001
 SSD_K equ 0b01110000
@@ -9183,10 +9185,10 @@ add_reg macro reg,step,max
     cpfsgt reg
     bra $+8
     movlw max
-    movwf cap_reg
+    movwf reg
     bra $+6
     movlw step
-    addwf cap_reg
+    addwf reg
 endm
 
 Race:
@@ -9198,25 +9200,25 @@ Race:
     Sensor_LLI_Generate:
         movlb 0xF ;2_F ;1_F ;2_B ;1_B
  ; Duty Cycle for CCP2 (RB3) but3 off for setup
- movff m2f,CCPR2L ;M1 F
+ movff m2f,CCPR2L ;M2 F
 
  ; Duty Cycle for CCP3 (RE0) but off for setup
- movff m1f,CCPR3L ;M2 F
+ movff m1f,CCPR3L ;M1 F
 
  ; Duty Cycle for ((PORTC) and 0FFh), 2, a (RD1) off for setup
- movff m2b,CCPR4L ;M1 B
+ movff m2b,CCPR4L ;M2 B
 
  ; Duty Cycle for ((PORTE) and 0FFh), 2, a (RE2) off for setup
- movff m1b,CCPR5L ;M2 B
+ movff m1b,CCPR5L ;M1 B
  movlb 0x0
 
  clrf tmp
 
- movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
+ movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
  movwf ADCON0,0
- RGB_measure s5r, s5g, s5b ; Sensor 5
- determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
- col_det_done_S5:
+ RGB_measure s3r, s3g, s3b ; Sensor 3
+ determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+ col_det_done_S3:
  movlw 0
  cpfseq rcolor,a
  bra $+4
@@ -9225,7 +9227,7 @@ Race:
  movff nav_col,WREG
  CPFSEQ rcolor,a
  bra $+4
- bra left
+ bra straight
 
  movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
  movwf ADCON0,0
@@ -9241,6 +9243,21 @@ Race:
  CPFSEQ rcolor,a
  bra $+4
  bra right
+
+ movlw 0b01011001 ;((PORTD) and 0FFh), 2, a a.k.a RD2, ADC on
+ movwf ADCON0,0
+ RGB_measure s5r, s5g, s5b ; Sensor 5
+ determine_color S5_W_R_Thres_min,s5r,s5g,s5b,rcolor,col_det_done_S5
+ col_det_done_S5:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra left
 
  movlw 0b01011101 ;((PORTD) and 0FFh), 3, a a.k.a RD3, ADC on
  movwf ADCON0,0
@@ -9272,21 +9289,6 @@ Race:
  bra $+4
  bra slight_right
 
- movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
- movwf ADCON0,0
- RGB_measure s3r, s3g, s3b ; Sensor 3
- determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
- col_det_done_S3:
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bra straight
-
  movlw 5
  cpfseq tmp,a
  bra $+4
@@ -9295,73 +9297,144 @@ Race:
 
     right:
    ;2_F ;1_F ;2_B ;1_B
- clrf stop_set
- sub_reg m2f, MOTOR_STEP_SIZE
- add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
- add_reg m2b, MOTOR_STEP_SIZE, MOTOR_MAX
- sub_reg m1b, MOTOR_STEP_SIZE
  ;set_motor_pwm 0x00, 254, 254,0x00
+ clrf stop_set
+ movlw 0
+ cpfsgt m1b
+ bra right_inc_m1f
+ sub_reg m1b, MOTOR_STEP_BIG
+ bra right_do_rest
+ right_inc_m1f:
+ add_reg m1f, MOTOR_STEP_BIG, MOTOR_MAX
+
+ right_do_rest:
+ movlw 0
+ cpfsgt m2f
+ bra right_inc_m2b
+ sub_reg m2f, MOTOR_STEP_BIG
+ bra right_finish
+ right_inc_m2b:
+ add_reg m2b, MOTOR_STEP_BIG, MOTOR_MAX
+
+ right_finish:
  goto Sensor_LLI_Generate
 
     slight_right:
    ;2_F ;1_F ;2_B ;1_B
+ ;set_motor_pwm 127,254, 0x00,0x00
  clrf stop_set
 
+ movlw 0
+ cpfsgt m2b
+ bra slight_right_inc_m2f
+ sub_reg m2b, MOTOR_STEP_SMALL
+ bra slight_right_do_rest
+ slight_right_inc_m2f:
  movlw 127
  cpfslt m2f
- bra slight_left_m2f_add
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_HALF
- slight_left_m2f_add:
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+ bra slight_right_m2f_sub
+ add_reg m2f, MOTOR_STEP_SMALL, MOTOR_HALF
+ bra slight_right_do_rest
+ slight_right_m2f_sub:
+ sub_reg m2f, MOTOR_STEP_SMALL
 
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
+ slight_right_do_rest:
+ movlw 0
+ cpfsgt m1b
+ bra slight_right_inc_m1f
+ sub_reg m1b, MOTOR_STEP_SMALL
+ bra slight_right_finish
+ slight_right_inc_m1f:
+ add_reg m1f, MOTOR_STEP_SMALL, MOTOR_MAX
 
- sub_reg m2b, MOTOR_STEP_SIZE
- sub_reg m1b, MOTOR_STEP_SIZE, MOTOR_MAX
- ;set_motor_pwm 127,254, 0x00,0x00
+ slight_right_finish:
      goto Sensor_LLI_Generate
 
     left:
    ;2_F ;1_F ;2_B ;1_B
- clrf stop_set
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
- sub_reg m1f, MOTOR_STEP_SIZE
- sub_reg m2b, MOTOR_STEP_SIZE
- add_reg m1b, MOTOR_STEP_SIZE, MOTOR_MAX
  ;set_motor_pwm 254,0x00, 0x00,254
+
+ clrf stop_set
+ movlw 0
+ cpfsgt m1f
+ bra left_inc_m1b
+ sub_reg m1f, MOTOR_STEP_BIG
+ bra right_do_rest
+ left_inc_m1b:
+ add_reg m1b, MOTOR_STEP_BIG, MOTOR_MAX
+
+ left_do_rest:
+ movlw 0
+ cpfsgt m2b
+ bra left_inc_m2f
+ sub_reg m2b, MOTOR_STEP_BIG
+ bra left_finish
+ left_inc_m2f:
+ add_reg m2f, MOTOR_STEP_BIG, MOTOR_MAX
+
+ left_finish:
  goto Sensor_LLI_Generate
 
 
     slight_left:
    ;2_F ;1_F ;2_B ;1_B
+ ;set_motor_pwm 254, 127, 0x00,0x00
  clrf stop_set
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
 
+ movlw 0
+ cpfsgt m1b
+ bra slight_left_inc_m1f
+ sub_reg m1b, MOTOR_STEP_SMALL
+ bra slight_left_do_rest
+ slight_left_inc_m1f:
  movlw 127
  cpfslt m1f
- bra slight_left_m1f_add
- add_reg m1f, MOTOR_STEP_SIZE, MOTOR_HALF
- slight_left_m1f_add:
- add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
+ bra slight_left_m1f_sub
+ add_reg m1f, MOTOR_STEP_SMALL, MOTOR_HALF
+ bra slight_left_do_rest
+ slight_left_m1f_sub:
+ sub_reg m1f, MOTOR_STEP_SMALL
 
- sub_reg m2b, MOTOR_STEP_SIZE
- sub_reg m1b, MOTOR_STEP_SIZE
- ;set_motor_pwm 254, 127, 0x00,0x00
+ slight_left_do_rest:
+ movlw 0
+ cpfsgt m2b
+ bra slight_left_inc_m2f
+ sub_reg m2b, MOTOR_STEP_SMALL
+ bra slight_left_finish
+ slight_left_inc_m2f:
+ add_reg m2f, MOTOR_STEP_SMALL, MOTOR_MAX
+
+ slight_left_finish:
  goto Sensor_LLI_Generate
 
 
     straight:
    ;2_F ;1_F ;2_B ;1_B
- clrf stop_set
- add_reg m2f, MOTOR_STEP_SIZE, MOTOR_MAX
- add_reg m1f, MOTOR_STEP_SIZE, MOTOR_MAX
- sub_reg m2b, MOTOR_STEP_SIZE
- sub_reg m1b, MOTOR_STEP_SIZE,
  ;set_motor_pwm 254, 254, 0x00,0x00
+ clrf stop_set
+ movlw 0
+ cpfsgt m1b
+ bra straight_inc_m1f
+ sub_reg m1b, MOTOR_STEP_BIG
+ bra straight_do_rest
+ straight_inc_m1f:
+ add_reg m1f, MOTOR_STEP_BIG, MOTOR_MAX
+
+        straight_do_rest:
+ movlw 0
+ cpfsgt m2b
+ bra left_inc_m2f
+ sub_reg m2b, MOTOR_STEP_BIG
+ bra straight_finish
+ straight_inc_m2f:
+ add_reg m2f, MOTOR_STEP_BIG, MOTOR_MAX
+
+ straight_finish:
         goto Sensor_LLI_Generate
 
     stop:
    ;2_F ;1_F ;2_B ;1_B
+ ;set_motor_pwm 0x00,0x00, 0x00,0x00
  movlw 5
  cpfseq stop_set
  bra $+4
@@ -9369,11 +9442,10 @@ Race:
  incf stop_set
  goto Sensor_LLI_Generate
  stop_do:
- sub_reg m2f, MOTOR_STEP_SIZE
- sub_reg m1f, MOTOR_STEP_SIZE
- sub_reg m2b, MOTOR_STEP_SIZE
- sub_reg m1b, MOTOR_STEP_SIZE
- ;set_motor_pwm 0x00,0x00, 0x00,0x00
+ sub_reg m2f, MOTOR_STEP_BIG
+ sub_reg m1f, MOTOR_STEP_BIG
+ sub_reg m2b, MOTOR_STEP_BIG
+ sub_reg m1b, MOTOR_STEP_BIG
  goto Sensor_LLI_Generate
 # 23 "main.s" 2
 # 1 "./setup.inc" 1
@@ -9668,7 +9740,7 @@ wait_for_touch:
 # 26 "main.s" 2
 # 1 "./nav_col.inc" 1
 Set_Nav_col:
-    clrf tmp,a
+    clrf PORTD
     btfsc PORTD,5
     bra go_red
     btfsc PORTD,6
