@@ -27,9 +27,9 @@ retfie
  
 main: 
     call calibrate_start
-    call Set_Nav_col     
-    call wait_for_touch
+    call Set_Nav_col  
     call set_SSD_from_nav_col
+    call wait_for_touch
     call Race
     bra $-4
     

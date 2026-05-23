@@ -152,7 +152,23 @@ Race:
 	movlb 0x0
 
 	clrf tmp
-		
+	clrf slight_do
+	
+	movlw 0b01000101 ;AN17 a.k.a RC5, ADC on
+	movwf ADCON0,0
+	RGB_measure s3r, s3g, s3b ; Sensor 3
+	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+	col_det_done_S3:
+	movlw 0
+	cpfseq rcolor,a
+	bra $+4
+	incf tmp,a
+	;=========================
+	movff nav_col,WREG
+	CPFSEQ rcolor,a
+	bra $+4
+	bra straight
+	
 	movlw 0b01011101 ;AN23 a.k.a RD3, ADC on
 	movwf ADCON0,0
 	RGB_measure s4r, s4g, s4b ; Sensor 4
@@ -166,7 +182,7 @@ Race:
 	movff nav_col,WREG
 	cpfseq rcolor,a
 	bra $+4
-	bra slight_left
+	bsf slight_do,0
 	
 	movlw 0b01001001 ;AN18 a.k.a RC6, ADC on
 	movwf ADCON0,0
@@ -181,22 +197,12 @@ Race:
 	movff nav_col,WREG
 	CPFSEQ rcolor,a
 	bra $+4
-	bra slight_right
+	bsf slight_do,1
 	
-		movlw 0b01000101 ;AN17 a.k.a RC5, ADC on
-	movwf ADCON0,0
-	RGB_measure s3r, s3g, s3b ; Sensor 3
-	determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
-	col_det_done_S3:
-	movlw 0
-	cpfseq rcolor,a
-	bra $+4
-	incf tmp,a
-	;=========================
-	movff nav_col,WREG
-	CPFSEQ rcolor,a
-	bra $+4
-	bra straight
+	btfsc slight_do,0
+	bra slight_left
+	btfsc slight_do,1
+	bra slight_right
 	
 	movlw 0b01001101 ;AN19 a.k.a RC7, ADC on
 	movwf ADCON0,0
@@ -282,25 +288,25 @@ Race:
 	movlw 0
 	cpfsgt m2b
 	bra slight_right_inc_m2f
-	sub_reg m2b, MOTOR_STEP_SLIGHT_FWD
+	sub_reg m2b, MOTOR_STEP_SLIGHT_FWD_RIGHT
 	bra slight_right_do_rest
 	slight_right_inc_m2f:	
-	movlw 127
+	movlw MOTOR_STEP_SLIGHT_FWD_RIGHT
 	cpfslt m2f
 	bra slight_right_m2f_sub
-	add_reg m2f, MOTOR_STEP_SLIGHT_FWD, MOTOR_SLIGHT_FWD
+	add_reg m2f, MOTOR_STEP_SLIGHT_FWD_RIGHT, MOTOR_SLIGHT_FWD_RIGHT
 	bra slight_right_do_rest
 	slight_right_m2f_sub:
-	sub_reg m2f, MOTOR_STEP_SLIGHT_FWD
+	sub_reg m2f, MOTOR_STEP_SLIGHT_FWD_RIGHT
 	
 	slight_right_do_rest:
 	movlw 0
 	cpfsgt m1b
 	bra slight_right_inc_m1f
-	sub_reg m1b, MOTOR_STEP_SLIGHT_TURN
+	sub_reg m1b, MOTOR_STEP_SLIGHT_TURN_RIGHT
 	bra slight_right_finish
 	slight_right_inc_m1f:
-	add_reg m1f, MOTOR_STEP_SLIGHT_TURN, MOTOR_SLIGHT_TURN
+	add_reg m1f, MOTOR_STEP_SLIGHT_TURN_RIGHT, MOTOR_SLIGHT_TURN_RIGHT
 	
 	slight_right_finish:
     	goto Sensor_LLI_Generate
@@ -342,25 +348,25 @@ Race:
 	movlw 0
 	cpfsgt m1b
 	bra slight_left_inc_m1f
-	sub_reg m1b, MOTOR_STEP_SLIGHT_FWD
+	sub_reg m1b, MOTOR_STEP_SLIGHT_FWD_LEFT
 	bra slight_left_do_rest
 	slight_left_inc_m1f:	
-	movlw 127
+	movlw MOTOR_STEP_SLIGHT_FWD_LEFT
 	cpfslt m1f
 	bra slight_left_m1f_sub
-	add_reg m1f, MOTOR_STEP_SLIGHT_FWD, MOTOR_SLIGHT_FWD
+	add_reg m1f, MOTOR_STEP_SLIGHT_FWD_LEFT, MOTOR_SLIGHT_FWD_LEFT
 	bra slight_left_do_rest
 	slight_left_m1f_sub:
-	sub_reg m1f, MOTOR_STEP_SLIGHT_FWD
+	sub_reg m1f, MOTOR_STEP_SLIGHT_FWD_LEFT
 	
 	slight_left_do_rest:
 	movlw 0
 	cpfsgt m2b
 	bra slight_left_inc_m2f
-	sub_reg m2b, MOTOR_STEP_SLIGHT_TURN
+	sub_reg m2b, MOTOR_STEP_SLIGHT_TURN_LEFT
 	bra slight_left_finish
 	slight_left_inc_m2f:
-	add_reg m2f, MOTOR_STEP_SLIGHT_TURN, MOTOR_SLIGHT_TURN
+	add_reg m2f, MOTOR_STEP_SLIGHT_TURN_LEFT, MOTOR_SLIGHT_TURN_LEFT
 	
 	slight_left_finish:	
 	goto Sensor_LLI_Generate
@@ -375,19 +381,19 @@ Race:
 	movlw 0
 	cpfsgt m1b
 	bra straight_inc_m1f
-	sub_reg m1b, MOTOR_STEP_BIG
+	sub_reg m1b, MOTOR_STEP_STRAIGHT_RIGHT
 	bra straight_do_rest
 	straight_inc_m1f:
-	add_reg m1f, MOTOR_STEP_STRAIGHT, MOTOR_STRAIGHT
+	add_reg m1f, MOTOR_STEP_STRAIGHT_RIGHT, MOTOR_STRAIGHT_RIGHT
 	
         straight_do_rest:
 	movlw 0
 	cpfsgt m2b
 	bra left_inc_m2f
-	sub_reg m2b, MOTOR_STEP_BIG
+	sub_reg m2b, MOTOR_STEP_STRAIGHT_LEFT
 	bra straight_finish
 	straight_inc_m2f:
-	add_reg m2f, MOTOR_STEP_STRAIGHT, MOTOR_STRAIGHT
+	add_reg m2f, MOTOR_STEP_STRAIGHT_LEFT, MOTOR_STRAIGHT_LEFT
 	
 	straight_finish:
         goto Sensor_LLI_Generate

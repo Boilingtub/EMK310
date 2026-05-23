@@ -6,7 +6,7 @@ Set_Nav_col:
     bra go_blue
     btfsc PORTD,7
     bra go_green
-    bra go_blue
+    bra go_green
     go_red:
 	movlw 1
 	movwf nav_col
