@@ -9013,7 +9013,8 @@ S5_K_B_Thres_min equ 0xC4
 S5_K_B_Thres_max equ 0xC5
 
 ;===== Value Constants =====
-Thres_var equ 24
+Thres_var equ 30
+Black_Thres_var equ 16
 H333ms EQU 0x60;0xD5
 L333ms EQU 0xAA;0x55
 ADCAQTH EQU 0xFD
@@ -9031,15 +9032,18 @@ MOTOR_MAX equ 254
 MOTOR_HALF equ 127
 
 MOTOR_STRAIGHT equ 180
-MOTOR_TURN_FWD equ 100
-MOTOR_TURN_REV equ 100
-MOTOR_SLIGHT_FWD equ 110
+MOTOR_TURN_FWD equ 120
+MOTOR_TURN_REV equ 120
+MOTOR_SLIGHT_FWD equ 120
 MOTOR_SLIGHT_TURN equ 180
 
 
 MOTOR_STEP_BIG equ 60
+MOTOR_STEP_STRAIGHT equ 40
 MOTOR_STEP_MED equ 10
-MOTOR_STEP_SMALL equ 90
+;MOTOR_STEP_SMALL equ 80
+MOTOR_STEP_SLIGHT_FWD equ 90
+MOTOR_STEP_SLIGHT_TURN equ 60
 
 SSD equ PORTA
 SSD_W equ 0b01001001
@@ -9253,6 +9257,21 @@ Race:
  bra $+4
  bra slight_right
 
+  movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
+ movwf ADCON0,0
+ RGB_measure s3r, s3g, s3b ; Sensor 3
+ determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
+ col_det_done_S3:
+ movlw 0
+ cpfseq rcolor,a
+ bra $+4
+ incf tmp,a
+ ;=========================
+ movff nav_col,WREG
+ CPFSEQ rcolor,a
+ bra $+4
+ bra straight
+
  movlw 0b01001101 ;((PORTC) and 0FFh), 7, a a.k.a RC7, ADC on
  movwf ADCON0,0
  RGB_measure s1r, s1g, s1b ;Sensor 1
@@ -9282,21 +9301,6 @@ Race:
  CPFSEQ rcolor,a
  bra $+4
  bra left
-
- movlw 0b01000101 ;((PORTC) and 0FFh), 5, a a.k.a RC5, ADC on
- movwf ADCON0,0
- RGB_measure s3r, s3g, s3b ; Sensor 3
- determine_color S3_W_R_Thres_min,s3r,s3g,s3b,rcolor,col_det_done_S3
- col_det_done_S3:
- movlw 0
- cpfseq rcolor,a
- bra $+4
- incf tmp,a
- ;=========================
- movff nav_col,WREG
- CPFSEQ rcolor,a
- bra $+4
- bra straight
 
  movlw 5
  cpfseq tmp,a
@@ -9352,25 +9356,25 @@ Race:
  movlw 0
  cpfsgt m2b
  bra slight_right_inc_m2f
- sub_reg m2b, MOTOR_STEP_SMALL
+ sub_reg m2b, MOTOR_STEP_SLIGHT_FWD
  bra slight_right_do_rest
  slight_right_inc_m2f:
  movlw 127
  cpfslt m2f
  bra slight_right_m2f_sub
- add_reg m2f, MOTOR_STEP_SMALL, MOTOR_SLIGHT_FWD
+ add_reg m2f, MOTOR_STEP_SLIGHT_FWD, MOTOR_SLIGHT_FWD
  bra slight_right_do_rest
  slight_right_m2f_sub:
- sub_reg m2f, MOTOR_STEP_SMALL
+ sub_reg m2f, MOTOR_STEP_SLIGHT_FWD
 
  slight_right_do_rest:
  movlw 0
  cpfsgt m1b
  bra slight_right_inc_m1f
- sub_reg m1b, MOTOR_STEP_SMALL
+ sub_reg m1b, MOTOR_STEP_SLIGHT_TURN
  bra slight_right_finish
  slight_right_inc_m1f:
- add_reg m1f, MOTOR_STEP_SMALL, MOTOR_SLIGHT_TURN
+ add_reg m1f, MOTOR_STEP_SLIGHT_TURN, MOTOR_SLIGHT_TURN
 
  slight_right_finish:
      goto Sensor_LLI_Generate
@@ -9412,25 +9416,25 @@ Race:
  movlw 0
  cpfsgt m1b
  bra slight_left_inc_m1f
- sub_reg m1b, MOTOR_STEP_SMALL
+ sub_reg m1b, MOTOR_STEP_SLIGHT_FWD
  bra slight_left_do_rest
  slight_left_inc_m1f:
  movlw 127
  cpfslt m1f
  bra slight_left_m1f_sub
- add_reg m1f, MOTOR_STEP_SMALL, MOTOR_SLIGHT_FWD
+ add_reg m1f, MOTOR_STEP_SLIGHT_FWD, MOTOR_SLIGHT_FWD
  bra slight_left_do_rest
  slight_left_m1f_sub:
- sub_reg m1f, MOTOR_STEP_SMALL
+ sub_reg m1f, MOTOR_STEP_SLIGHT_FWD
 
  slight_left_do_rest:
  movlw 0
  cpfsgt m2b
  bra slight_left_inc_m2f
- sub_reg m2b, MOTOR_STEP_SMALL
+ sub_reg m2b, MOTOR_STEP_SLIGHT_TURN
  bra slight_left_finish
  slight_left_inc_m2f:
- add_reg m2f, MOTOR_STEP_SMALL, MOTOR_SLIGHT_TURN
+ add_reg m2f, MOTOR_STEP_SLIGHT_TURN, MOTOR_SLIGHT_TURN
 
  slight_left_finish:
  goto Sensor_LLI_Generate
@@ -9448,7 +9452,7 @@ Race:
  sub_reg m1b, MOTOR_STEP_BIG
  bra straight_do_rest
  straight_inc_m1f:
- add_reg m1f, MOTOR_STEP_BIG, MOTOR_STRAIGHT
+ add_reg m1f, MOTOR_STEP_STRAIGHT, MOTOR_STRAIGHT
 
         straight_do_rest:
  movlw 0
@@ -9457,7 +9461,7 @@ Race:
  sub_reg m2b, MOTOR_STEP_BIG
  bra straight_finish
  straight_inc_m2f:
- add_reg m2f, MOTOR_STEP_BIG, MOTOR_STRAIGHT
+ add_reg m2f, MOTOR_STEP_STRAIGHT, MOTOR_STRAIGHT
 
  straight_finish:
         goto Sensor_LLI_Generate
@@ -9465,6 +9469,7 @@ Race:
     stop:
    ;2_F ;1_F ;2_B ;1_B
  ;set_motor_pwm 0x00,0x00, 0x00,0x00
+ clrf prev_sensor
  movlw 5
  cpfseq stop_set
  bra $+4
@@ -9608,18 +9613,18 @@ calc_threshold_min macro margin,v,rr
 endm
 
 calc_threshold_max macro margin,v,rr
-    movlw 255-Thres_var
+    movlw 255-margin
     cpfsgt v,b
     bra $+8
     movlw 255
     movwf rr,b
     bra $+10
     movff v,rr
-    movlw Thres_var
+    movlw margin
     addwf rr,b
 endm
 
-Calc_Color_Threshold macro rr,rg,rb,thres
+Calc_Color_Threshold macro margin,rr,rg,rb,thres
     calc_threshold_min Thres_var, rr, thres
     calc_threshold_max Thres_var, rr, thres+1
     calc_threshold_min Thres_var, rg, thres+2
@@ -9636,55 +9641,55 @@ calibrate_start:
  movwf SSD,a
  call wait_for_touch
  call read_Sensor_all
- Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
+ Calc_Color_Threshold Thres_var,s1r,s1g,s1b, S1_W_R_Thres_min
+ Calc_Color_Threshold Thres_var,s2r,s2g,s2b, S2_W_R_Thres_min
+ Calc_Color_Threshold Thres_var,s3r,s3g,s3b, S3_W_R_Thres_min
+ Calc_Color_Threshold Thres_var,s4r,s4g,s4b, S4_W_R_Thres_min
+ Calc_Color_Threshold Thres_var,s5r,s5g,s5b, S5_W_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_W
     calibrate_for_green:
  movlw SSD_G
  movwf SSD,a
  call wait_for_touch
  call read_Sensor_all
- Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
+ Calc_Color_Threshold Thres_var,s1r,s1g,s1b, S1_G_R_Thres_min
+ Calc_Color_Threshold Thres_var,s2r,s2g,s2b, S2_G_R_Thres_min
+ Calc_Color_Threshold Thres_var,s3r,s3g,s3b, S3_G_R_Thres_min
+ Calc_Color_Threshold Thres_var,s4r,s4g,s4b, S4_G_R_Thres_min
+ Calc_Color_Threshold Thres_var,s5r,s5g,s5b, S5_G_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_G
     calibrate_for_blue:
  movlw SSD_B
  movwf SSD,a
  call wait_for_touch
  call read_Sensor_all
- Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
+ Calc_Color_Threshold Thres_var,s1r,s1g,s1b, S1_B_R_Thres_min
+ Calc_Color_Threshold Thres_var,s2r,s2g,s2b, S2_B_R_Thres_min
+ Calc_Color_Threshold Thres_var,s3r,s3g,s3b, S3_B_R_Thres_min
+ Calc_Color_Threshold Thres_var,s4r,s4g,s4b, S4_B_R_Thres_min
+ Calc_Color_Threshold Thres_var,s5r,s5g,s5b, S5_B_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_B
     calibrate_for_black:
  movlw SSD_K
  movwf SSD,a
  call wait_for_touch
  call read_Sensor_all
- Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
+ Calc_Color_Threshold Black_Thres_var,s1r,s1g,s1b, S1_K_R_Thres_min
+ Calc_Color_Threshold Black_Thres_var,s2r,s2g,s2b, S2_K_R_Thres_min
+ Calc_Color_Threshold Black_Thres_var,s3r,s3g,s3b, S3_K_R_Thres_min
+ Calc_Color_Threshold Black_Thres_var,s4r,s4g,s4b, S4_K_R_Thres_min
+ Calc_Color_Threshold Black_Thres_var,s5r,s5g,s5b, S5_K_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_K
     calibrate_for_red:
  movlw SSD_R
  movwf SSD,a
  call wait_for_touch
  call read_Sensor_all
- Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
- Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
- Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
- Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
- Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
+ Calc_Color_Threshold Thres_var,s1r,s1g,s1b, S1_R_R_Thres_min
+ Calc_Color_Threshold Thres_var,s2r,s2g,s2b, S2_R_R_Thres_min
+ Calc_Color_Threshold Thres_var,s3r,s3g,s3b, S3_R_R_Thres_min
+ Calc_Color_Threshold Thres_var,s4r,s4g,s4b, S4_R_R_Thres_min
+ Calc_Color_Threshold Thres_var,s5r,s5g,s5b, S5_R_R_Thres_min
  flash_Reg tmp, 3, SSD, SSD_R
     clrf SSD,a
     return
