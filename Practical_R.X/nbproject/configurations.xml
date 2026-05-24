@@ -1145,6 +1145,8 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-7fff"/>
+        <property key="programmerToGoFilePath"
+                  value="/home/hendrik/Documents/TUKS/EMK310/EMK310-Practicals/Practical_R.X/debug/default/Practical_R_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>
