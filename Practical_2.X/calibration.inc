@@ -12,40 +12,35 @@ endm
 
 calc_threshold_min macro margin,v,rr
     movlw Thres_var
-    cpfslt v,a
+    cpfslt v,b
     bra $+8
     movlw 0
-    movwf rr,a
+    movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
-    subwf rr,a
+    movlw Thres_var
+    subwf rr,b
 endm
  
 calc_threshold_max macro margin,v,rr
     movlw 255-Thres_var
-    cpfsgt v,a
+    cpfsgt v,b
     bra $+8
     movlw 255
-    movwf rr,a
+    movwf rr,b
     bra $+10
     movff v,rr
-    movlw margin
-    addwf rr,a
+    movlw Thres_var
+    addwf rr,b
 endm
     
-Calc_Color_Threshold macro rthres_min, rthres_max, gthres_min, gthres_max, bthres_min, bthres_max
-    average_values s1r, s2r, s3r, s4r, s5r, tmp
-    calc_threshold_min Thres_var, tmp, rthres_min
-    calc_threshold_max Thres_var, tmp, rthres_max
-    
-    average_values s1g, s2g, s3g, s4g, s5g, tmp
-    calc_threshold_min Thres_var, tmp, gthres_min
-    calc_threshold_max Thres_var, tmp, gthres_max
- 
-    average_values s1b, s2b, s3b, s4b, s5b, tmp
-    calc_threshold_min Thres_var, tmp, bthres_min
-    calc_threshold_max Thres_var, tmp, bthres_max
+Calc_Color_Threshold macro rr,rg,rb,thres
+    calc_threshold_min Thres_var, rr, thres
+    calc_threshold_max Thres_var, rr, thres+1
+    calc_threshold_min Thres_var, rg, thres+2
+    calc_threshold_max Thres_var, rg, thres+3
+    calc_threshold_min Thres_var, rb, thres+4
+    calc_threshold_max Thres_var, rb, thres+5
 endm
 
 calibrate:
@@ -53,53 +48,79 @@ calibrate:
     return 
     
 calibrate_start:
-    movlw   0b00000001
-    movwf   rcalib,a
+    clrf DUMP_REG,a
+    clrf    rcalib,a
+    bsf   rcalib,0,a
     calibrate_for_white:
 	movff	rcalib,WREG
-	bsf	DUMP_REG,0,a
+	movlw 0b00011100
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
 	call read_Sensor_all
-	Calc_Color_Threshold W_R_Thres_min, W_R_Thres_max, W_G_Thres_min, W_G_Thres_max, W_B_Thres_min, W_B_Thres_max
-	flash_Reg tmp, 3, DUMP_REG, 0b00000001
+	Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
+	flash_Reg tmp, 3, DUMP_REG, 0b00011100
     calibrate_for_green:
 	movff rcalib,WREG
-	bsf	DUMP_REG,1,a
+	movlw 0b00001000
+	movwf DUMP_REG,a 
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
 	call read_Sensor_all
-	Calc_Color_Threshold G_R_Thres_min, G_R_Thres_max, G_G_Thres_min, G_G_Thres_max, G_B_Thres_min, G_B_Thres_max
-	flash_Reg tmp, 3, DUMP_REG, 0b00000010
+	Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
+	flash_Reg tmp, 3, DUMP_REG, 0b00001000
     calibrate_for_blue:
     	movff rcalib,WREG
-	bsf	DUMP_REG,2,a
+	movlw 0b00010000
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
 	call read_Sensor_all
-	Calc_Color_Threshold B_R_Thres_min, B_R_Thres_max, B_G_Thres_min, B_G_Thres_max, B_B_Thres_min, B_B_Thres_max
-	flash_Reg tmp, 3, DUMP_REG, 0b00000100
+	Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
+	flash_Reg tmp, 3, DUMP_REG, 0b00010000
     calibrate_for_black:
 	movff rcalib,WREG
-	bsf	DUMP_REG,4,a
+	movlw 0b00010100
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
 	call read_Sensor_all
-	Calc_Color_Threshold K_R_Thres_min, K_R_Thres_max, K_G_Thres_min, K_G_Thres_max, K_B_Thres_min, K_B_Thres_max
-	flash_Reg tmp, 3, DUMP_REG, 0b00010000
+	Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
+	flash_Reg tmp, 3, DUMP_REG, 0b00010100
     calibrate_for_red:
 	movff rcalib,WREG
-	bsf	DUMP_REG,3,a
+	movlw 0b00000100
+	movwf DUMP_REG,a
 	btfss	rcalib,1,a 
 	bra $-2
 	bcf	rcalib,1,a
 	call read_Sensor_all
-	Calc_Color_Threshold R_R_Thres_min, R_R_Thres_max, R_G_Thres_min, R_G_Thres_max, R_B_Thres_min, R_B_Thres_max
-	flash_Reg tmp, 3, DUMP_REG, 0b00001000
+	Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
+	flash_Reg tmp, 3, DUMP_REG, 0b00000100
     clrf DUMP_REG,a
     clrf rcalib,a
     return     
@@ -125,7 +146,11 @@ calibrate_test:
 	movwf s3b,a
 	movwf s4b,a
 	movwf s5b,a
-    	Calc_Color_Threshold W_R_Thres_min, W_R_Thres_max, W_G_Thres_min, W_G_Thres_max, W_B_Thres_min, W_B_Thres_max
+	Calc_Color_Threshold s1r,s1g,s1b, S1_W_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_W_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_W_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_W_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_W_R_Thres_min
 
 	movlw 8
 	movwf s1r,a
@@ -145,7 +170,11 @@ calibrate_test:
 	movwf s3b,a
 	movwf s4b,a
 	movwf s5b,a
-    	Calc_Color_Threshold K_R_Thres_min, K_R_Thres_max, K_G_Thres_min, K_G_Thres_max, K_B_Thres_min, K_B_Thres_max
+	Calc_Color_Threshold s1r,s1g,s1b, S1_K_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_K_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_K_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_K_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_K_R_Thres_min
 	
 	movlw 238
 	movwf s1r,a
@@ -165,7 +194,11 @@ calibrate_test:
 	movwf s3b,a
 	movwf s4b,a
 	movwf s5b,a
-    	Calc_Color_Threshold R_R_Thres_min, R_R_Thres_max, R_G_Thres_min, R_G_Thres_max, R_B_Thres_min, R_B_Thres_max
+	Calc_Color_Threshold s1r,s1g,s1b, S1_R_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_R_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_R_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_R_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_R_R_Thres_min
 
 	movlw 98
 	movwf s1r,a
@@ -185,7 +218,11 @@ calibrate_test:
 	movwf s3b,a
 	movwf s4b,a
 	movwf s5b,a
-    	Calc_Color_Threshold G_R_Thres_min, G_R_Thres_max, G_G_Thres_min, G_G_Thres_max, G_B_Thres_min, G_B_Thres_max
+	Calc_Color_Threshold s1r,s1g,s1b, S1_G_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_G_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_G_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_G_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_G_R_Thres_min
 
 	movlw 30
 	movwf s1r,a
@@ -205,7 +242,11 @@ calibrate_test:
 	movwf s3b,a
 	movwf s4b,a
 	movwf s5b,a
-    	Calc_Color_Threshold B_R_Thres_min, B_R_Thres_max, B_G_Thres_min, B_G_Thres_max, B_B_Thres_min, B_B_Thres_max
+	Calc_Color_Threshold s1r,s1g,s1b, S1_B_R_Thres_min
+	Calc_Color_Threshold s2r,s2g,s2b, S2_B_R_Thres_min
+	Calc_Color_Threshold s3r,s3g,s3b, S3_B_R_Thres_min
+	Calc_Color_Threshold s4r,s4g,s4b, S4_B_R_Thres_min
+	Calc_Color_Threshold s5r,s5g,s5b, S5_B_R_Thres_min
 	return
 
 calibrate_test_cont:

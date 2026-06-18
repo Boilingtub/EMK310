@@ -4,6 +4,7 @@ PROCESSOR   18F45K22
 ;CONFIG1H
 CONFIG FOSC = INTIO67
 CONFIG WDTEN = OFF
+CONFIG CCP2MX = PORTB3
 CONFIG CCP3MX = PORTE0
    
 #include    <xc.inc>
@@ -23,23 +24,25 @@ goto ISRL
  
 org 20h	;Start for code setup 
 #include "setup.inc"
+#include "pwm_setup.inc"
 #include "timer.inc"
 #include "Sensor.inc"
+#include "touch.inc"
 #include "color_detection.inc"
 #include "interrupts.inc"
 #include "calibration.inc"
 #include "line_location_interpreter.inc"
  
-main:    
-    ;call calibrate
-    ;call load_test_values
-    ;call load_test_values
-    ;call Detect_LLI
-    ;call calibrate_test_cont
+main:
+		     ;2_F ;1_F   ;2_B ;1_B
+    ;set_motor_pwm   0x00,0xFA,  0x00,0x00
+    ;call calibrate_test
     call calibrate_start
-    call color_detection_test
-	
-   bra exit
+    call Check_Nav_Col
+    call start_on_touch
+    call Detect_LLI
+    bra $-4
+    bra exit
    
 exit:
     nop

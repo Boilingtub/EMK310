@@ -1,0 +1,93 @@
+#========== Possible Mappings ==========
+RA4 / RE2       - CPP5 RE2 
+RB0 / RD1       - CPP4 ---  /RB0/
+RB5 / RC6 / RE0 - CPP3 RE0
+RB3 / RC1       - CPP2 RB3
+RC2             - CPP1 RC2
+#========== Implemented Mappings Final ===========
+RA0 - SSD-a (UM) Upper Middle
+RA1 - SSD-b (UR) Upper Right
+RA2 - SSD-c (LR) Lower Right
+RA3 - SSD-d (LM) Lower Middle
+RA4 - SSD-e (LL) Lower Left
+RA5 - SSD-f (UL) Upper Left
+RA6 - SSD-g (MM) Middle Middle
+RA7 - 
+
+RB0 - USB-to-UART RST
+RB1 - 
+RB2 - 
+RB3 - MOTOR_2_B
+RB4 - 
+RB5 - Capacitive Touch Sensor
+RB6 -  
+RB7 - LEDB
+
+RC0 - LEDR
+RC1 - LEDG
+RC2 - (CCP1) MOTOR_1_B 
+RC3 - SCL 1
+RC4 - SDA 1
+RC5 - Sensor 2
+RC6 - Sensor 1
+RC7 - Sensor 0
+
+RD0 - SCL2
+RD1 - SDA2
+RD2 - Sensor 5
+RD3 - Sensor 4
+RD4 - 
+RD5 - 
+RD6 - TX
+RD7 - RX
+
+RE0 - MOTOR_2_F 
+RE1 - 
+RE2 - MOTOR_1_F
+RE3 - PROGRAMMING PIN
+
+
+#========== Implemented Mappings Prac 2 ==========
+RA0 - Color Select Bit 1 } 00 - black , 01 - red 
+RA1 - Color Select Bit 2 } 10 - blue  , 11 - green
+RA2 - 
+RA3 - 
+RA4 - 
+RA5 - 
+RA6 - 
+RA7 - 
+
+RB0 -  
+RB1 - 
+RB2 - 
+RB3 - CCP2 (Motor 1 Fwd)
+RB4 - Calibrate Sensor button
+RB5 - Touch Sensor  
+RB6 - TX2 (Serial Transmit) 
+RB7 - RX2 (Serial Receive)
+
+RC0 - Red Sensor Strobe 
+RC1 - Green Sensor Strobe
+RC2 - Blue Sensor Strobe
+RC3 - Sensor 1 Input 
+RC4 - Sensor 2 Input
+RC5 - Sensor 3 Input
+RC6 - Sensor 4 Input
+RC7 - Sensor 5 Input
+
+RD0 - 
+RD1 - CCP4 (motor 1 Bwd) 
+RD2 - display LED red
+RD3 - display LED green 
+RD4 - display LED blue 
+RD5 - 
+RD6 - 
+RD7 - 
+
+RE0 - CCP3 (Motor 2 Fwd) 
+RE1 - 
+RE2 - 
+RE2 - CCP5 (Motor 2 Bwd)
+RE3 - PROGRAMMING PIN
+
+

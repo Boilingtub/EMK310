@@ -1,71 +1,90 @@
+set_motor_pwm macro ccp2, ccp3, ccp4, ccp5
+    movlw   ccp2    ; Duty Cycle for CCP2 (RB3) but3 off for setup
+    banksel CCPR2L
+    movwf   CCPR2L,1 ;M1 F
+    
+    movlw   ccp3  ; Duty Cycle for CCP3 (RE0) but off for setup
+    banksel CCPR3L
+    movwf   CCPR3L,1 ;M2 F
+    
+    movlw   ccp4  ; Duty Cycle for CCP4 (RD1) off for setup
+    banksel CCPR4L
+    movwf   CCPR4L,1 ;M1 B
+    
+    movlw   ccp5  ; Duty Cycle for CCP5 (RE2) off for setup
+    banksel CCPR5L
+    movwf   CCPR5L,1 ;M2 B
+    movlb 0
+endm
 ;try and start the logic at left sothat it runs sequancially as i intended it to
 ;-----------------------------------------------------------------------------
 ;Move left logic
+LLI_Entry:
 left_logic:
-    MOVF Sensor,w;Move Sensor value to wreg
-    XORLW 0b10000;check if the wreg and the binary value match exactly
+    movf Sensor,0,0;Move Sensor value to wreg
+    XORLW 0b00000001;check if the wreg and the binary value match exactly
 	BZ left;z will be 1 if they match and it will then branch HOPE p82
-    MOVF Sensor,w
-    XORLW 0b11000
+    movf Sensor,0,0
+    XORLW 0b00000011
 	BZ left
-    MOVF Sensor,w
-    XORLW 0b11100
+    movf Sensor,0,0
+    XORLW 0b00000111
 	BZ left
-    MOVF Sensor,w
-    XORLW 0b11110
+    movf Sensor,0,0
+    XORLW 0b00001111
 	BZ left
 
 ;-----------------------------------------------------------------------------
 ;Move right logic
 right_logic:
-    MOVF Sensor,w
-    XORLW 0b00001
+    MOVF Sensor,0,0
+    XORLW 0b00010000
 	BZ right
-    MOVF Sensor,w
-    XORLW 0b00011
+    MOVF Sensor,0,0
+    XORLW 0b00011000
 	BZ right
-    MOVF Sensor,w
-    XORLW 0b00111
+    MOVF Sensor,0,0
+    XORLW 0b00011100
 	BZ right
-    MOVF Sensor,w
-    XORLW 0b01111
+    MOVF Sensor,0,0
+    XORLW 0b00011110
 	BZ right
     
 ;-----------------------------------------------------------------------------
 ;Move slight left logic 
 slight_left_logic:
-    MOVF Sensor,w
-    XORLW 0b01000
+    MOVF Sensor,0,0
+    XORLW 0b00000010
 	BZ slight_left
-    MOVF Sensor,w
-    XORLW 0b01100
+    MOVF Sensor,0,0
+    XORLW 0b00000110
 	BZ slight_left
-    
+   
 ;-----------------------------------------------------------------------------
 ;Move slight right logic
 slight_right_logic:
-    MOVF Sensor,w
-    XORLW 0b00010
+    MOVF Sensor,0,0
+    XORLW 0b00001000
 	BZ slight_right
-    MOVF Sensor,w
-    XORLW 0b00110
+    MOVF Sensor,0,0
+    XORLW 0b00011000
 	BZ slight_right
     
 ;-----------------------------------------------------------------------------
 ;Move Straght logic 
 straight_logic:
-    MOVF Sensor,w
-    XORLW 0b00100
+    MOVF Sensor,0,0
+    XORLW 0b00000100
 	BZ straight
-    MOVF Sensor,w
-    XORLW 0b01110
+    MOVF Sensor,0,0
+    XORLW 0b00001110
 	BZ straight
     
 ;-----------------------------------------------------------------------------
 ;Stop logic 
 ;stop_logic:
 ;    MOVF Sensor,w
-;    XORLW 0b11111
+;    XORLW 0b00011111
 ;	BZ stop
     
 ;-----------------------------------------------------------------------------
@@ -77,41 +96,33 @@ search_logic:;as the code tuns sequencially, this will always be the last option
 ;restart main as no action was taken
     return
 
-left: 
-    MOVLW 0x01 ;turn on left led 0b00000001
-    MOVWF LATD
+right:		    ;2_F ;1_F   ;2_B ;1_B
+    ;set_motor_pwm   0x00,0xFA,  0x00,0x00
+    set_motor_pwm   0x00,0xFA,  0x00,0x00
     return
     
-right:
-    MOVLW 0x10;turn on right led 0b00010000
-    MOVWF LATD
+slight_right:	    ;2_F ;1_F   ;2_B ;1_B
+    set_motor_pwm   0x00,0xAD,  0x00,0x00
     return
   
-slight_left:
-    MOVLW 0x02;turn on sleft led 0b00000010
-    MOVWF LATD
+left:		    ;1_F ;2_F   ;1_B ;2_B
+    ;set_motor_pwm   0xFA,0x00,  0x00,0x00
+    set_motor_pwm   0xFA,0x00,  0x00,0x00
     return
     
-slight_right:;turn on sright led 0b00001000
-    MOVLW 0x08
-    MOVWF LATD
+slight_left:	    ;2_F ;1_F   ;2_B ;1_B
+    set_motor_pwm   0xAD,0x00,  0x00,0x00
     return
-    
-straight:
-    MOVLW 0x04;turn on straight led 0b00000100
-    MOVWF LATD
+   
+straight:	    ;2_F ;1_F   ;2_B ;1_B
+    ;set_motor_pwm   0xFA,0xFA,  0x00,0x00
+    set_motor_pwm   0xBA,0xBA,  0x00,0x00
     return
  
-stop:
-    MOVLW 0x20;turn on stop led 0b00100000
-    MOVWF LATD
+stop:		    ;2_F ;1_F   ;2_B ;1_B
+    set_motor_pwm   0x00,0x00,  0x00,0x00
     return
     
-search:
-    MOVLW 0x40;turn on search led 0b01000000
-    MOVWF LATD
-    return
-
-
-
-
+search:		    ;2_F ;1_F   ;2_B ;1_B
+    set_motor_pwm   0xAD,0x00,  0x00,0x00
+    return    

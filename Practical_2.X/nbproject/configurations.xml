@@ -13,6 +13,8 @@
       <itemPath>calibration_white.inc</itemPath>
       <itemPath>calibration.inc</itemPath>
       <itemPath>Sensor.inc</itemPath>
+      <itemPath>pwm_setup.inc</itemPath>
+      <itemPath>touch.inc</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -89,7 +91,7 @@
         <property key="oscillator.rcfrequency" value="250"/>
         <property key="oscillator.rcfrequencyunit" value="Kilo"/>
         <property key="periphADC1.altscl" value="false"/>
-        <property key="periphADC1.minTacq" value=""/>
+        <property key="periphADC1.minTacq" value="5"/>
         <property key="periphADC1.tacqunits" value="microseconds"/>
         <property key="periphADC2.altscl" value="false"/>
         <property key="periphADC2.minTacq" value=""/>
@@ -566,7 +568,7 @@
         <property key="debugoptions.debug-startup" value="Use system settings"/>
         <property key="debugoptions.reset-behaviour" value="Use system settings"/>
         <property key="debugoptions.simultaneous.debug" value="false"/>
-        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="debugoptions.useswbreakpoints" value="true"/>
         <property key="event.recorder.debugger.behavior" value="Running"/>
         <property key="event.recorder.enabled" value="false"/>
         <property key="event.recorder.scvd.files" value=""/>
@@ -592,7 +594,7 @@
         <property key="oscillator.rcfrequency" value="250"/>
         <property key="oscillator.rcfrequencyunit" value="Kilo"/>
         <property key="periphADC1.altscl" value="false"/>
-        <property key="periphADC1.minTacq" value=""/>
+        <property key="periphADC1.minTacq" value="5"/>
         <property key="periphADC1.tacqunits" value="microseconds"/>
         <property key="periphADC2.altscl" value="false"/>
         <property key="periphADC2.minTacq" value=""/>
@@ -603,6 +605,8 @@
         <property key="periphComp4.gte" value="gt"/>
         <property key="periphComp5.gte" value="gt"/>
         <property key="periphComp6.gte" value="gt"/>
+        <property key="programmerToGoFilePath"
+                  value="/home/hendrik/Documents/TUKS/EMK310/EMK310-Practicals/Practical_2.X/debug/default/Practical_2_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

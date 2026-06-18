@@ -15,6 +15,7 @@ ISRH:
     bra RB4_do
     inter_calib:
 	bsf rcalib,1,a
+	wait_timer H333ms,L333ms
 	bra Reset_RB4
     RB4_do:
 	tstfsz r_RB4_do,a
@@ -26,12 +27,12 @@ ISRH:
 	    bra Reset_RB4
 	RB4_dump_value:
 	    ;NOTHING DUMPING !
-	    wait_timer H333ms,L333ms
-	    wait_timer H333ms,L333ms
-	    wait_timer H333ms,L333ms
-	    wait_timer H333ms,L333ms
-	    wait_timer H333ms,L333ms
-	    wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
+	    ;wait_timer H333ms,L333ms
 	    incf r_RB4_do,a
 	    
 	    bra Reset_RB4
